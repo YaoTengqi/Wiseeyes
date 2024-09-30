@@ -1,0 +1,885 @@
+/*
+
+Xilinx Vivado v2019.1 (64-bit) [Major: 2019, Minor: 1]
+SW Build: 2552052 on Fri May 24 14:47:09 MDT 2019
+IP Build: 2548770 on Fri May 24 18:01:18 MDT 2019
+
+Process ID (PID): 2781
+License: Customer
+
+Current time: 	Sat Mar 13 11:33:00 CST 2021
+Time zone: 	China Standard Time (Asia/Shanghai)
+
+OS: Ubuntu
+OS Version: 5.4.0-66-generic
+OS Architecture: amd64
+Available processors (cores): 32
+
+Display: :0
+Screen size: 1920x1080
+Screen resolution (DPI): 100
+Available screens: 1
+Available disk space: 777 GB
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	9.0.4 64-bit
+Java home: 	/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4
+Java executable location: 	/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	128 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	listen
+User home directory: /home/listen
+User working directory: /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /tools/Xilinx/Vivado
+HDI_APPROOT: /tools/Xilinx/Vivado/2019.1
+RDI_DATADIR: /tools/Xilinx/Vivado/2019.1/data
+RDI_BINDIR: /tools/Xilinx/Vivado/2019.1/bin
+
+Vivado preferences file location: /home/listen/.Xilinx/Vivado/2019.1/vivado.xml
+Vivado preferences directory: /home/listen/.Xilinx/Vivado/2019.1/
+Vivado layouts directory: /home/listen/.Xilinx/Vivado/2019.1/layouts
+PlanAhead jar file location: 	/tools/Xilinx/Vivado/2019.1/lib/classes/planAhead.jar
+Vivado log file location: 	
+Vivado journal file location: 	
+Engine tmp dir: 	./.Xil/Vivado-2781-Listen414Workstation
+
+Xilinx Environment Variables
+----------------------------
+XILINX: /tools/Xilinx/Vivado/2019.1/ids_lite/ISE
+XILINX_DSP: /tools/Xilinx/Vivado/2019.1/ids_lite/ISE
+XILINX_PLANAHEAD: /tools/Xilinx/Vivado/2019.1
+XILINX_SDK: /tools/Xilinx/SDK/2019.1
+XILINX_VIVADO: /tools/Xilinx/Vivado/2019.1
+XILINX_VIVADO_HLS: /tools/Xilinx/Vivado/2019.1
+
+
+GUI allocated memory:	128 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 962 MB
+
+Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.xpr", 2); // q (O, cl)
+// [GUI Memory]: 81 MB (+82426kb) [00:00:10]
+// [Engine Memory]: 954 MB (+848701kb) [00:00:10]
+// by (cl):  Open Project : addNotify
+// Opening Vivado Project: /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.xpr. Version: Vivado v2019.1 
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.xpr 
+// HMemoryUtils.trashcanNow. Engine heap size: 972 MB. GUI used memory: 47 MB. Current time: 3/13/21, 11:33:02 AM CST
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 98 MB (+13377kb) [00:00:33]
+// [Engine Memory]: 1,089 MB (+91170kb) [00:00:33]
+// [GUI Memory]: 105 MB (+2116kb) [00:00:36]
+// [Engine Memory]: 1,154 MB (+11127kb) [00:00:36]
+// [GUI Memory]: 114 MB (+3919kb) [00:00:36]
+// [Engine Memory]: 1,221 MB (+9829kb) [00:00:36]
+// WARNING: HEventQueue.dispatchEvent() is taking  5036 ms.
+// Tcl Message: open_project /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/ip_repo/cl_wrapper'. INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2019.1/data/ip'. 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,255 MB. GUI used memory: 65 MB. Current time: 3/13/21, 11:33:26 AM CST
+// Project name: dnn_accl_vivado_prj; location: /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj; part: xczu15eg-ffvb1156-2-i
+// Elapsed time: 27 seconds
+dismissDialog("Open Project"); // by (cl)
+// Tcl Message: open_project: Time (s): cpu = 00:00:18 ; elapsed = 00:00:27 . Memory (MB): peak = 6794.312 ; gain = 275.914 ; free physical = 49801 ; free virtual = 123611 
+// [GUI Memory]: 123 MB (+3468kb) [00:00:39]
+// [Engine Memory]: 1,382 MB (+104658kb) [00:00:40]
+// Tcl Message: update_compile_order -fileset sources_1 
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, IP Integrator, Open Block Design]", 7, false); // u (O, cl)
+// Run Command: PAResourceCommand.PACommandNames_OPEN_BLOCK_DESIGN
+// by (cl):  Open Block Design : addNotify
+// TclEventType: LOAD_FEATURE
+// Tcl Message: open_bd_design {/home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/dnn_accl_15eg.bd} 
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: LOAD_FEATURE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// Tcl Message: Adding component instance block -- xilinx.com:ip:smartconnect:1.0 - axi_smc Adding component instance block -- xilinx.com:ip:axi_interconnect:2.1 - ps8_0_axi_periph Adding component instance block -- xilinx.com:ip:axi_crossbar:2.1 - xbar 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// Tcl Message: Adding component instance block -- xilinx.com:ip:axi_dwidth_converter:2.1 - auto_ds Adding component instance block -- xilinx.com:ip:axi_protocol_converter:2.1 - auto_pc Adding component instance block -- xilinx.com:ip:axi_dwidth_converter:2.1 - auto_ds Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_ps8_0_99M Adding component instance block -- xilinx.com:ip:zynq_ultra_ps_e:3.3 - zynq_ultra_ps_e_0 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_OPEN_DIAGRAM
+// TclEventType: RSB_CONNECTION_CHANGE
+// Tcl Message: Adding component instance block -- user.org:user:cl_wrapper:1.0 - cl_wrapper_0 Successfully read diagram <dnn_accl_15eg> from BD file </home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/dnn_accl_15eg.bd> 
+closeView(PAResourceOtoP.PAViews_PROJECT_SUMMARY, "Project Summary"); // v
+// TclEventType: RSB_CONNECTION_CHANGE
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// 'bB' command handler elapsed time: 5 seconds
+dismissDialog("Open Block Design"); // by (cl)
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_RSB_BLOC
+// O (cl):  Re-customize IP : addNotify
+// Tcl Message: INFO: [PSU-2]  DP_AUDIO clock source: RPLL is also being used by other peripheral clocks. Their outputs may get impacted if any driver changes DP_AUDIO PLL source to support runtime audio change  
+// r (cl): Re-customize IP: addNotify
+// [GUI Memory]: 151 MB (+22965kb) [00:00:57]
+// WARNING: HEventQueue.dispatchEvent() is taking  1874 ms.
+// Tcl Message: INFO: [PSU-2]  DP_AUDIO clock source: RPLL is also being used by other peripheral clocks. Their outputs may get impacted if any driver changes DP_AUDIO PLL source to support runtime audio change  
+// HMemoryUtils.trashcanNow. Engine heap size: 1,420 MB. GUI used memory: 100 MB. Current time: 3/13/21, 11:33:47 AM CST
+// Elapsed time: 10 seconds
+dismissDialog("Re-customize IP"); // O (cl)
+selectButton("I/O Configuration", "I/O Configuration"); // k (R, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "Low Speed ; Low Speed ; Low Speed ; Low Speed ; Low Speed ; Low Speed ; Low Speed ; Low Speed ; Low Speed", 0); // ar (O, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "I/O Peripherals ; I/O Peripherals ; I/O Peripherals ; I/O Peripherals ; I/O Peripherals ; I/O Peripherals ; I/O Peripherals ; I/O Peripherals ; I/O Peripherals", 2); // ar (O, r)
+selectTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN", 3, "CAN", 0, true); // ar (O, r) - Node
+selectTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN", 3, "CAN", 0, true, false, false, false, false, true); // ar (O, r) - Double Click - Node
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN ; CAN", 3); // ar (O, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "High Speed ; High Speed ; High Speed ; High Speed ; High Speed ; High Speed ; High Speed ; High Speed ; High Speed", 14); // ar (O, r)
+selectTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "GEM ; GEM ; GEM ; GEM ; GEM ; GEM ; GEM ; GEM ; GEM", 15, "GEM", 0, true); // ar (O, r) - Node
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "GEM ; GEM ; GEM ; GEM ; GEM ; GEM ; GEM ; GEM ; GEM", 15); // ar (O, r)
+// [GUI Memory]: 160 MB (+1571kb) [00:01:15]
+// HMemoryUtils.trashcanNow. Engine heap size: 1,473 MB. GUI used memory: 105 MB. Current time: 3/13/21, 11:34:07 AM CST
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "USB ; USB ; USB ; USB ; USB ; USB ; USB ; USB ; USB", 21); // ar (O, r)
+// Elapsed time: 12 seconds
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "Reference Clocks ; Reference Clocks ; Reference Clocks ; Reference Clocks ; Reference Clocks ; Reference Clocks ; Reference Clocks ; Reference Clocks ; Reference Clocks", 28); // ar (O, r)
+selectButton("PS UltraScale+ Block Design", "PS UltraScale+ Block Design"); // k (R, r)
+selectButton("I/O Configuration", "I/O Configuration"); // k (R, r)
+selectTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces", 1, "Memory Interfaces", 0, true); // ar (O, r) - Node
+selectTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces", 1, "Memory Interfaces", 0, true, false, false, false, false, true); // ar (O, r) - Double Click - Node
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces ; Memory Interfaces", 1); // ar (O, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "GPIO ; GPIO ; GPIO ; GPIO ; GPIO ; GPIO ; GPIO ; GPIO ; GPIO", 15); // ar (O, r)
+// [Engine Memory]: 1,474 MB (+24900kb) [00:01:52]
+// Elapsed time: 33 seconds
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_MIO_TREE, "GEM 3 ; MIO 64 .. 75 ;  ;  ;  ;  ;  ;  ; ", 26); // ar (O, r)
+// Elapsed time: 78 seconds
+dismissDialog("Re-customize IP"); // r (cl)
+// HMemoryUtils.trashcanNow. Engine heap size: 1,475 MB. GUI used memory: 102 MB. Current time: 3/13/21, 12:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,475 MB. GUI used memory: 96 MB. Current time: 3/13/21, 12:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,475 MB. GUI used memory: 96 MB. Current time: 3/13/21, 1:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,475 MB. GUI used memory: 96 MB. Current time: 3/13/21, 1:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,475 MB. GUI used memory: 96 MB. Current time: 3/13/21, 2:04:07 PM CST
+// Elapsed time: 9325 seconds
+selectMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // Z (q, cl)
+selectMenu(PAResourceItoN.MainMenuMgr_PROJECT, "Project"); // ae (cl)
+selectMenu(PAResourceItoN.MainMenuMgr_CHECKPOINT, "Checkpoint"); // ae (cl)
+selectMenu(PAResourceItoN.MainMenuMgr_IP, "IP"); // ae (cl)
+selectMenu(PAResourceItoN.MainMenuMgr_TEXT_EDITOR, "Text Editor"); // ae (cl)
+selectMenuItem(PAResourceCommand.PACommandNames_LAUNCH_HARDWARE, "Launch SDK"); // ah (cl)
+dismissMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // Z (q, cl)
+// Run Command: PAResourceCommand.PACommandNames_LAUNCH_HARDWARE
+// aa (cl): Launch SDK: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (aa)
+// 'o' command handler elapsed time: 5 seconds
+selectButton("OptionPane.button", "Yes"); // JButton (A, H)
+dismissDialog("Launch SDK"); // aa (cl)
+// Tcl Message: launch_sdk -workspace /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.sdk -hwspec /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.sdk/dnn_accl_15eg_wrapper.hdf 
+// Tcl Message: INFO: [Vivado 12-393] Launching SDK... INFO: [Vivado 12-417] Running xsdk -workspace /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.sdk -hwspec /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.sdk/dnn_accl_15eg_wrapper.hdf INFO: [Vivado 12-3157] SDK launch initiated. Please check console for any further messages. 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,476 MB. GUI used memory: 96 MB. Current time: 3/13/21, 2:34:07 PM CST
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 97 MB. Current time: 3/13/21, 3:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 3:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 4:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 4:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 5:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 5:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 6:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 6:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 7:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 7:34:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 8:04:07 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 8:34:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 9:04:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 9:34:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 10:04:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 10:34:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 11:04:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/13/21, 11:34:08 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 12:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 12:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 1:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 1:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 2:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 2:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 3:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 3:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 4:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 4:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 5:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 5:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 97 MB. Current time: 3/14/21, 6:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 6:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 97 MB. Current time: 3/14/21, 7:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 7:34:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 8:04:08 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 8:34:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 97 MB. Current time: 3/14/21, 9:04:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 9:34:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 10:04:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 10:34:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 11:04:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,477 MB. GUI used memory: 96 MB. Current time: 3/14/21, 11:34:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 11:50:34 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 97 MB. Current time: 3/14/21, 12:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 12:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 1:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 1:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 2:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 2:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 3:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 3:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 4:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 4:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 5:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 5:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 6:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 6:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 7:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 7:50:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 8:20:34 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 8:50:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 9:20:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 9:50:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 10:20:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 10:50:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 11:20:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/14/21, 11:50:35 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 12:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 12:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 1:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 1:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 2:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 2:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 3:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 3:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 4:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 4:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 5:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 5:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 6:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 6:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 7:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 7:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 8:20:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 8:50:35 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 9:20:36 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 9:50:36 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 10:20:36 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,493 MB. GUI used memory: 96 MB. Current time: 3/15/21, 10:50:36 AM CST
+// Elapsed time: 162349 seconds
+selectButton(PAResourceOtoP.PlanAheadTab_REFRESH_IP_CATALOG, "Refresh IP Catalog"); // h (cS, cl)
+// TclEventType: CREATE_IP_CATALOG
+// TclEventType: IP_LOCK_CHANGE
+// TclEventType: BDCELL_LOCK_CHANGE
+// TclEventType: CREATE_IP_CATALOG
+// Tcl Message: update_ip_catalog -rebuild -scan_changes 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/ip_repo/cl_wrapper'. 
+// TclEventType: IP_SUMMARY_RESULTS
+// Tcl Message: report_ip_status -name ip_status 
+// by (cl):  Refresh IP Catalog : addNotify
+dismissDialog("Refresh IP Catalog"); // by (cl)
+selectButton(PAResourceQtoS.SystemTab_SHOW_IP_STATUS, "Show IP Status"); // h (cS, cl)
+selectButton(PAResourceItoN.IPStatusSectionPanel_UPGRADE_SELECTED, "Upgrade Selected"); // a (g, cl)
+// Run Command: PAResourceCommand.PACommandNames_UPGRADE_IP
+// TclEventType: RSB_OPEN_DIAGRAM
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// by (cl):  Upgrade IP : addNotify
+// Tcl Message: upgrade_ip -vlnv user.org:user:cl_wrapper:1.0 [get_ips  dnn_accl_15eg_cl_wrapper_0_1] -log ip_upgrade.log 
+// Tcl Message: Upgrading '/home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/dnn_accl_15eg.bd' 
+// Tcl Message: INFO: [IP_Flow 19-3420] Updated dnn_accl_15eg_cl_wrapper_0_1 to use current project options 
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILESET_UPDATE_IP
+// TclEventType: IP_UPGRADE_COMPLETE
+// Tcl Message: Wrote  : </home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/dnn_accl_15eg.bd>  Wrote  : </home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/ui/bd_ba19541f.ui>  
+// Tcl Message: INFO: [Coretcl 2-1525] Wrote upgrade log to '/home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/ip_upgrade.log'. 
+// Tcl Message: export_ip_user_files -of_objects [get_ips dnn_accl_15eg_cl_wrapper_0_1] -no_script -sync -force -quiet 
+// aI (cl): Generate Output Products: addNotify
+selectButton("OptionPane.button", "OK"); // JButton (A, G)
+selectButton(PAResourceQtoS.SimpleOutputProductDialog_CLOSE_DIALOG_UNSAVED_CHANGES_WILL, "Skip"); // a (aI)
+dismissDialog("Generate Output Products"); // aI (cl)
+selectButton(RDIResource.BaseReportTab_RERUN, "Rerun"); // h (cS, cl)
+// Tcl Command: 'report_ip_status -name ip_status '
+// TclEventType: IP_SUMMARY_RESULTS
+// Tcl Message: report_ip_status -name ip_status  
+// HMemoryUtils.trashcanNow. Engine heap size: 1,536 MB. GUI used memory: 92 MB. Current time: 3/15/21, 11:18:06 AM CST
+selectButton(PAResourceCommand.PACommandNames_REGENERATE_LAYOUT, "System_regenerate_rsb_layout"); // B (f, cl)
+// Run Command: PAResourceCommand.PACommandNames_REGENERATE_LAYOUT
+// Tcl Command: 'regenerate_bd_layout'
+// TclEventType: RSB_LAYOUT_STATE
+// TclEventType: RSB_REGENERATE_LAYOUT
+// Tcl Message: regenerate_bd_layout 
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_RSB_BLOC
+// r (cl): Re-customize IP: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (r)
+dismissDialog("Re-customize IP"); // r (cl)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // u (O, cl)
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// al (cl): Save Project: addNotify
+selectButton(PAResourceQtoS.SaveProjectUtils_SAVE, "Save"); // a (al)
+// by (cl):  Save Constraints : addNotify
+// TclEventType: RSB_SAVE_DIAGRAM
+dismissDialog("Save Project"); // al (cl)
+// Tcl Message: save_bd_design 
+// Tcl Message: Wrote  : </home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/ui/bd_ba19541f.ui>  
+// by (cl):  Resetting Runs : addNotify
+dismissDialog("Save Constraints"); // by (cl)
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run dnn_accl_15eg_xbar_0_synth_1 
+dismissDialog("Resetting Runs"); // by (cl)
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: RUN_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// by (cl):  Generate Bitstream : addNotify
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RUN_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: launch_runs impl_1 -to_step write_bitstream -jobs 8 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_CLOSE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// Tcl Message: Wrote  : </home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/dnn_accl_15eg.bd>  
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: RSB_SCRIPT_TASK
+// [Engine Memory]: 1,596 MB (+50490kb) [47:45:38]
+// Tcl Message: VHDL Output written to : /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/synth/dnn_accl_15eg.v VHDL Output written to : /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/sim/dnn_accl_15eg.v VHDL Output written to : /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/hdl/dnn_accl_15eg_wrapper.v 
+// TclEventType: FILE_SET_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,724 MB. GUI used memory: 91 MB. Current time: 3/15/21, 11:18:31 AM CST
+// TclEventType: FILE_SET_CHANGE
+// [Engine Memory]: 1,750 MB (+77854kb) [47:45:43]
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: Exporting to file /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/ip/dnn_accl_15eg_axi_smc_0/bd_0/hw_handoff/dnn_accl_15eg_axi_smc_0.hwh Generated Block Design Tcl file /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/ip/dnn_accl_15eg_axi_smc_0/bd_0/hw_handoff/dnn_accl_15eg_axi_smc_0_bd.tcl Generated Hardware Definition File /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/ip/dnn_accl_15eg_axi_smc_0/bd_0/synth/dnn_accl_15eg_axi_smc_0.hwdef 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_smc . INFO: [BD 41-1029] Generation completed for the IP Integrator block ps8_0_axi_periph/xbar . INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_ps8_0_99M . INFO: [BD 41-1029] Generation completed for the IP Integrator block zynq_ultra_ps_e_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block cl_wrapper_0 . 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block ps8_0_axi_periph/m00_couplers/auto_ds . 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block ps8_0_axi_periph/m00_couplers/auto_pc . 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block ps8_0_axi_periph/m01_couplers/auto_ds . 
+// Tcl Message: Exporting to file /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/hw_handoff/dnn_accl_15eg.hwh Generated Block Design Tcl file /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/hw_handoff/dnn_accl_15eg_bd.tcl Generated Hardware Definition File /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/synth/dnn_accl_15eg.hwdef 
+// Elapsed time: 18 seconds
+selectButton(RDIResource.ProgressDialog_BACKGROUND, "Background"); // a (by)
+// [Engine Memory]: 1,973 MB (+141939kb) [47:45:46]
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Address Editor", 1); // k (j, cl)
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJ_DESIGN_MODE_SET
+// Tcl Message: INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP dnn_accl_15eg_auto_ds_0, cache-ID = a547b713f28acbaa; cache size = 174.676 MB. INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP dnn_accl_15eg_auto_pc_0, cache-ID = 2115bbbed68c8ee5; cache size = 174.676 MB. INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP dnn_accl_15eg_auto_ds_1, cache-ID = a547b713f28acbaa; cache size = 174.676 MB. INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP dnn_accl_15eg_cl_wrapper_0_1, cache-ID = d79b4bc3631bcf44; cache size = 174.676 MB. 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// Tcl Message: [Mon Mar 15 11:18:39 2021] Launched dnn_accl_15eg_xbar_0_synth_1, synth_1... Run output will be captured here: dnn_accl_15eg_xbar_0_synth_1: /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.runs/dnn_accl_15eg_xbar_0_synth_1/runme.log synth_1: /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.runs/synth_1/runme.log [Mon Mar 15 11:18:39 2021] Launched impl_1... Run output will be captured here: /home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.runs/impl_1/runme.log 
+// Tcl Message: launch_runs: Time (s): cpu = 00:00:25 ; elapsed = 00:00:22 . Memory (MB): peak = 7662.246 ; gain = 374.879 ; free physical = 51968 ; free virtual = 123408 
+dismissDialog("Generate Bitstream"); // by (cl)
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// Elapsed time: 26 seconds
+selectTreeTable(PAResourceAtoD.AddressTreeTablePanel_ADDRESS_TREE_TABLE, "cl_wrapper_0 ; pci_cl_ctrl ; reg0 ; 0x04_0000_0000 ; 4G ; 0x04_FFFF_FFFF", 2, "0x04_0000_0000", 3, false); // g (O, cl)
+selectTreeTable(PAResourceAtoD.AddressTreeTablePanel_ADDRESS_TREE_TABLE, "cl_wrapper_0 ;  ;  ;  ;  ; ", 4, "cl_wrapper_0", 0, true); // g (O, cl) - Node
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// [GUI Memory]: 171 MB (+2733kb) [48:15:25]
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 103 MB. Current time: 3/15/21, 11:48:31 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 12:18:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 12:48:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 1:18:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 1:48:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 2:18:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 2:48:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 3:18:31 PM CST
+// Elapsed time: 16098 seconds
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "System", 0); // k (j, cl)
+// HMemoryUtils.trashcanNow. Engine heap size: 1,975 MB. GUI used memory: 102 MB. Current time: 3/15/21, 3:48:31 PM CST
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_RSB_BLOC
+// O (cl):  Re-customize IP : addNotify
+// r (cl): Re-customize IP: addNotify
+// WARNING: HEventQueue.dispatchEvent() is taking  1278 ms.
+// Tcl Message: INFO: [PSU-2]  DP_AUDIO clock source: RPLL is also being used by other peripheral clocks. Their outputs may get impacted if any driver changes DP_AUDIO PLL source to support runtime audio change  
+// Elapsed time: 210 seconds
+dismissDialog("Re-customize IP"); // O (cl)
+// [GUI Memory]: 181 MB (+1963kb) [52:18:26]
+// Elapsed time: 135 seconds
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a (r)
+dismissDialog("Re-customize IP"); // r (cl)
+setText("PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE_SEARCH_FIELD", "gpio"); // OverlayTextField (aF, ResizableWindow)
+applyEnter(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L (O, ResizableWindow)
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: RSB_ADD_OBJECT
+// Tcl Message: startgroup 
+// Tcl Message: create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 
+// Tcl Message: endgroup 
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_RSB_BLOC
+// r (cl): Re-customize IP: addNotify
+// HMemoryUtils.trashcanNow. Engine heap size: 2,021 MB. GUI used memory: 132 MB. Current time: 3/15/21, 3:53:21 PM CST
+// Elapsed time: 14 seconds
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a (r)
+dismissDialog("Re-customize IP"); // r (cl)
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_RSB_BLOC
+// O (cl):  Re-customize IP : addNotify
+// r (cl): Re-customize IP: addNotify
+// WARNING: HEventQueue.dispatchEvent() is taking  1131 ms.
+// Tcl Message: INFO: [PSU-2]  DP_AUDIO clock source: RPLL is also being used by other peripheral clocks. Their outputs may get impacted if any driver changes DP_AUDIO PLL source to support runtime audio change  
+// Elapsed time: 44 seconds
+dismissDialog("Re-customize IP"); // O (cl)
+selectButton("DDR Configuration", "DDR Configuration"); // k (R, r)
+selectButton("PS-PL Configuration", "PS-PL Configuration"); // k (R, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "General ; General", 0); // ar (O, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "PS-PL Interfaces ; PS-PL Interfaces", 5); // ar (O, r)
+// [GUI Memory]: 203 MB (+14001kb) [52:21:31]
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "Master Interface ; Master Interface", 6); // ar (O, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "Slave Interface ; Slave Interface", 10); // ar (O, r)
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "AXI HP ; AXI HP", 11); // ar (O, r)
+// HMemoryUtils.trashcanNow. Engine heap size: 2,077 MB. GUI used memory: 164 MB. Current time: 3/15/21, 3:54:26 PM CST
+expandTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "AXI HPM0 FPD ; PSU USE M AXI GP0", 7); // ar (O, r)
+selectTreeTable(PAResourceOtoP.PSSTreeTablePanelBuilder_GENERAL_TREE, "AXI HPM0 FPD Data Width ; 128", 8, "128", 1, false); // ar (O, r)
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a (r)
+// [Engine Memory]: 2,077 MB (+5230kb) [52:21:41]
+dismissDialog("Re-customize IP"); // r (cl)
+// [GUI Memory]: 222 MB (+8741kb) [52:21:45]
+// Run Command: RDIResourceCommand.RDICommands_DELETE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// Tcl Message: delete_bd_objs [get_bd_cells axi_gpio_0] 
+// [Engine Memory]: 2,189 MB (+8785kb) [52:21:47]
+selectButton(PAResourceCommand.PACommandNames_REGENERATE_LAYOUT, "System_regenerate_rsb_layout"); // B (f, cl)
+// Run Command: PAResourceCommand.PACommandNames_REGENERATE_LAYOUT
+// Tcl Command: 'regenerate_bd_layout'
+// TclEventType: RSB_LAYOUT_STATE
+// TclEventType: RSB_REGENERATE_LAYOUT
+// Tcl Message: regenerate_bd_layout 
+selectButton(PAResourceCommand.PACommandNames_REGENERATE_LAYOUT, "System_regenerate_rsb_layout"); // B (f, cl)
+// Run Command: PAResourceCommand.PACommandNames_REGENERATE_LAYOUT
+// Tcl Command: 'regenerate_bd_layout'
+// TclEventType: RSB_LAYOUT_STATE
+// TclEventType: RSB_REGENERATE_LAYOUT
+// Tcl Message: regenerate_bd_layout 
+// Run Command: PAResourceCommand.PACommandNames_SAVE_RSB_DESIGN
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// Tcl Message: save_bd_design 
+// Tcl Message: Wrote  : </home/listen/Workspace/DNNAccelerator/DNNAccel/vivado/vivado_prj/dnn_accl_vivado_prj/dnn_accl_vivado_prj.srcs/sources_1/bd/dnn_accl_15eg/dnn_accl_15eg.bd>  
