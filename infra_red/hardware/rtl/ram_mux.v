@@ -69,44 +69,128 @@ module ram_mux #(
   input wire clk,
   input wire reset,
 // add for 8bit/16bit ibuf
-  input wire [ 14       -1 : 0 ]        tag_mem_write_addr_ibuf,
-  input wire mem_write_req_in_ibuf,
-  input wire  [256  -1 : 0]                                mem_write_data_in_ibuf,
-  input wire [ 13       -1 : 0 ]        tag_buf_read_addr_ibuf,
-  input  wire                                         buf_read_req_ibuf,
-  output wire [ 512       -1 : 0 ]        _buf_read_data_ibuf,
+  input wire [ 14       -1 : 0 ]        ibuf_tag_mem_write_addr,
+  input wire ibuf_mem_write_req_in,
+  input wire  [256  -1 : 0]                                ibuf_mem_write_data_in,
+  input wire [ 13       -1 : 0 ]        ibuf_tag_buf_read_addr,
+  input  wire                                         ibuf_buf_read_req,
+  output wire [ 512       -1 : 0 ]        ibuf__buf_read_data,
 
     // add for 8bit/16bit bbuf
-    input wire [ 11       -1 : 0 ]        tag_mem_write_addr_bbuf,
-    input wire                                        mem_write_req_bbuf,
-    input wire [ 256       -1 : 0 ]        mem_write_data_bbuf,
-    input wire [ 9       -1 : 0 ]        tag_buf_read_addr_bbuf,
-    input  wire                                         buf_read_req_bbuf,
-    output wire [ 1024       -1 : 0 ]        _buf_read_data_bbuf,
+    input wire [ 11       -1 : 0 ]       bbuf_tag_mem_write_addr,
+    input wire                                        bbuf_mem_write_req,
+    input wire [ 256       -1 : 0 ]        bbuf_mem_write_data,
+    input wire [ 9       -1 : 0 ]        bbuf_tag_buf_read_addr,
+    input  wire                                         bbuf_buf_read_req,
+    output wire [ 1024       -1 : 0 ]        bbuf__buf_read_data,
 
    // add for 8bit/16bit wbuf
-   input wire [ 12       -1 : 0 ]        tag_mem_write_addr_wbuf,
-   input wire                                        mem_write_req_dly_wbuf,
-   input wire [ 256       -1 : 0 ]        _mem_write_data_wbuf,
-   input wire [ 11       -1 : 0 ]        tag_buf_read_addr_wbuf,
-   input  wire                                         buf_read_req_wbuf,
-   output wire  [ 512       -1 : 0 ]        _buf_read_data_wbuf,
+   input wire [ 12       -1 : 0 ]        wbuf_tag_mem_write_addr,
+   input wire                                        wbuf_mem_write_req_dly,
+   input wire [ 256       -1 : 0 ]        wbuf__mem_write_data,
+   input wire [ 11       -1 : 0 ]        wbuf_tag_buf_read_addr,
+   input  wire                                         wbuf_buf_read_req,
+   output wire  [ 512       -1 : 0 ]        wbuf__buf_read_data,
 
    // add for 8bit/16bit obuf
-    input wire [ 15       -1 : 0 ]        tag_mem_write_addr_obuf,
-    input wire                                        mem_write_req_obuf,
-    input wire [ 256       -1 : 0 ]        mem_write_data_obuf,
-    input wire [ 15       -1 : 0 ]        tag_mem_read_addr_obuf,
-    input wire                                        mem_read_req_obuf,
-    output wire [ 256       -1 : 0 ]        mem_read_data_obuf,
-    output wire [ 2048       -1 : 0 ]        pu_read_data_obuf,
-    input wire [ 12       -1 : 0 ]        tag_buf_write_addr_obuf,
-    input wire   buf_write_req_obuf,
-    input wire  [ 2048       -1 : 0 ]        buf_write_data_obuf,
-    input wire [ 12       -1 : 0 ]        tag_buf_read_addr_obuf,
-    input  wire                                         buf_read_req_obuf,
-    output wire [ 2048       -1 : 0 ]        _buf_read_data_obuf
+    input wire [ 15       -1 : 0 ]        obuf_tag_mem_write_addr,
+    input wire                                        obuf_mem_write_req,
+    input wire [ 256       -1 : 0 ]        obuf_mem_write_data,
+    input wire [ 15       -1 : 0 ]        obuf_tag_mem_read_addr,
+    input wire                                        obuf_mem_read_req,
+    output wire [ 256       -1 : 0 ]        obuf_mem_read_data,
+    output wire [ 2048       -1 : 0 ]        obuf_pu_read_data,
+    input wire [ 12       -1 : 0 ]        obuf_tag_buf_write_addr,
+    input wire   obuf_buf_write_req,
+    input wire  [ 2048       -1 : 0 ]        obuf_buf_write_data,
+    input wire [ 12       -1 : 0 ]        obuf_tag_buf_read_addr,
+    input  wire                                         obuf_buf_read_req,
+    output wire [ 2048       -1 : 0 ]        obuf__buf_read_data,
+
+    input wire choose_mux_in
 );
+
+
+  // choose for 8bit/16bit ibuf
+  wire [ 14       -1 : 0 ]        choosed_ibuf_tag_mem_write_addr;
+  wire choosed_ibuf_mem_write_req_in;
+  wire  [256  -1 : 0]                                choosed_ibuf_mem_write_data_in;
+  wire [ 13       -1 : 0 ]        choosed_ibuf_tag_buf_read_addr;
+  wire                                        choosed_ibuf_buf_read_req;
+  wire [ 512       -1 : 0 ]        choosed_ibuf__buf_read_data;
+
+    // choose for 8bit/16bit bbuf
+  wire [ 11       -1 : 0 ]       choosed_bbuf_tag_mem_write_addr;
+  wire                                        choosed_bbuf_mem_write_req;
+  wire [ 256       -1 : 0 ]        choosed_bbuf_mem_write_data;
+  wire [ 9       -1 : 0 ]        choosed_bbuf_tag_buf_read_addr;
+  wire                                         choosed_bbuf_buf_read_req;
+  wire [ 1024       -1 : 0 ]        choosed_bbuf__buf_read_data;
+
+   // choose for 8bit/16bit wbuf
+  wire [ 12       -1 : 0 ]        choosed_wbuf_tag_mem_write_addr;
+  wire                                        choosed_wbuf_mem_write_req_dly;
+  wire [ 256       -1 : 0 ]        choosed_wbuf__mem_write_data;
+  wire [ 11       -1 : 0 ]        choosed_wbuf_tag_buf_read_addr;
+  wire                                         choosed_wbuf_buf_read_req;
+  wire  [ 512       -1 : 0 ]        choosed_wbuf__buf_read_data;
+
+   // choose for 8bit/16bit obuf
+  wire [ 15       -1 : 0 ]        choosed_obuf_tag_mem_write_addr;
+  wire                                        choosed_obuf_mem_write_req;
+  wire [ 256       -1 : 0 ]        choosed_obuf_mem_write_data;
+  wire [ 15       -1 : 0 ]        choosed_obuf_tag_mem_read_addr;
+  wire                                        choosed_obuf_mem_read_req;
+  wire [ 256       -1 : 0 ]        choosed_obuf_mem_read_data;
+  wire [ 2048       -1 : 0 ]        choosed_obuf_pu_read_data;
+  wire [ 12       -1 : 0 ]        choosed_obuf_tag_buf_write_addr;
+  wire   choosed_obuf_buf_write_req;
+  wire  [ 2048       -1 : 0 ]        choosed_obuf_buf_write_data;
+  wire [ 12       -1 : 0 ]        choosed_obuf_tag_buf_read_addr;
+  wire                                         choosed_obuf_buf_read_req;
+  wire [ 2048       -1 : 0 ]        choosed_obuf__buf_read_data;
+
+  if(choose_mux_in) begin  
+  // choose for 8bit/16bit ibuf
+  assign choosed_ibuf_tag_mem_write_addr = ibuf_tag_mem_write_addr;
+  assign choosed_ibuf_mem_write_req_in = ibuf_mem_write_req_in;
+  assign choosed_ibuf_mem_write_data_in = ibuf_mem_write_data_in;
+  assign choosed_ibuf_tag_buf_read_addr = ibuf_tag_buf_read_addr;
+  assign choosed_ibuf_buf_read_req = ibuf_buf_read_req;
+  assign choosed_ibuf__buf_read_data = ibuf__buf_read_data;
+
+    // choose for 8bit/16bit bbuf
+  assign choosed_bbuf_tag_mem_write_addr = bbuf_tag_mem_write_addr;
+  assign choosed_bbuf_mem_write_req = bbuf_mem_write_req;
+  assign choosed_bbuf_mem_write_data = bbuf_mem_write_data;
+  assign choosed_bbuf_tag_buf_read_addr = bbuf_tag_buf_read_addr;
+  assign choosed_bbuf_buf_read_req = bbuf_buf_read_req;
+  assign choosed_bbuf__buf_read_data = bbuf__buf_read_data;
+
+   // choose for 8bit/16bit wbuf
+  assign choosed_wbuf_tag_mem_write_addr = wbuf_tag_mem_write_addr;
+  assign choosed_wbuf_mem_write_req_dly = wbuf_mem_write_req_dly;
+  assign choosed_wbuf__mem_write_data = wbuf__mem_write_data;
+  assign choosed_wbuf_tag_buf_read_addr = wbuf_tag_buf_read_addr;
+  assign choosed_wbuf_buf_read_req = wbuf_buf_read_req;
+  assign choosed_wbuf__buf_read_data = wbuf__buf_read_data;
+
+   // choose for 8bit/16bit obuf
+  assign choosed_obuf_tag_mem_write_addr = obuf_tag_mem_write_addr;
+  assign choosed_obuf_mem_write_req = obuf_mem_write_req;
+  assign choosed_obuf_mem_write_data = obuf_mem_write_data;
+  assign choosed_obuf_tag_mem_read_addr = obuf_tag_mem_read_addr;
+  assign choosed_obuf_mem_read_req = obuf_mem_read_req;
+  assign choosed_obuf_mem_read_data = obuf_mem_read_data;
+  assign choosed_obuf_pu_read_data = obuf_pu_read_data;
+  assign choosed_obuf_tag_buf_write_addr= obuf_tag_buf_write_addr;
+  assign choosed_obuf_buf_write_req = obuf_buf_write_req;
+  assign choosed_obuf_buf_write_data = obuf_buf_write_data;
+  assign choosed_obuf_tag_buf_read_addr = obuf_tag_buf_read_addr;
+  assign choosed_obuf_buf_read_req = obuf_buf_read_req;
+  assign choosed_obuf__buf_read_data = obuf__buf_read_data;
+  end else begin
+  end
 
 ibuf #( 
     .TAG_W                          ( TAG_W                          ),
@@ -117,12 +201,12 @@ ibuf #(
     ) ibuf_ram (
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr_ibuf             ),
-    .mem_write_req                  ( mem_write_req_in_ibuf                  ),
-    .mem_write_data                 ( mem_write_data_in_ibuf                ),//edit by pxq 0816
-    .buf_read_addr                  ( tag_buf_read_addr_ibuf              ),
-    .buf_read_req                   ( buf_read_req_ibuf                   ),
-    .buf_read_data                  ( _buf_read_data_ibuf                 )
+    .mem_write_addr                 ( choosed_ibuf_tag_mem_write_addr             ),
+    .mem_write_req                  ( choosed_ibuf_mem_write_req_in                  ),
+    .mem_write_data                 ( choosed_ibuf_mem_write_data_in                ),//edit by pxq 0816
+    .buf_read_addr                  ( choosed_ibuf_tag_buf_read_addr              ),
+    .buf_read_req                   ( choosed_ibuf_buf_read_req                   ),
+    .buf_read_data                  ( choosed_ibuf__buf_read_data                 )
 );
 
 bbuf #(
@@ -135,12 +219,12 @@ bbuf #(
 ) bbuf_ram (
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr_bbuf             ),
-    .mem_write_req                  ( mem_write_req_bbuf                  ),
-    .mem_write_data                 ( mem_write_data_bbuf            ),
-    .buf_read_addr                  ( tag_buf_read_addr_bbuf              ),
-    .buf_read_req                   ( buf_read_req_bbuf                   ),
-    .buf_read_data                  ( _buf_read_data_bbuf                 )
+    .mem_write_addr                 ( choosed_bbuf_tag_mem_write_addr             ),
+    .mem_write_req                  ( choosed_bbuf_mem_write_req                  ),
+    .mem_write_data                 ( choosed_bbuf_mem_write_data            ),
+    .buf_read_addr                  ( choosed_bbuf_tag_buf_read_addr              ),
+    .buf_read_req                   ( choosed_bbuf_buf_read_req                   ),
+    .buf_read_data                  ( choosed_wbuf__buf_read_data                 )
 );
 
 wbuf #(
@@ -153,11 +237,11 @@ wbuf #(
 ) wbuf_ram (
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr_wbuf             ),
-    .mem_write_req                  ( mem_write_req_dly_wbuf              ),//edit by sy 0820
-    .mem_write_data                 ( _mem_write_data_wbuf                ),//edit by sy 0820
-    .buf_read_addr                  ( tag_buf_read_addr_wbuf              ),
-    .buf_read_req                   ( buf_read_req_wbuf                   ),
+    .mem_write_addr                 ( choosed_wbuf_tag_mem_write_addr             ),
+    .mem_write_req                  ( choosed_wbuf_mem_write_req_dly              ),//edit by sy 0820
+    .mem_write_data                 ( choosed_wbuf__mem_write_data                ),//edit by sy 0820
+    .buf_read_addr                  ( choosed_wbuf_tag_buf_read_addr              ),
+    .buf_read_req                   ( choosed_wbuf_buf_read_req                   ),
     .buf_read_data                  ( _buf_read_data_wbuf                 )
 );
 
@@ -170,20 +254,19 @@ obuf #(
 ) obuf_ram (
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),    
-    .mem_read_req                   ( mem_read_req_obuf                   ),
-    .mem_read_addr                  ( tag_mem_read_addr_obuf              ),
-    .mem_read_data                  ( mem_read_data_obuf                  ),
-    .mem_write_req                  ( mem_write_req_obuf                  ),
-    .mem_write_addr                 ( tag_mem_write_addr_obuf             ),
-    .mem_write_data                 ( mem_write_data_obuf                 ),
-    .pu_read_data                   ( pu_read_data_obuf                   ), //edit yt
+    .mem_read_req                   ( choosed_obuf_mem_read_req                   ),
+    .mem_read_addr                  ( choosed_obuf_tag_mem_read_addr             ),
+    .mem_read_data                  ( choosed_obuf_mem_read_data                  ),
+    .mem_write_req                  ( choosed_obuf_mem_write_req                  ),
+    .mem_write_addr                 ( choosed_obuf_tag_mem_write_addr             ),
+    .mem_write_data                 ( choosed_obuf_mem_write_data                 ),
+    .pu_read_data                   ( choosed_obuf_pu_read_data                   ), //edit yt
     //.obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit yt
-    .buf_write_addr                 ( tag_buf_write_addr_obuf             ),//edit by pxq
-    .buf_write_req                  ( buf_write_req_obuf                  ),//edit by pxq
-    .buf_write_data                 ( buf_write_data_obuf                 ),//edit by pxq
-    .buf_read_addr                  ( tag_buf_read_addr_obuf              ),
-    .buf_read_req                   ( buf_read_req_obuf                   ),
-    .buf_read_data                  ( _buf_read_data_obuf                 )
+    .buf_write_addr                 ( choosed_obuf_tag_buf_write_addr             ),//edit by pxq
+    .buf_write_req                  ( choosed_obuf_buf_write_req                  ),//edit by pxq
+    .buf_write_data                 ( choosed_obuf_buf_write_data                 ),//edit by pxq
+    .buf_read_addr                  ( choosed_obuf_tag_buf_read_addr              ),
+    .buf_read_req                   ( choosed_obuf_buf_read_req                   ),
+    .buf_read_data                  ( choosed_obuf__buf_read_data                 )
   );
-
 endmodule

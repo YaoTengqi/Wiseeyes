@@ -428,8 +428,10 @@ module dnnweaver2_controller #(
     output wire  [ 2048       -1 : 0 ]        buf_write_data_obuf,
     output wire [ 12       -1 : 0 ]        tag_buf_read_addr_obuf,
     output  wire                                         buf_read_req_obuf,
-    input wire [ 2048       -1 : 0 ]        _buf_read_data_obuf
-    
+    input wire [ 2048       -1 : 0 ]        _buf_read_data_obuf,
+
+    // 选择mux传入infra_red or LiDAR数据进入RAM
+    output wire choose_mux_out
   );
 
 //=============================================================
@@ -1101,7 +1103,9 @@ video2ddr_base_gen #(
     //*******************************************************************************
     //add for asr data write 2021-08-13
     .o_dnn_status                   (w_dnn_status                          ),//add for asr data write 2021-08-13
-    .i_frame_data_ready_adnn        (w_frame_data_ready_adnn_asr_audo_in_o ) //add for asr data write 2021-08-13
+    .i_frame_data_ready_adnn        (w_frame_data_ready_adnn_asr_audo_in_o ), //add for asr data write 2021-08-13
+
+    .choose_mux_out (choose_mux_out) // 选择mux传入infra_red or LiDAR数据进入RAM
     //*********************************************************************************
   );
 //=============================================================

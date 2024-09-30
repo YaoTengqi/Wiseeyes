@@ -358,7 +358,8 @@ module cl_wrapper #(
     output wire  [ 2048       -1 : 0 ]        buf_write_data_obuf,
     output wire [ 12       -1 : 0 ]        tag_buf_read_addr_obuf,
     output  wire                                         buf_read_req_obuf,
-    input wire [ 2048       -1 : 0 ]        _buf_read_data_obuf
+    input wire [ 2048       -1 : 0 ]        _buf_read_data_obuf,
+    output wire choose_mux_out     // 选择mux传入infra_red or LiDAR数据进入RAM
 );
 
 //=============================================================
@@ -648,7 +649,8 @@ module cl_wrapper #(
   .buf_write_data_obuf (buf_write_data_obuf),
   .tag_buf_read_addr_obuf (tag_buf_read_addr_obuf),
   .buf_read_req_obuf (buf_read_req_obuf),
-  ._buf_read_data_obuf(_buf_read_data_obuf)
+  ._buf_read_data_obuf(_buf_read_data_obuf),
+  .choose_mux_out (choose_mux_out)
   );
 //=============================================================
 
