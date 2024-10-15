@@ -352,7 +352,7 @@ class FPGAManager(object):
 
         # 给controll/slv_reg1_out写信号，控制choose_8bit对infra_red or LiDAR的数据进行选择送进RAM
         self.fpga_memspace.write('pci_cl_ctrl', 4, 1)
-        self.fpga_memspace.write('pci_cl_ctrl', 4, 0)
+        # self.fpga_memspace.write('pci_cl_ctrl', 4, 0)
 
     def print_fpga_registers(self):
         ibuf_rd_req = self.fpga_memspace.read('pci_cl_ctrl', 16*4)

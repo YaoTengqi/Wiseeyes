@@ -1436,7 +1436,7 @@ video2ddr_base_gen #(
   //  .buf_read_req (buf_read_req_wbuf),
   //  ._buf_read_data (_buf_read_data_wbuf)
     );
-    assign buf_read_req_wbuf = sys_wbuf_read_req;
+    assign wbuf_buf_read_req = sys_wbuf_read_req;
     assign wbuf_read_data = wbuf__buf_read_data ;
 
   obuf_mem_wrapper #(
