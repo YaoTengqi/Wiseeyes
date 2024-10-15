@@ -290,47 +290,42 @@ module cl_wrapper #(
     input  wire                                         cl_ddr4_rlast,
     input  wire                                         cl_ddr4_rvalid,
     output wire                                         cl_ddr4_rready,
-
+    
  // add for 8bit/16bit ibuf
-  output wire [ 14       -1 : 0 ]        ibuf_tag_mem_write_addr,
+  output wire [ 14       -1 : 0 ]        ibuf_mem_write_addr,
   output wire ibuf_mem_write_req,
-  output wire  [256 -1 : 0]                                ibuf_mem_write_data,
-  output wire [ 13       -1 : 0 ]        ibuf_tag_buf_read_addr,
-  output  wire                                         ibuf_buf_read_req,
-  input wire [ 512       -1 : 0 ]        ibuf__buf_read_data,
-
-    // add for 8bit/16bit bbuf
-  output wire [ 11       -1 : 0 ]        bbuf_tag_mem_write_addr,
-  output wire bbuf_mem_write_req,
-  output wire  [256 -1 : 0]                                bbuf_mem_write_data,
-  output wire [ 9       -1 : 0 ]        bbuf_tag_buf_read_addr,
-  output  wire                                         bbuf_buf_read_req,
-  input wire [1024       -1 : 0 ]        bbuf__buf_read_data,
-
+  output wire  [256  -1 : 0]                                ibuf_mem_write_data,
+  output wire [ 13       -1 : 0 ]        ibuf_mem_read_addr,
+  output  wire                                         ibuf_mem_read_req,
+  input wire [ 512       -1 : 0 ]        ibuf_mem_read_data,
+  // add for 8bit/16bit bbuf
+    output wire [ 11       -1 : 0 ]        bbuf_mem_write_addr,
+    output wire                                        bbuf_mem_write_req,
+    output wire [ 256       -1 : 0 ]        bbuf_mem_write_data,
+    output wire [ 9       -1 : 0 ]        bbuf_mem_read_addr,
+    output  wire                                         bbuf_mem_read_req,
+    input wire [ 1024       -1 : 0 ]        bbuf_mem_read_data,
   // add for 8bit/16bit wbuf
-  output wire [ 12       -1 : 0 ]        wbuf_tag_mem_write_addr,
-  output wire wbuf_mem_write_req,
-  output wire  [256 -1 : 0]                                wbuf_mem_write_data,
-  output wire [ 11       -1 : 0 ]        wbuf_tag_buf_read_addr,
-  output  wire                                         wbuf_buf_read_req,
-  input wire [ 512       -1 : 0 ]        wbuf__buf_read_data,
-
-    // add for 8bit/16bit obuf
-    output wire [ 15       -1 : 0 ]        obuf_tag_mem_write_addr,
+   output wire [ 12       -1 : 0 ]        wbuf_mem_write_addr,
+   output wire                                        wbuf_mem_write_req,
+   output wire [ 256       -1 : 0 ]        wbuf_mem_write_data,
+   output wire [ 11       -1 : 0 ]        wbuf_mem_read_addr,
+   output  wire                                         wbuf_mem_read_req,
+   input wire  [ 512       -1 : 0 ]        wbuf_mem_read_data,
+  // add for 8bit/16bit obuf
+    output wire [ 15       -1 : 0 ]        obuf_mem_write_addr,
     output wire                                        obuf_mem_write_req,
     output wire [ 256       -1 : 0 ]        obuf_mem_write_data,
-    output wire [ 15       -1 : 0 ]        obuf_tag_mem_read_addr,
+    output wire [ 15       -1 : 0 ]        obuf_mem_read_addr,
     output wire                                        obuf_mem_read_req,
     input wire [ 256       -1 : 0 ]        obuf_mem_read_data,
-    input wire [ 2048       -1 : 0 ]        obuf_pu_read_data,
-    output wire [ 12       -1 : 0 ]        obuf_tag_buf_write_addr_0,
-    output wire   obuf_buf_write_req_0,
-    output wire  [ 2048       -1 : 0 ]        obuf_buf_write_data_0,
-    output wire [ 12       -1 : 0 ]        obuf_tag_buf_read_addr,
-    output  wire                                         obuf_buf_read_req,
-    input wire [ 2048       -1 : 0 ]        obuf__buf_read_data,
-    output wire                                        obuf_fifo_write_req_limit
-
+    output wire [ 12       -1 : 0 ]        obuf_pu_write_addr,
+    output wire   obuf_pu_write_req,
+    output wire  [ 2048       -1 : 0 ]        obuf_pu_write_data,
+    output wire [ 12       -1 : 0 ]        obuf_pu_read_addr,
+    output  wire                                         obuf_pu_read_req,
+    input wire [ 2048       -1 : 0 ]       _obuf_mem_read_data,
+    input wire [ 2048       -1 : 0 ]       obuf_pu_read_data
 );
 
 //=============================================================
@@ -558,45 +553,41 @@ module cl_wrapper #(
     .cl_ddr4_rvalid                 ( cl_ddr4_rvalid                 ),
     .cl_ddr4_rready                 ( cl_ddr4_rready                 ),
 
-    // add for 8bit/16bit ibuf
-   .tag_mem_write_addr_ibuf (ibuf_tag_mem_write_addr),
-   .mem_write_req_ibuf (ibuf_mem_write_req),
-   .mem_write_data_ibuf (ibuf_mem_write_data),
-   .tag_buf_read_addr_ibuf (ibuf_tag_buf_read_addr),
-   .buf_read_req_ibuf (ibuf_buf_read_req),
-   ._buf_read_data_ibuf (ibuf__buf_read_data),
-
-     // add for 8bit/16bit wbuf
-    .tag_mem_write_addr_wbuf (wbuf_tag_mem_write_addr),
-    .mem_write_req_wbuf (wbuf_mem_write_req),
-    .mem_write_data_wbuf (wbuf_mem_write_data),
-    .tag_buf_read_addr_wbuf (wbuf_tag_buf_read_addr),
-    .buf_read_req_wbuf (wbuf_buf_read_req),
-    ._buf_read_data_wbuf (wbuf__buf_read_data),
-
-    // add for 8bit/16bit obuf
-    .tag_mem_write_addr_obuf (obuf_tag_mem_write_addr),
-    .mem_write_req_obuf (obuf_mem_write_req),
-    .mem_write_data_obuf (obuf_mem_write_data),
-    .tag_mem_read_addr_obuf (obuf_tag_mem_read_addr),
-    .mem_read_req_obuf (obuf_mem_read_req),
-    .mem_read_data_obuf (obuf_mem_read_data),
-    .pu_read_data_obuf (obuf_pu_read_data),
-    .tag_buf_write_addr_0_obuf (tobuf_ag_buf_write_addr_0),
-    .buf_write_req_0_obuf (obuf_buf_write_req_0),
-    .buf_write_data_0_obuf (obuf_buf_write_data_0),
-    .tag_buf_read_addr_obuf (obuf_tag_buf_read_addr),
-    .buf_read_req_obuf (obuf_buf_read_req),
-    ._buf_read_data_obuf (obuf__buf_read_data),
-    .obuf_fifo_write_req_limit_obuf (obuf_obuf_fifo_write_req_limit),
-
+  // add for 8bit/16bit ibuf
+  .ibuf_tag_mem_write_addr (ibuf_mem_write_addr),
+  .ibuf_mem_write_req_in (ibuf_mem_write_req),
+  .ibuf_mem_write_data_in (ibuf_mem_write_data),
+  .ibuf_tag_buf_read_addr (ibuf_mem_read_addr),
+  .ibuf_buf_read_req (ibuf_mem_read_req),
+  .ibuf__buf_read_data (ibuf_mem_read_data),
     // add for 8bit/16bit bbuf
-   .tag_mem_write_addr_bbuf (bbuf_tag_mem_write_addr),
-   .mem_write_req_bbuf (bbuf_mem_write_req),
-   .mem_write_data_bbuf (bbuf_mem_write_data),
-   .tag_buf_read_addr_bbuf (bbuf_tag_buf_read_addr),
-   .buf_read_req_bbuf (bbuf_buf_read_req),
-   ._buf_read_data_bbuf (bbuf__buf_read_data)
+  .bbuf_tag_mem_write_addr (bbuf_mem_write_addr),
+  .bbuf_mem_write_req (bbuf_mem_write_req),
+  .bbuf_mem_write_data (bbuf_mem_write_data),
+  .bbuf_tag_buf_read_addr (bbuf_mem_read_addr),
+  .bbuf_buf_read_req (bbuf_mem_read_req),
+  .bbuf__buf_read_data (bbuf_mem_read_data),
+  // add for 8bit/16bit wbuf
+  .wbuf_tag_mem_write_addr (wbuf_mem_write_addr),
+  .wbuf_mem_write_req_dly (wbuf_mem_write_req),
+  .wbuf__mem_write_data (wbuf_mem_write_data),
+  .wbuf_tag_buf_read_addr (wbuf_mem_read_addr),
+  .wbuf_buf_read_req (wbuf_mem_read_req),
+  .wbuf__buf_read_data (wbuf_mem_read_data),
+  // add for 8bit/16bit obuf
+  .obuf_tag_mem_write_addr (obuf_mem_write_addr),
+  .obuf_mem_write_req (obuf_mem_write_req),
+  .obuf_mem_write_data (obuf_mem_write_data),
+  .obuf_tag_mem_read_addr (obuf_mem_read_addr),
+  .obuf_mem_read_req (obuf_mem_read_req),
+  .obuf_mem_read_data (obuf_mem_read_data),
+  .obuf_pu_read_data (obuf_pu_read_data),
+  .obuf_tag_buf_write_addr (obuf_pu_write_addr),
+  .obuf_buf_write_req (obuf_pu_write_req),
+  .obuf_buf_write_data (obuf_pu_write_data),
+  .obuf_tag_buf_read_addr (obuf_pu_read_addr),
+  .obuf_buf_read_req (obuf_pu_read_req),
+  .obuf__buf_read_data(_obuf_mem_read_data)
   );
 //=============================================================
 
