@@ -337,7 +337,10 @@ module dnnweaver2_controller #(
     output wire  [ 2048       -1 : 0 ]        obuf_buf_write_data,
     output wire [ 12       -1 : 0 ]        obuf_tag_buf_read_addr,
     output  wire                                         obuf_buf_read_req,
-    input wire [ 2048       -1 : 0 ]        obuf__buf_read_data
+    input wire [ 2048       -1 : 0 ]        obuf__buf_read_data,
+
+    // 选择mux传入infra_red or LiDAR数据进入RAM
+    output wire choose_mux_out
   );
 
 //=============================================================
@@ -814,8 +817,8 @@ module dnnweaver2_controller #(
     .snoop_cl_ddr4_rready           ( cl_ddr4_rready                 ), //input
     .ld_obuf_req                    ( ld_obuf_req                    ), //input
     .ld_obuf_ready                  ( ld_obuf_ready                  ),//input
-    .obuf_stride_vv                 ( base_obuf_stride_v             ) //output edit yt 0720
-
+    .obuf_stride_vv                 ( base_obuf_stride_v             ), //output edit yt 0720
+    .choose_mux_out (choose_mux_out) // 选择mux传入infra_red or LiDAR数据进入RAM
   );
 //=============================================================
 
@@ -1054,7 +1057,7 @@ module dnnweaver2_controller #(
     .mem_write_req (wbuf_mem_write_req_dly),
     .mem_write_data (wbuf__mem_write_data),
     .tag_buf_read_addr (wbuf_tag_buf_read_addr)
-    // .buf_read_req (buf_read_req_wbuf)
+    // .buf_read_req (wbuf_buf_read_req)
     );
     assign wbuf_buf_read_req = sys_wbuf_read_req;
     assign wbuf_read_data = wbuf__buf_read_data;
@@ -1108,8 +1111,8 @@ module dnnweaver2_controller #(
     .buf_write_data                 ( obuf_write_data                ),
     .buf_write_req                  ( sys_obuf_write_req             ),
     .buf_write_addr                 ( sys_obuf_write_addr            ),
-    .buf_read_data                  ( obuf_read_data                 ),
-    .buf_read_req                   ( sys_obuf_read_req              ),
+    .buf_read_data                  (obuf_read_data),
+    .buf_read_req                   ( obuf_buf_read_req              ),
     .buf_read_addr                  ( sys_obuf_read_addr             ),
 
     .pu_buf_read_ready              ( ld_obuf_ready                  ),
@@ -1154,7 +1157,7 @@ module dnnweaver2_controller #(
     .mws_rvalid                     ( cl_ddr1_rvalid                 ),
     .mws_rready                     ( cl_ddr1_rready                 ),
 
-        // add for 8bit/16bit obuf
+    // add for 8bit/16bit obuf
     .tag_mem_write_addr (obuf_tag_mem_write_addr),
     .mem_write_req (obuf_mem_write_req),
     .mem_write_data (obuf_mem_write_data),
@@ -1166,11 +1169,11 @@ module dnnweaver2_controller #(
     .buf_write_req_0 (obuf_buf_write_req),
     .buf_write_data_0_out (obuf_buf_write_data),
     .tag_buf_read_addr (obuf_tag_buf_read_addr),
-    // .buf_read_req (buf_read_req_obuf),
+    // .buf_read_req (obuf_buf_read_req),
     ._buf_read_data (obuf__buf_read_data)
     // .obuf_fifo_write_req_limit (obuf_fifo_write_req_limit_obuf)
     );
-   assign buf_read_req_obuf = sys_obuf_read_req;
+   assign obuf_buf_read_req = sys_obuf_read_req;
 
   bbuf_mem_wrapper #(
     // Internal Parameters

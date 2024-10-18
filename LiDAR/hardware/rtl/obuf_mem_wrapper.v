@@ -127,7 +127,6 @@ module obuf_mem_wrapper #(
     output wire  [ TAG_W                -1 : 0 ]        stmem_tag,
     (* MARK_DEBUG="true" *)output wire                                         stmem_ddr_pe_sw,
 
-
           // add for 8bit/16bit obuf
     output wire [ 15       -1 : 0 ]        tag_mem_write_addr,
     output wire                                        mem_write_req,
@@ -141,7 +140,7 @@ module obuf_mem_wrapper #(
     output wire  [ 2048       -1 : 0 ]        buf_write_data_0_out,
     output wire [ 12       -1 : 0 ]        tag_buf_read_addr,
     input  wire                                         buf_read_req,
-    output wire [ 2048       -1 : 0 ]        _buf_read_data,
+    input wire [ 2048       -1 : 0 ]        _buf_read_data,
     output wire                                        obuf_fifo_write_req_limit
 );
 
@@ -288,6 +287,7 @@ module obuf_mem_wrapper #(
     wire                                        axi_mem_read_ready;
     // wire                                        mem_read_req;
     wire                                        mem_read_ready;
+    // assign mem_write_data = buf_write_data_0_out;
 
   // Adding register to buf read data
     // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;

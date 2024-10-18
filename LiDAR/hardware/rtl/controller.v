@@ -242,8 +242,8 @@ module controller #(
     input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        ld0_stream_counts,
     input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        ld1_stream_counts,
     input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        axi_wr_fifo_counts,
-
-    output wire                                         obuf_stride_vv//edit yt 0720
+    output wire                                         obuf_stride_vv ,
+    output wire           choose_mux_out
   );
 
 //=============================================================
@@ -675,6 +675,7 @@ module controller #(
 
     assign slv_reg0_in = slv_reg0_out; // Used as start trigger
     assign slv_reg1_in = slv_reg1_out; // Used as start address
+    assign choose_mux_out = slv_reg1_out;
 
     assign slv_reg2_in = dnnweaver2_state;
     assign slv_reg3_in = tag_req_count;
