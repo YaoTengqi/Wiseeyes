@@ -104,6 +104,7 @@ module ram_mux #(
   input wire  [ 2048       -1 : 0 ]        obuf_pu_write_data,
   input wire [ 12       -1 : 0 ]        obuf_pu_read_addr,
   input  wire                                         obuf_pu_read_req,
+  input wire                            obuf_fifo_write_req_limit,
   output wire [ 2048       -1 : 0 ]        obuf_pu_read_data,
   output wire [ 2048       -1 : 0 ]   _obuf_mem_read_data,
 

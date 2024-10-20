@@ -387,6 +387,8 @@ module top_wrapper #(
       wire                                         buf_read_req_obuf;
     wire [ 2048       -1 : 0 ]        _buf_read_data_obuf;
   wire choose_mux_out;
+  wire                            obuf_fifo_write_req_limit;
+
 
 cl_wrapper # (
 )top_cl_wrapper(
@@ -611,6 +613,7 @@ cl_wrapper # (
   .obuf_pu_write_data (buf_write_data_obuf),
   .obuf_pu_read_addr (tag_buf_read_addr_obuf),
   .obuf_pu_read_req (buf_read_req_obuf),
+  .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
   ._obuf_mem_read_data(_buf_read_data_obuf),
   // add for choose infra_red or LiDAR data for RAM
   .choose_mux_out (choose_mux_out)
@@ -655,6 +658,7 @@ ram_mux#(
   .obuf_pu_read_addr (tag_buf_read_addr_obuf),
   .obuf_pu_read_req (buf_read_req_obuf),
   ._obuf_mem_read_data(_buf_read_data_obuf),
+  .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
   // .obuf_mem_read_data(_buf_read_data_obuf),
   // add for choose infra_red or LiDAR data for RAM
   .choose_mux_in (choose_mux_out)
