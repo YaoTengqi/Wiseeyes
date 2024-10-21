@@ -12,6 +12,7 @@ venv
 .vscode
 *sim/
 *.zip
+*.gz
 DNNAccel_0208_VOC5_final_007486/
 new_DNNAccel_0120_16b_pdet/
 Miniconda3-latest-Linux-x86_64.sh
