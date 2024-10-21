@@ -141,6 +141,7 @@ module ram_mux #(
   input wire  [ 2048       -1 : 0 ]        LiDAR_obuf_pu_write_data,
   input wire [ 12       -1 : 0 ]        LiDAR_obuf_pu_read_addr,
   input  wire                                        LiDAR_obuf_pu_read_req,
+  input wire                            obuf_fifo_write_req_limit,
   output wire [ 2048       -1 : 0 ]        LiDAR_obuf_pu_read_data,
 
     input wire choose_mux_in
@@ -421,7 +422,7 @@ obuf #(
     .mem_write_addr                 ( choosed_obuf_tag_mem_write_addr             ),
     .mem_write_data                 ( choosed_obuf_mem_write_data                 ),
     .pu_read_data                   ( choosed_obuf_pu_read_data                   ), //edit yt
-    //.obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit yt
+    .obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit yt
     .buf_write_addr                 ( choosed_obuf_tag_buf_write_addr             ),//edit by pxq
     .buf_write_req                  ( choosed_obuf_buf_write_req                  ),//edit by pxq
     .buf_write_data                 ( choosed_obuf_buf_write_data                 ),//edit by pxq
