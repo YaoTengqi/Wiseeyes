@@ -70,7 +70,7 @@ module bbuf_mem_wrapper #(
 
   // Systolic Array
     output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
-    input  wire                                         buf_read_req,
+    // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 
   // CL_wrapper -> DDR AXI4 interface
@@ -105,7 +105,14 @@ module bbuf_mem_wrapper #(
     input  wire  [ 2                    -1 : 0 ]        mws_rresp,
     input  wire                                         mws_rlast,
     input  wire                                         mws_rvalid,
-    output wire                                         mws_rready
+    output wire                                         mws_rready,
+    // add for 8bit/16bit bbuf
+    output wire [ 11       -1 : 0 ]        tag_mem_write_addr,
+    output wire                                        mem_write_req,
+    output wire [ 256       -1 : 0 ]        mem_write_data,
+    output wire [ 9       -1 : 0 ]        tag_buf_read_addr,
+    input  wire                                         buf_read_req,
+    output wire [ 1024       -1 : 0 ]        _buf_read_data
 );
 
 //==============================================================================
@@ -237,8 +244,8 @@ module bbuf_mem_wrapper #(
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_wr_addr;
 
     wire [ AXI_ID_WIDTH         -1 : 0 ]        mem_write_id;
-    wire                                        mem_write_req;
-    wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
+    // wire                                        mem_write_req;
+    // wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
     reg  [ MEM_ADDR_W           -1 : 0 ]        mem_write_addr;
     wire                                        mem_write_ready;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_read_data;
@@ -247,7 +254,7 @@ module bbuf_mem_wrapper #(
     wire                                        mem_read_ready;
 
   // Adding register to buf read data
-    wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
+    // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
 //==============================================================================
 
 //==============================================================================
@@ -643,8 +650,8 @@ module bbuf_mem_wrapper #(
     end
   end
 
-    wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
-    wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
+    // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
+    // wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
 
     assign tag_mem_write_addr = {ldmem_tag, mem_write_addr};
 
@@ -675,22 +682,22 @@ module bbuf_mem_wrapper #(
   register_sync #(BUF_DATA_WIDTH)
   buf_read_data_delay (clk, reset, _buf_read_data, buf_read_data);
 
-  bbuf #(
-    .TAG_W                          ( TAG_W                          ),
-    .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
-    .ARRAY_M                        ( ARRAY_M                        ),
-    .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
-    .DATA_WIDTH                     ( DATA_WIDTH                     )
-  ) buf_ram (
-    .clk                            ( clk                            ),
-    .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr             ),
-    .mem_write_req                  ( mem_write_req                  ),
-    .mem_write_data                 ( mem_write_data                 ),
-    .buf_read_addr                  ( tag_buf_read_addr              ),
-    .buf_read_req                   ( buf_read_req                   ),
-    .buf_read_data                  ( _buf_read_data                 )
-  );
+  // bbuf #(
+  //   .TAG_W                          ( TAG_W                          ),
+  //   .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
+  //   .ARRAY_M                        ( ARRAY_M                        ),
+  //   .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
+  //   .DATA_WIDTH                     ( DATA_WIDTH                     )
+  // ) buf_ram (
+  //   .clk                            ( clk                            ),
+  //   .reset                          ( reset                          ),
+  //   .mem_write_addr                 ( tag_mem_write_addr             ),
+  //   .mem_write_req                  ( mem_write_req                  ),
+  //   .mem_write_data                 ( mem_write_data                 ),
+  //   .buf_read_addr                  ( tag_buf_read_addr              ),
+  //   .buf_read_req                   ( buf_read_req                   ),
+  //   .buf_read_data                  ( _buf_read_data                 )
+  // );
 //==============================================================================
 
 

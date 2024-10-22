@@ -38,7 +38,8 @@ module obuf #(
 
   input  wire                                         buf_write_req,
   input  wire  [ BUF_ADDR_WIDTH       -1 : 0 ]        buf_write_addr,
-  input  wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data
+  input  wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data,
+  output wire                                         obuf_fifo_write_req_limit //edit yt 
   );
 
   genvar m;

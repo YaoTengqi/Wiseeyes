@@ -248,7 +248,7 @@ wire                                         CL_DDR4_AWPROT		;
 
 
 initial $monitor("\r\nWBUF_ADDR_WIDTH=%d\r\n",dut_top_u.WBUF_ADDR_WIDTH);
-cl_wrapper #(
+top_wrapper #(
     .INST_W                       (INST_W                  ),
     .INST_ADDR_W                  (INST_ADDR_W             ),
     .IFIFO_ADDR_W                 (IFIFO_ADDR_W            ),

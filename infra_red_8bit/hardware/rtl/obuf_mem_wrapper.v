@@ -74,7 +74,7 @@ module obuf_mem_wrapper #(
     input  wire                                         buf_write_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_write_addr,
     output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
-    input  wire                                         buf_read_req,
+    // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 
   // PU
@@ -125,7 +125,21 @@ module obuf_mem_wrapper #(
 
     output wire  [ 4                    -1 : 0 ]        stmem_state,
     output wire  [ TAG_W                -1 : 0 ]        stmem_tag,
-    output wire                                         stmem_ddr_pe_sw
+    output wire                                         stmem_ddr_pe_sw,
+      // add for 8bit/16bit obuf
+    output wire [ 15       -1 : 0 ]        tag_mem_write_addr,
+    output wire                                        mem_write_req,
+    output wire [ 256       -1 : 0 ]        mem_write_data,
+    output wire [ 15       -1 : 0 ]        tag_mem_read_addr,
+    output wire                                        mem_read_req,
+    input wire [ 256       -1 : 0 ]        mem_read_data,
+    input wire [ 2048       -1 : 0 ]        pu_read_data,
+    output wire [ 12       -1 : 0 ]        tag_buf_write_addr_out,
+    output wire   buf_write_req_0,
+    output wire  [ 2048       -1 : 0 ]        buf_write_data_out,
+    output wire [ 12       -1 : 0 ]        tag_buf_read_addr,
+    input  wire                                         buf_read_req,
+    output wire [ 2048       -1 : 0 ]        _buf_read_data
 );
 
 //==============================================================================
@@ -259,31 +273,31 @@ module obuf_mem_wrapper #(
     wire                                        axi_wr_ready;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_wr_addr;
 
-    wire                                        mem_write_req;
+    // wire                                        mem_write_req;
     wire [ AXI_ID_WIDTH         -1 : 0 ]        mem_write_id;
-    wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
+    // wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
     reg  [ MEM_ADDR_W           -1 : 0 ]        mem_write_addr;
     wire                                        mem_write_ready;
-    wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_read_data;
+    // wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_read_data;
     wire [ MEM_ADDR_W           -1 : 0 ]        mem_read_addr;
     reg  [ MEM_ADDR_W           -1 : 0 ]        axi_mem_read_addr;
     wire                                        axi_mem_read_req;
     wire                                        axi_mem_read_ready;
-    wire                                        mem_read_req;
+    // wire                                        mem_read_req;
     wire                                        mem_read_ready;
 
   // Adding register to buf read data
-    wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
+    // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
 
-    wire [ BUF_DATA_WIDTH       -1 : 0 ]        pu_read_data;                                                                                       //edit yt
+    // wire [ BUF_DATA_WIDTH       -1 : 0 ]        pu_read_data;                                                                                       //edit yt
     //wire                                        obuf_fifo_write_req_limit;                                                                          //edit yt
 
 
 
-    wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_read_addr;
-    wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
+    // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_read_addr;
+    // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
 
-    wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
+    // wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
     wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr;
 //==============================================================================
 
@@ -466,7 +480,9 @@ reg  [ 4                    -1 : 0 ]        obuf_init_state_q;
 
 reg [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr_0;
 reg  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data_0;
-wire   buf_write_req_0;
+// wire   buf_write_req_0;
+assign tag_buf_write_addr_out = tag_buf_write_addr_0;
+assign buf_write_data_out = buf_write_data_0;
 
 wire  buf_write_req_dly1;
 wire buf_write_req_1;
@@ -1029,30 +1045,30 @@ register_sync#(1) buf_write_req_dlyreg(clk,reset,buf_write_req_dly1,buf_write_re
 
   register_sync #(BUF_DATA_WIDTH)
   buf_read_data_delay (clk, reset, _buf_read_data, buf_read_data);
-  obuf #(
-    .TAG_W                          ( TAG_W                          ),
-    .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
-    .ARRAY_M                        ( ARRAY_M                        ),
-    .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
-    .DATA_WIDTH                     ( DATA_WIDTH                     )
-  ) buf_ram (
-    .clk                            ( clk                            ),
-    .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr             ),
-    .mem_write_req                  ( mem_write_req                  ),
-    .mem_write_data                 ( mem_write_data                 ),
-    .mem_read_addr                  ( tag_mem_read_addr              ),
-    .mem_read_req                   ( mem_read_req                   ),
-    .mem_read_data                  ( mem_read_data                  ),
-    .pu_read_data                   ( pu_read_data                   ), //edit yt
-    //.obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit yt
-    .buf_write_addr                 ( tag_buf_write_addr_0             ),//edit by pxq
-    .buf_write_req                  ( buf_write_req_0                  ),//edit by pxq
-    .buf_write_data                 ( buf_write_data_0                 ),//edit by pxq
-    .buf_read_addr                  ( tag_buf_read_addr              ),
-    .buf_read_req                   ( buf_read_req                   ),
-    .buf_read_data                  ( _buf_read_data                 )
-  );
+  // obuf #(
+  //   .TAG_W                          ( TAG_W                          ),
+  //   .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
+  //   .ARRAY_M                        ( ARRAY_M                        ),
+  //   .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
+  //   .DATA_WIDTH                     ( DATA_WIDTH                     )
+  // ) buf_ram (
+  //   .clk                            ( clk                            ),
+  //   .reset                          ( reset                          ),
+  //   .mem_write_addr                 ( tag_mem_write_addr             ),
+  //   .mem_write_req                  ( mem_write_req                  ),
+  //   .mem_write_data                 ( mem_write_data                 ),
+  //   .mem_read_addr                  ( tag_mem_read_addr              ),
+  //   .mem_read_req                   ( mem_read_req                   ),
+  //   .mem_read_data                  ( mem_read_data                  ),
+  //   .pu_read_data                   ( pu_read_data                   ), //edit yt
+  //   //.obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit yt
+  //   .buf_write_addr                 ( tag_buf_write_addr_0             ),//edit by pxq
+  //   .buf_write_req                  ( buf_write_req_0                  ),//edit by pxq
+  //   .buf_write_data                 ( buf_write_data_0                 ),//edit by pxq
+  //   .buf_read_addr                  ( tag_buf_read_addr              ),
+  //   .buf_read_req                   ( buf_read_req                   ),
+  //   .buf_read_data                  ( _buf_read_data                 )
+  // );
 //==============================================================================
 
 //==============================================================================

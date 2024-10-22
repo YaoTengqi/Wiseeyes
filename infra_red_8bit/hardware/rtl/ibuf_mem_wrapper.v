@@ -81,7 +81,7 @@ module ibuf_mem_wrapper #(
 
   // Systolic Array
     output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
-    input  wire                                         buf_read_req,
+    // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
     // asr data write if*****************************************************
     //add for asr data write 2021-08-13
@@ -143,7 +143,14 @@ module ibuf_mem_wrapper #(
     //======================================================================== IBUF IO MODIFY EDIT BY PXQ 0812
     input wire                                          choose_8bit,  // 0--16bit   1-- 8bit
     input wire [ADDR_WIDTH              -1 : 0 ]        tag_base_ld_addr_eight_bit,
-    input  wire  [ ADDR_WIDTH           -1 : 0 ]        tag_base_ld_addr
+    input  wire  [ ADDR_WIDTH           -1 : 0 ]        tag_base_ld_addr,
+  // add for 8bit/16bit ibuf
+  output wire [ 14       -1 : 0 ]        tag_mem_write_addr_0,
+  output wire mem_write_req_in_0,
+  output wire  [256 -1 : 0]                                mem_write_data_in_0,
+  output wire [ 13       -1 : 0 ]        tag_buf_read_addr,
+  input  wire                                         buf_read_req,
+  output wire [ 512       -1 : 0 ]        _buf_read_data
 
 );
 
@@ -191,7 +198,7 @@ wire  i_is_run_adnn=0;
 // Wires/Regs
 //==============================================================================
     wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
-    wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
+    // wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
 
     wire                                        compute_tag_done;
     wire                                        compute_tag_reuse;
@@ -287,7 +294,7 @@ wire  i_is_run_adnn=0;
     wire                                        mem_read_ready;
 
   // Adding register to buf read data
-    wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
+    // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
 
   // Read-after-write
     reg                                         raw;
@@ -359,9 +366,9 @@ reg                                                     sixteen_bit_mem_write_re
  (* MARK_DEBUG="true" *) wire fl_tile_init_done;
 
 wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_fl_addr;
-(* MARK_DEBUG="true" *)wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr_0;
-(* MARK_DEBUG="true" *)wire mem_write_req_in_0;
-(* MARK_DEBUG="true" *)wire  [AXI_DATA_WIDTH -1 : 0]                                mem_write_data_in_0;
+// (* MARK_DEBUG="true" *)wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr_0;
+// (* MARK_DEBUG="true" *)wire mem_write_req_in_0;
+// (* MARK_DEBUG="true" *)wire  [AXI_DATA_WIDTH -1 : 0]                                mem_write_data_in_0;
 
 wire mem_write_fl_req;
 reg [ AXI_DATA_WIDTH - 1 : 0 ] ddr2ibuf_in;
@@ -1648,22 +1655,22 @@ assign tag_mem_write_addr_0 = (current_layer==1||current_layer==0) ? ( i_is_run_
   );
 //==============================================================================
 
-    ibuf #(
-    .TAG_W                          ( TAG_W                          ),
-    .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
-    .ARRAY_N                        ( ARRAY_N                        ),
-    .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
-    .DATA_WIDTH                     ( DATA_WIDTH                    )
-  ) buf_ram (
-    .clk                            ( clk                            ),
-    .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr_0             ),
-    .mem_write_req                  ( mem_write_req_in_0                  ),
-    .mem_write_data                 ( mem_write_data_in_0                 ),//edit by pxq 0816
-    .buf_read_addr                  ( tag_buf_read_addr              ),
-    .buf_read_req                   ( buf_read_req                   ),
-    .buf_read_data                  ( _buf_read_data                 )
-  );
+  //   ibuf #(
+  //   .TAG_W                          ( TAG_W                          ),
+  //   .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
+  //   .ARRAY_N                        ( ARRAY_N                        ),
+  //   .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
+  //   .DATA_WIDTH                     ( DATA_WIDTH                    )
+  // ) buf_ram (
+  //   .clk                            ( clk                            ),
+  //   .reset                          ( reset                          ),
+  //   .mem_write_addr                 ( tag_mem_write_addr_0             ),
+  //   .mem_write_req                  ( mem_write_req_in_0                  ),
+  //   .mem_write_data                 ( mem_write_data_in_0                 ),//edit by pxq 0816
+  //   .buf_read_addr                  ( tag_buf_read_addr              ),
+  //   .buf_read_req                   ( buf_read_req                   ),
+  //   .buf_read_data                  ( _buf_read_data                 )
+  // );
 
 
 //==============================================================================

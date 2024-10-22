@@ -74,7 +74,7 @@ module wbuf_mem_wrapper #(
 
   // Systolic Array
     output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
-    input  wire                                         buf_read_req,
+    // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 
   // CL_wrapper -> DDR AXI4 interface
@@ -109,8 +109,15 @@ module wbuf_mem_wrapper #(
     input  wire  [ 2                    -1 : 0 ]        mws_rresp,
     input  wire                                         mws_rlast,
     input  wire                                         mws_rvalid,
-    output wire                                         mws_rready
+    output wire                                         mws_rready,
     
+    // add for 8bit/16bit wbuf
+   output wire [ 12       -1 : 0 ]        tag_mem_write_addr,
+   output wire                                        mem_write_req_dly,
+   output wire [ 256       -1 : 0 ]        _mem_write_data,
+   output wire [ 11       -1 : 0 ]        tag_buf_read_addr,
+   input  wire                                         buf_read_req
+  //  output wire  [ 512       -1 : 0 ]        _buf_read_data  
 );
 
 //==============================================================================
@@ -230,7 +237,7 @@ module wbuf_mem_wrapper #(
     wire                                        mem_read_ready;
 
   // Adding register to buf read data
-    wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
+    // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
 //==============================================================================
 
 //==============================================================================
@@ -574,9 +581,9 @@ module wbuf_mem_wrapper #(
     reg [ AXI_HALF_DATA_WIDTH  -1 : 0 ]        mem_write_data_l_reg;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data_h;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data_l;
-    wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data;
+    // wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data;
     wire                                        _mem_write_req;  
-    wire                                        mem_write_req_dly;
+    // wire                                        mem_write_req_dly;
     wire                                        st_8b_state_dly;
     genvar i;
     generate for (i=0; i<AXI_DATA_WIDTH/DATA_WIDTH; i=i+1)
@@ -643,9 +650,9 @@ module wbuf_mem_wrapper #(
   end
 
     wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_read_addr;
-    wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
+    // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
 
-    wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
+    // wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
 
     assign tag_mem_write_addr = {ldmem_tag, mem_write_addr};
 
@@ -653,23 +660,23 @@ module wbuf_mem_wrapper #(
 
     assign tag_buf_read_addr = {compute_tag_delayed, buf_read_addr};
 
-  wbuf #(
-    .TAG_W                          ( TAG_W                          ),
-    .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
-    .ARRAY_N                        ( ARRAY_N                        ),
-    .ARRAY_M                        ( ARRAY_M                        ),
-    .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
-    .DATA_WIDTH                     ( DATA_WIDTH                     )
-  ) buf_ram (
-    .clk                            ( clk                            ),
-    .reset                          ( reset                          ),
-    .mem_write_addr                 ( tag_mem_write_addr             ),
-    .mem_write_req                  ( mem_write_req_dly              ),//edit by sy 0820
-    .mem_write_data                 ( _mem_write_data                ),//edit by sy 0820
-    .buf_read_addr                  ( tag_buf_read_addr              ),
-    .buf_read_req                   ( buf_read_req                   ),
-    .buf_read_data                  ( buf_read_data                 )
-  );
+  // wbuf #(
+  //   .TAG_W                          ( TAG_W                          ),
+  //   .BUF_ADDR_WIDTH                 ( TAG_BUF_ADDR_W                 ),
+  //   .ARRAY_N                        ( ARRAY_N                        ),
+  //   .ARRAY_M                        ( ARRAY_M                        ),
+  //   .MEM_DATA_WIDTH                 ( AXI_DATA_WIDTH                 ),
+  //   .DATA_WIDTH                     ( DATA_WIDTH                     )
+  // ) buf_ram (
+  //   .clk                            ( clk                            ),
+  //   .reset                          ( reset                          ),
+  //   .mem_write_addr                 ( tag_mem_write_addr             ),
+  //   .mem_write_req                  ( mem_write_req_dly              ),//edit by sy 0820
+  //   .mem_write_data                 ( _mem_write_data                ),//edit by sy 0820
+  //   .buf_read_addr                  ( tag_buf_read_addr              ),
+  //   .buf_read_req                   ( buf_read_req                   ),
+  //   .buf_read_data                  ( buf_read_data                 )
+  // );
 //==============================================================================
 
 

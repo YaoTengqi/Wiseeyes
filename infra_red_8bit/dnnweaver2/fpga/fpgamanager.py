@@ -360,6 +360,7 @@ class FPGAManager(object):
     def start(self):
         self.fpga_memspace.write('pci_cl_ctrl', 0, 1)
         self.fpga_memspace.write('pci_cl_ctrl', 0, 0)
+        self.fpga_memspace.write('pci_cl_ctrl', 4, 1)
 
     def print_fpga_registers(self):
         ibuf_rd_req = self.fpga_memspace.read('pci_cl_ctrl', 16*4)
