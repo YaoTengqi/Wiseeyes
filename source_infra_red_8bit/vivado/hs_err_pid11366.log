@@ -1,0 +1,13 @@
+#
+# An unexpected error has occurred (11)
+#
+Stack:
+/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4/lib//server/libjvm.so(+0xb6aadb) [0x7f6ce9853adb]
+/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4/lib//server/libjvm.so(JVM_handle_linux_signal+0xbb) [0x7f6ce9858e1b]
+/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4/lib//server/libjvm.so(+0xb647b8) [0x7f6ce984d7b8]
+/lib/x86_64-linux-gnu/libc.so.6(+0x3f040) [0x7f6d30fcd040]
+/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4/lib/libawt_xawt.so(+0x358c5) [0x7f6cc0bd88c5]
+/usr/lib/x86_64-linux-gnu/libX11.so.6(_XimServerDestroy+0x3d) [0x7f6d25911c1d]
+/usr/lib/x86_64-linux-gnu/libX11.so.6(+0x5ca73) [0x7f6d25909a73]
+/tools/Xilinx/Vivado/2019.1/tps/lnx64/jre9.0.4/lib/libawt_xawt.so(Java_sun_awt_X11_XlibWrapper_XFilterEvent+0xf) [0x7f6cc0bcfa7f]
+[0x7f6cd9e74d96]
