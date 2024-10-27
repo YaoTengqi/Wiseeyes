@@ -326,7 +326,7 @@ module cl_wrapper #(
     output  wire                                         obuf_pu_read_req,
     input wire [ 2048       -1 : 0 ]       _obuf_mem_read_data,
     input wire [ 2048       -1 : 0 ]       obuf_pu_read_data,
-    output wire obuf_fifo_write_req_limit,
+    input wire obuf_fifo_write_req_limit,
     output wire choose_mux_out     // 选择mux传入infra_red or LiDAR数据进入RAM
 );
 

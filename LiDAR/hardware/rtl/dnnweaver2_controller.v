@@ -337,7 +337,7 @@ module dnnweaver2_controller #(
     output wire  [ 2048       -1 : 0 ]        obuf_buf_write_data,
     output wire [ 12       -1 : 0 ]        obuf_tag_buf_read_addr,
     output  wire                                         obuf_buf_read_req,
-    output wire                            obuf_fifo_write_req_limit,
+    input wire                            obuf_fifo_write_req_limit,
     input wire [ 2048       -1 : 0 ]        obuf__buf_read_data,
 
     // 选择mux传入infra_red or LiDAR数据进入RAM

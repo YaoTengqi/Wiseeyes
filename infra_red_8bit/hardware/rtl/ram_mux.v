@@ -429,6 +429,7 @@ obuf #(
     .buf_write_data                 ( choosed_obuf_buf_write_data                 ),//edit by pxq
     .buf_read_addr                  ( choosed_obuf_tag_buf_read_addr              ),
     .buf_read_req                   ( choosed_obuf_buf_read_req                   ),
-    .buf_read_data                  ( choosed_obuf__buf_read_data                 )
+    .buf_read_data                  ( choosed_obuf__buf_read_data                 ),
+    .choose_8bit                        (choose_mux_in)
   );
 endmodule

@@ -141,7 +141,7 @@ module obuf_mem_wrapper #(
     output wire [ 12       -1 : 0 ]        tag_buf_read_addr,
     input  wire                                         buf_read_req,
     input wire [ 2048       -1 : 0 ]        _buf_read_data,
-    output wire                                        obuf_fifo_write_req_limit
+    input wire                                        obuf_fifo_write_req_limit
 );
 
 //==============================================================================
