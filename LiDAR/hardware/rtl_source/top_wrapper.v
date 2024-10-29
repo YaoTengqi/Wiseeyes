@@ -1,11 +1,5 @@
-//
-// DnnWeaver v2 controller - Custom Logic (CL) Wrapper
-//
-// Hardik Sharma
-// (hsharma@gatech.edu)
-
 `timescale 1ns/1ps
-module cl_wrapper #(
+module top_wrapper #(
     parameter integer  INST_W                       = 32,
     parameter integer  INST_ADDR_W                  = 5,
     parameter integer  IFIFO_ADDR_W                 = 10,
@@ -24,7 +18,7 @@ module cl_wrapper #(
     parameter integer  ACC_WIDTH                    = 64,
 
   // Buffers
-    parameter integer  WEIGHT_ROW_NUM             = 1,                                                                                                                       //edit by sy 0513
+    parameter integer  WEIGHT_ROW_NUM               = 1,                                                                                                                       //edit by sy 0513
     parameter integer  NUM_TAGS                     = 2,
     parameter integer  IBUF_CAPACITY_BITS           = ARRAY_N * DATA_WIDTH * 6144 / NUM_TAGS,
     parameter integer  WBUF_CAPACITY_BITS           = ARRAY_M * WEIGHT_ROW_NUM * DATA_WIDTH * 2048 / NUM_TAGS,
@@ -60,15 +54,38 @@ module cl_wrapper #(
     parameter integer  CTRL_ADDR_WIDTH              = 32,
     parameter integer  CTRL_DATA_WIDTH              = 32,
     parameter integer  CTRL_WSTRB_WIDTH             = CTRL_DATA_WIDTH/8,
-
-  // ghd_add_begin
-    parameter integer  WBUF_DATA_WIDTH              = ARRAY_M *WEIGHT_ROW_NUM * DATA_WIDTH,
+    
+    // Instruction Mem
+    parameter integer  IMEM_ADDR_W                  = 7,
+  // Systolic Array
+    parameter integer  TAG_W                        = $clog2(NUM_TAGS),
+    parameter          DTYPE                        = "FXP", // FXP for dnnweaver2, FP32 for single precision, FP16 for half-precision
+    parameter integer  WBUF_DATA_WIDTH              = ARRAY_M *WEIGHT_ROW_NUM * DATA_WIDTH,                                                           //edit by sy
     parameter integer  BBUF_DATA_WIDTH              = ARRAY_M * BIAS_WIDTH,
     parameter integer  IBUF_DATA_WIDTH              = ARRAY_N * DATA_WIDTH,
-    parameter integer  OBUF_DATA_WIDTH              = ARRAY_M * ACC_WIDTH
-  // ghd_add_end
-) (
-    input  wire                                         clk,
+    parameter integer  OBUF_DATA_WIDTH              = ARRAY_M * ACC_WIDTH,
+
+  // Buffer Addr width for PU access to OBUF
+    parameter integer  PU_OBUF_ADDR_WIDTH           = OBUF_ADDR_WIDTH + $clog2(OBUF_DATA_WIDTH / OBUF_AXI_DATA_WIDTH),
+    //cam_in info
+    // sensor out posedge and negedge 
+    parameter integer  CAM0_IN_DATA_WIDTH           =48,
+    parameter integer  CAM0_SENSOR_DATA_WIDTH       =24,
+     //inst from ddr max leng
+    parameter integer  MAX_LENGTH_FROMDDR_B         = 1024*32,
+    parameter integer  MAX_LENGTH_FROMDDR_WIDTH     = $clog2(MAX_LENGTH_FROMDDR_B),
+    parameter integer  ASR_MIC_CH_NUM                    =1, //
+    parameter integer  SL_MIC_CH_NUM                     =4,
+    parameter integer  AXI_DATA_WIDTH               = 64,
+
+      // Buffer
+    parameter integer  BUF_DATA_WIDTH               = DATA_WIDTH * ARRAY_M,
+    parameter integer  BUF_ADDR_W                   = 16,
+    parameter integer  MEM_ADDR_W                   = BUF_ADDR_W + $clog2(BUF_DATA_WIDTH / AXI_DATA_WIDTH),
+    parameter integer  TAG_BUF_ADDR_W               = BUF_ADDR_W + TAG_W,
+    parameter integer  TAG_MEM_ADDR_W               = MEM_ADDR_W + TAG_W
+)(
+   input  wire                                         clk,
     input  wire                                         reset,
 
   // PCIe -> CL_wrapper AXI4-Lite interface
@@ -95,37 +112,37 @@ module cl_wrapper #(
     output wire  [ 2                    -1 : 0 ]        pci_cl_ctrl_rresp,
     input  wire                                         pci_cl_ctrl_rready,
 
-  // PCIe -> CL_wrapper AXI4 interface
-    // Slave Interface Write Address
-    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
-    input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
-    input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
-    input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
-    input  wire                                         pci_cl_data_awvalid,
-    output wire                                         pci_cl_data_awready,
-  // Slave Interface Write Data
-    input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
-    input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
-    input  wire                                         pci_cl_data_wlast,
-    input  wire                                         pci_cl_data_wvalid,
-    output wire                                         pci_cl_data_wready,
-  // Slave Interface Write Response
-    output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
-    output wire                                         pci_cl_data_bvalid,
-    input  wire                                         pci_cl_data_bready,
-  // Slave Interface Read Address
-    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
-    input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,
-    input  wire  [ 3                    -1 : 0 ]        pci_cl_data_arsize,
-    input  wire  [ 2                    -1 : 0 ]        pci_cl_data_arburst,
-    input  wire                                         pci_cl_data_arvalid,
-    output wire                                         pci_cl_data_arready,
-  // Slave Interface Read Data
-    output wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_rdata,
-    output wire  [ 2                    -1 : 0 ]        pci_cl_data_rresp,
-    output wire                                         pci_cl_data_rlast,
-    output wire                                         pci_cl_data_rvalid,
-    input  wire                                         pci_cl_data_rready,
+ // PCIe -> CL_wrapper AXI4 interface
+   // Slave Interface Write Address
+   input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
+   input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
+   input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
+   input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
+   input  wire                                         pci_cl_data_awvalid,
+   output wire                                         pci_cl_data_awready,
+ // Slave Interface Write Data
+   input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
+   input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
+   input  wire                                         pci_cl_data_wlast,
+   input  wire                                         pci_cl_data_wvalid,
+   output wire                                         pci_cl_data_wready,
+ // Slave Interface Write Response
+   output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
+   output wire                                         pci_cl_data_bvalid,
+   input  wire                                         pci_cl_data_bready,
+ // Slave Interface Read Address
+   input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
+   input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,
+   input  wire  [ 3                    -1 : 0 ]        pci_cl_data_arsize,
+   input  wire  [ 2                    -1 : 0 ]        pci_cl_data_arburst,
+   input  wire                                         pci_cl_data_arvalid,
+   output wire                                         pci_cl_data_arready,
+ // Slave Interface Read Data
+   output wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_rdata,
+   output wire  [ 2                    -1 : 0 ]        pci_cl_data_rresp,
+   output wire                                         pci_cl_data_rlast,
+   output wire                                         pci_cl_data_rvalid,
+   input  wire                                         pci_cl_data_rready,
 
   // CL_wrapper -> DDR0 AXI4 interface
     // Master Interface Write Address
@@ -297,119 +314,84 @@ module cl_wrapper #(
     input  wire                                         cl_ddr4_rlast,
     input  wire                                         cl_ddr4_rvalid,
     output wire                                         cl_ddr4_rready,
-    
- // add for 8bit/16bit ibuf
-  output wire [ 14       -1 : 0 ]        ibuf_mem_write_addr,
-  output wire ibuf_mem_write_req,
-  output wire  [256  -1 : 0]                                ibuf_mem_write_data,
-  output wire [ 13       -1 : 0 ]        ibuf_mem_read_addr,
-  output  wire                                         ibuf_mem_read_req,
-  input wire [ 512       -1 : 0 ]        ibuf_mem_read_data,
-  // add for 8bit/16bit bbuf
-    output wire [ 11       -1 : 0 ]        bbuf_mem_write_addr,
-    output wire                                        bbuf_mem_write_req,
-    output wire [ 256       -1 : 0 ]        bbuf_mem_write_data,
-    output wire [ 9       -1 : 0 ]        bbuf_mem_read_addr,
-    output  wire                                         bbuf_mem_read_req,
-    input wire [ 1024       -1 : 0 ]        bbuf_mem_read_data,
-  // add for 8bit/16bit wbuf
-   output wire [ 12       -1 : 0 ]        wbuf_mem_write_addr,
-   output wire                                        wbuf_mem_write_req,
-   output wire [ 256       -1 : 0 ]        wbuf_mem_write_data,
-   output wire [ 11       -1 : 0 ]        wbuf_mem_read_addr,
-   output  wire                                         wbuf_mem_read_req,
-   input wire  [ 512       -1 : 0 ]        wbuf_mem_read_data,
-  // add for 8bit/16bit obuf
-    output wire [ 15       -1 : 0 ]        obuf_mem_write_addr,
-    output wire                                        obuf_mem_write_req,
-    output wire [ 256       -1 : 0 ]        obuf_mem_write_data,
-    output wire [ 15       -1 : 0 ]        obuf_mem_read_addr,
-    output wire                                        obuf_mem_read_req,
-    input wire [ 256       -1 : 0 ]        obuf_mem_read_data,
-    output wire [ 12       -1 : 0 ]        obuf_pu_write_addr,
-    output wire   obuf_pu_write_req,
-    output wire  [ 2048       -1 : 0 ]        obuf_pu_write_data,
-    output wire [ 12       -1 : 0 ]        obuf_pu_read_addr,
-    output  wire                                         obuf_pu_read_req,
-    input wire [ 2048       -1 : 0 ]       _obuf_mem_read_data,
-    input wire [ 2048       -1 : 0 ]       obuf_pu_read_data,
-    output wire obuf_fifo_write_req_limit,
-    output wire choose_mux_out,     // 选择mux传入infra_red or LiDAR数据进入RAM
-
-    ///ghd_add_begin
-
-    output wire                                          acc_clear,
-    output wire [ IBUF_DATA_WIDTH      -1 : 0 ]          ibuf_read_data,
-    output wire [ WBUF_DATA_WIDTH      -1 : 0 ]          wbuf_read_data,
-    output wire [ WBUF_ADDR_WIDTH      -1 : 0 ]          wbuf_read_addr,
-
-    input  wire                                          sys_wbuf_read_req, 
-    input  wire [ WBUF_ADDR_WIDTH      -1 : 0 ]          sys_wbuf_read_addr,       
-    output wire                                          compute_req,
-    output wire                                          loop_exit,             
-    output wire                                          sys_inner_loop_start,
-
-    // output wire                                          choose_8bit,
-
-    output wire [ BBUF_DATA_WIDTH      -1 : 0 ]          bbuf_read_data,
-    output wire                                          bias_read_req,
-    output wire [ BBUF_ADDR_WIDTH      -1 : 0 ]          bias_read_addr,
-    input  wire                                          sys_bias_read_req,
-    input  wire [ BBUF_ADDR_WIDTH      -1 : 0 ]          sys_bias_read_addr,
-    output wire                                          sys_array_c_sel,
-
-    output wire                                          obuf_write_req,
-    output wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          obuf_write_addr,
-    output wire [ OBUF_DATA_WIDTH      -1 : 0 ]          obuf_read_data,
-    output wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          obuf_read_addr,
-    input  wire                                          sys_obuf_read_req,
-    input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_read_addr,
-
-    input  wire [ OBUF_DATA_WIDTH      -1 : 0 ]          sys_obuf_write_data,
-    input  wire                                          sys_obuf_write_req,
-    input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_write_addr
-
-    ///ghd_add_end    
+    //add for readonly
+        // Master Interface Read Address
+    output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_araddr,
+    output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_arlen,
+    output wire  [ 3                    -1 : 0 ]        cl_ddr5_arsize,
+    output wire  [ 2                    -1 : 0 ]        cl_ddr5_arburst,
+    output wire                                         cl_ddr5_arvalid,
+    output wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_arid,
+    input  wire                                         cl_ddr5_arready,
+    // Master Interface Read Data
+    input  wire  [ INST_DATA_WIDTH    -1 : 0 ]          cl_ddr5_rdata,
+    input  wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_rid,
+    input  wire  [ 2                    -1 : 0 ]        cl_ddr5_rresp,
+    input  wire                                         cl_ddr5_rlast,
+    input  wire                                         cl_ddr5_rvalid,
+    output wire                                         cl_ddr5_rready,
+    output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_awaddr,
+    output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_awlen,
+    output wire  [ 3                    -1 : 0 ]        cl_ddr5_awsize,
+    output wire  [ 2                    -1 : 0 ]        cl_ddr5_awburst,
+    output wire                                         cl_ddr5_awvalid,
+    input  wire                                         cl_ddr5_awready,
+    // Master Interface Write Data
+    output wire  [ PU_AXI_DATA_WIDTH    -1 : 0 ]        cl_ddr5_wdata,
+    output wire  [ PU_WSTRB_W           -1 : 0 ]        cl_ddr5_wstrb,
+    output wire                                         cl_ddr5_wlast,
+    output wire                                         cl_ddr5_wvalid,
+    input  wire                                         cl_ddr5_wready,
+    // Master Interface Write Response
+    input  wire  [ 2                    -1 : 0 ]        cl_ddr5_bresp,
+    input  wire                                         cl_ddr5_bvalid,
+    output wire                                         cl_ddr5_bready
 );
 
-//=============================================================
-// Wires/Regs
-//=============================================================
-//=============================================================
+    // add for 8bit/16bit ibuf
+   wire [ 14       -1 : 0 ]        tag_mem_write_addr_ibuf;
+   wire mem_write_req_in_ibuf;
+   wire  [256  -1 : 0]                                mem_write_data_in_ibuf;
+   wire [ 13       -1 : 0 ]        tag_buf_read_addr_ibuf;
+   wire                                         buf_read_req_ibuf;
+   wire [ 512       -1 : 0 ]        _buf_read_data_ibuf;
 
-//=============================================================
-// Comb Logic
-//=============================================================
-//=============================================================
+    // add for 8bit/16bit bbuf
+     wire [ 11       -1 : 0 ]        tag_mem_write_addr_bbuf;
+     wire                                        mem_write_req_bbuf;
+     wire [ 256       -1 : 0 ]        mem_write_data_bbuf;
+     wire [ 9       -1 : 0 ]        tag_buf_read_addr_bbuf;
+      wire                                         buf_read_req_bbuf;
+    wire [ 1024       -1 : 0 ]        _buf_read_data_bbuf;
 
-//=============================================================
-// DnnWeaver2 Wrapper
-//=============================================================
-  dnnweaver2_controller #(
-    .ARRAY_N                        ( ARRAY_N                        ),
-    .ARRAY_M                        ( ARRAY_M                        ),
-    .DATA_WIDTH                     ( DATA_WIDTH                     ),
-    .BIAS_WIDTH                     ( BIAS_WIDTH                     ),
-    .ACC_WIDTH                      ( ACC_WIDTH                      ),
-    .WEIGHT_ROW_NUM             ( WEIGHT_ROW_NUM             ),                                                                                     //edit by sy 0513
+   // add for 8bit/16bit wbuf
+    wire [ 12       -1 : 0 ]        tag_mem_write_addr_wbuf;
+    wire                                        mem_write_req_dly_wbuf;
+    wire [ 256       -1 : 0 ]        _mem_write_data_wbuf;
+    wire [ 11       -1 : 0 ]        tag_buf_read_addr_wbuf;
+    wire                                         buf_read_req_wbuf;
+    wire  [ 512       -1 : 0 ]        _buf_read_data_wbuf;
 
-    .IBUF_CAPACITY_BITS             ( IBUF_CAPACITY_BITS             ),
-    .WBUF_CAPACITY_BITS             ( WBUF_CAPACITY_BITS             ),
-    .OBUF_CAPACITY_BITS             ( OBUF_CAPACITY_BITS             ),
-    .BBUF_CAPACITY_BITS             ( BBUF_CAPACITY_BITS             ),
+   // add for 8bit/16bit obuf
+     wire [ 15       -1 : 0 ]        tag_mem_write_addr_obuf;
+     wire                                        mem_write_req_obuf;
+     wire [ 256       -1 : 0 ]        mem_write_data_obuf;
+     wire [ 15       -1 : 0 ]        tag_mem_read_addr_obuf;
+     wire                                        mem_read_req_obuf;
+    wire [ 256       -1 : 0 ]        mem_read_data_obuf;
+    wire [ 2048       -1 : 0 ]        pu_read_data_obuf;
+     wire [ 12       -1 : 0 ]        tag_buf_write_addr_obuf;
+     wire   buf_write_req_obuf;
+     wire  [ 2048       -1 : 0 ]        buf_write_data_obuf;
+     wire [ 12       -1 : 0 ]        tag_buf_read_addr_obuf;
+      wire                                         buf_read_req_obuf;
+    wire [ 2048       -1 : 0 ]        _buf_read_data_obuf;
+  wire choose_mux_out;
+  wire                            obuf_fifo_write_req_limit;
 
-    .AXI_ADDR_WIDTH                 ( AXI_ADDR_WIDTH                 ),
-    .AXI_BURST_WIDTH                ( AXI_BURST_WIDTH                ),
-    .IBUF_AXI_DATA_WIDTH            ( IBUF_AXI_DATA_WIDTH            ),
-    .OBUF_AXI_DATA_WIDTH            ( OBUF_AXI_DATA_WIDTH            ),
-    .PU_AXI_DATA_WIDTH              ( PU_AXI_DATA_WIDTH              ),
-    .WBUF_AXI_DATA_WIDTH            ( WBUF_AXI_DATA_WIDTH            ),
-    .BBUF_AXI_DATA_WIDTH            ( BBUF_AXI_DATA_WIDTH            ),
-    .INST_ADDR_WIDTH                ( INST_ADDR_WIDTH                ),
-    .INST_DATA_WIDTH                ( INST_DATA_WIDTH                ),
-    .CTRL_ADDR_WIDTH                ( CTRL_ADDR_WIDTH                ),
-    .CTRL_DATA_WIDTH                ( CTRL_DATA_WIDTH                )
-  ) u_bf_wrap (
+
+cl_wrapper # (
+)top_cl_wrapper(
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),
 
@@ -597,87 +579,98 @@ module cl_wrapper #(
     .cl_ddr4_rvalid                 ( cl_ddr4_rvalid                 ),
     .cl_ddr4_rready                 ( cl_ddr4_rready                 ),
 
-  // add for 8bit/16bit ibuf
-  .ibuf_tag_mem_write_addr (ibuf_mem_write_addr),
-  .ibuf_mem_write_req_in (ibuf_mem_write_req),
-  .ibuf_mem_write_data_in (ibuf_mem_write_data),
-  .ibuf_tag_buf_read_addr (ibuf_mem_read_addr),
-  .ibuf_buf_read_req (ibuf_mem_read_req),
-  .ibuf__buf_read_data (ibuf_mem_read_data),
-    // add for 8bit/16bit bbuf
-  .bbuf_tag_mem_write_addr (bbuf_mem_write_addr),
-  .bbuf_mem_write_req (bbuf_mem_write_req),
-  .bbuf_mem_write_data (bbuf_mem_write_data),
-  .bbuf_tag_buf_read_addr (bbuf_mem_read_addr),
-  .bbuf_buf_read_req (bbuf_mem_read_req),
-  .bbuf__buf_read_data (bbuf_mem_read_data),
+   // add for 8bit/16bit ibuf
+  .ibuf_mem_write_addr (tag_mem_write_addr_ibuf),
+  .ibuf_mem_write_req (mem_write_req_in_ibuf),
+  .ibuf_mem_write_data (mem_write_data_in_ibuf),
+  .ibuf_mem_read_addr (tag_buf_read_addr_ibuf),
+  .ibuf_mem_read_req (buf_read_req_ibuf),
+  .ibuf_mem_read_data (_buf_read_data_ibuf),
+  // add for 8bit/16bit bbuf
+  .bbuf_mem_write_addr (tag_mem_write_addr_bbuf),
+  .bbuf_mem_write_req (mem_write_req_bbuf),
+  .bbuf_mem_write_data (mem_write_data_bbuf),
+  .bbuf_mem_read_addr (tag_buf_read_addr_bbuf),
+  .bbuf_mem_read_req (buf_read_req_bbuf),
+  .bbuf_mem_read_data (_buf_read_data_bbuf),
   // add for 8bit/16bit wbuf
-  .wbuf_tag_mem_write_addr (wbuf_mem_write_addr),
-  .wbuf_mem_write_req_dly (wbuf_mem_write_req),
-  .wbuf__mem_write_data (wbuf_mem_write_data),
-  .wbuf_tag_buf_read_addr (wbuf_mem_read_addr),
-  .wbuf_buf_read_req (wbuf_mem_read_req),
-  .wbuf__buf_read_data (wbuf_mem_read_data),
+  .wbuf_mem_write_addr(tag_mem_write_addr_wbuf),
+  .wbuf_mem_write_req (mem_write_req_dly_wbuf),
+  .wbuf_mem_write_data (_mem_write_data_wbuf),
+  .wbuf_mem_read_addr (tag_buf_read_addr_wbuf),
+  .wbuf_mem_read_req (buf_read_req_wbuf),
+  .wbuf_mem_read_data (_buf_read_data_wbuf),
   // add for 8bit/16bit obuf
-  .obuf_tag_mem_write_addr (obuf_mem_write_addr),
-  .obuf_mem_write_req (obuf_mem_write_req),
-  .obuf_mem_write_data (obuf_mem_write_data),
-  .obuf_tag_mem_read_addr (obuf_mem_read_addr),
-  .obuf_mem_read_req (obuf_mem_read_req),
-  .obuf_mem_read_data (obuf_mem_read_data),
-  .obuf_pu_read_data (obuf_pu_read_data),
-  .obuf_tag_buf_write_addr (obuf_pu_write_addr),
-  .obuf_buf_write_req (obuf_pu_write_req),
-  .obuf_buf_write_data (obuf_pu_write_data),
-  .obuf_tag_buf_read_addr (obuf_pu_read_addr),
-  .obuf_buf_read_req (obuf_pu_read_req),
-  .obuf__buf_read_data(_obuf_mem_read_data),
-  .choose_mux_out (choose_mux_out),
-  .obuf_fifo_write_req_limit (obuf_fifo_write_req_limit),
-    ////ghd_add_begin
-
-    .acc_clear                            ( acc_clear                      ),
-    .ibuf_read_data                       ( ibuf_read_data                 ),
-    .wbuf_read_data                       ( wbuf_read_data                 ),
-    .wbuf_read_addr                       ( wbuf_read_addr                 ),
-
-    .sys_wbuf_read_req                    ( sys_wbuf_read_req              ), 
-    .sys_wbuf_read_addr                   ( sys_wbuf_read_addr             ),       
-    .compute_req                          ( compute_req                    ),
-    .loop_exit                            ( loop_exit                      ),             
-    .sys_inner_loop_start                 ( sys_inner_loop_start           ),
-
-    // .choose_8bit_out                      ( choose_8bit                    ),
-
-    .bbuf_read_data                       ( bbuf_read_data                 ),
-    .bias_read_req                        ( bias_read_req                  ),
-    .bias_read_addr                       ( bias_read_addr                 ),
-    .sys_bias_read_req                    ( sys_bias_read_req              ),
-    .sys_bias_read_addr                   ( sys_bias_read_addr             ),
-    .sys_array_c_sel                      ( sys_array_c_sel                ),
-
-    .obuf_write_req                       ( obuf_write_req                 ),
-    .obuf_write_addr                      ( obuf_write_addr                ),
-    .obuf_read_data                       ( obuf_read_data                 ),
-    .obuf_read_addr                       ( obuf_read_addr                 ),
-    .sys_obuf_read_req                    ( sys_obuf_read_req              ),
-    .sys_obuf_read_addr                   ( sys_obuf_read_addr             ),
-          
-    .sys_obuf_write_data                  ( sys_obuf_write_data            ),
-    .sys_obuf_write_req                   ( sys_obuf_write_req             ),
-    .sys_obuf_write_addr                  ( sys_obuf_write_addr            )
-
-    ////ghd_add_begin
+  .obuf_mem_write_addr (tag_mem_write_addr_obuf),
+  .obuf_mem_write_req (mem_write_req_obuf),
+  .obuf_mem_write_data (mem_write_data_obuf),
+  .obuf_mem_read_addr (tag_mem_read_addr_obuf),
+  .obuf_mem_read_req (mem_read_req_obuf),
+  .obuf_mem_read_data (mem_read_data_obuf),
+  .obuf_pu_read_data (pu_read_data_obuf),
+  .obuf_pu_write_addr (tag_buf_write_addr_obuf),
+  .obuf_pu_write_req (buf_write_req_obuf),
+  .obuf_pu_write_data (buf_write_data_obuf),
+  .obuf_pu_read_addr (tag_buf_read_addr_obuf),
+  .obuf_pu_read_req (buf_read_req_obuf),
+  .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
+  ._obuf_mem_read_data(_buf_read_data_obuf),
+  // add for choose infra_red or LiDAR data for RAM
+  .choose_mux_out (choose_mux_out)
   );
-//=============================================================
+
+ram_mux#(
+)top_mux(
+  .clk                                 ( clk                            ),
+  .reset                          ( reset                          ),
+   // add for 8bit/16bit ibuf
+  .ibuf_mem_write_addr (tag_mem_write_addr_ibuf),
+  .ibuf_mem_write_req (mem_write_req_in_ibuf),
+  .ibuf_mem_write_data (mem_write_data_in_ibuf),
+  .ibuf_mem_read_addr (tag_buf_read_addr_ibuf),
+  .ibuf_mem_read_req (buf_read_req_ibuf),
+  .ibuf_mem_read_data (_buf_read_data_ibuf),
+  // add for 8bit/16bit bbuf
+  .bbuf_mem_write_addr (tag_mem_write_addr_bbuf),
+  .bbuf_mem_write_req (mem_write_req_bbuf),
+  .bbuf_mem_write_data (mem_write_data_bbuf),
+  .bbuf_mem_read_addr (tag_buf_read_addr_bbuf),
+  .bbuf_mem_read_req (buf_read_req_bbuf),
+  .bbuf_mem_read_data (_buf_read_data_bbuf),
+  // add for 8bit/16bit wbuf
+  .wbuf_mem_write_addr(tag_mem_write_addr_wbuf),
+  .wbuf_mem_write_req (mem_write_req_dly_wbuf),
+  .wbuf_mem_write_data (_mem_write_data_wbuf),
+  .wbuf_mem_read_addr (tag_buf_read_addr_wbuf),
+  .wbuf_mem_read_req (buf_read_req_wbuf),
+  .wbuf_mem_read_data (_buf_read_data_wbuf),
+  // add for 8bit/16bit obuf
+  .obuf_mem_write_addr (tag_mem_write_addr_obuf),
+  .obuf_mem_write_req (mem_write_req_obuf),
+  .obuf_mem_write_data (mem_write_data_obuf),
+  .obuf_mem_read_addr (tag_mem_read_addr_obuf),
+  .obuf_mem_read_req (mem_read_req_obuf),
+  .obuf_mem_read_data (mem_read_data_obuf),
+  .obuf_pu_read_data (pu_read_data_obuf),
+  .obuf_pu_write_addr (tag_buf_write_addr_obuf),
+  .obuf_pu_write_req (buf_write_req_obuf),
+  .obuf_pu_write_data (buf_write_data_obuf),
+  .obuf_pu_read_addr (tag_buf_read_addr_obuf),
+  .obuf_pu_read_req (buf_read_req_obuf),
+  ._obuf_mem_read_data(_buf_read_data_obuf),
+  .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
+  // .obuf_mem_read_data(_buf_read_data_obuf),
+  // add for choose infra_red or LiDAR data for RAM
+  .choose_mux_in (choose_mux_out)
+);
 
 //=============================================================
 // VCD
 //=============================================================
-`ifdef COCOTB_TOPLEVEL_cl_wrapper
+`ifdef COCOTB_TOPLEVEL_top_wrapper
   initial begin
-    $dumpfile("cl_wrapper.vcd");
-    $dumpvars(0, cl_wrapper);
+    $dumpfile("top_wrapper.vcd");
+    $dumpvars(0, top_wrapper);
   end
 `endif
 //=============================================================

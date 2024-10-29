@@ -341,41 +341,7 @@ module dnnweaver2_controller #(
     input wire [ 2048       -1 : 0 ]        obuf__buf_read_data,
 
     // 选择mux传入infra_red or LiDAR数据进入RAM
-    output wire choose_mux_out,
-
-    //ghd_add_begin
-    output wire                                          acc_clear,
-    output wire [ IBUF_DATA_WIDTH      -1 : 0 ]          ibuf_read_data,
-    output wire [ WBUF_DATA_WIDTH      -1 : 0 ]          wbuf_read_data,
-    output wire [ WBUF_ADDR_WIDTH      -1 : 0 ]          wbuf_read_addr,
-
-    input  wire                                          sys_wbuf_read_req, 
-    input  wire [ WBUF_ADDR_WIDTH      -1 : 0 ]          sys_wbuf_read_addr,       
-    output wire                                          compute_req,
-    output wire                                          loop_exit,             
-    output wire                                          sys_inner_loop_start,
-
-    // output wire                                          choose_8bit_out,
-
-    output wire [ BBUF_DATA_WIDTH      -1 : 0 ]          bbuf_read_data,
-    output wire                                          bias_read_req,
-    output wire [ BBUF_ADDR_WIDTH      -1 : 0 ]          bias_read_addr,
-    input  wire                                          sys_bias_read_req,
-    input  wire [ BBUF_ADDR_WIDTH      -1 : 0 ]          sys_bias_read_addr,
-    output wire                                          sys_array_c_sel,
-
-    output wire                                          obuf_write_req,
-    output wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          obuf_write_addr,
-    output wire [ OBUF_DATA_WIDTH      -1 : 0 ]          obuf_read_data,
-    output wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          obuf_read_addr,
-    input  wire                                          sys_obuf_read_req,
-    input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_read_addr,
-
-    input  wire [ OBUF_DATA_WIDTH      -1 : 0 ]          sys_obuf_write_data,
-    input  wire                                          sys_obuf_write_req,
-    input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_write_addr
-    //ghd_add_end 
-
+    output wire choose_mux_out
   );
 
 //=============================================================
@@ -503,37 +469,37 @@ module dnnweaver2_controller #(
     wire                                        wbuf_wr_addr_v;
 
   // IBUF
-    // wire [ IBUF_DATA_WIDTH      -1 : 0 ]        ibuf_read_data;
+    wire [ IBUF_DATA_WIDTH      -1 : 0 ]        ibuf_read_data;
     (* MARK_DEBUG="true" *)wire                                        ibuf_read_req;
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_read_addr;
 
   // WBUF
-    // wire [ WBUF_DATA_WIDTH      -1 : 0 ]        wbuf_read_data;
+    wire [ WBUF_DATA_WIDTH      -1 : 0 ]        wbuf_read_data;
     (* MARK_DEBUG="true" *)wire                                        wbuf_read_req;
-    // wire                                        sys_wbuf_read_req;                                                                                                       //edit by sy 0517
-    // wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_read_addr;
-    // wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        sys_wbuf_read_addr;                                                                             //edit by sy 0517
+    wire                                        sys_wbuf_read_req;                                                                                                       //edit by sy 0517
+    wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_read_addr;
+    wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        sys_wbuf_read_addr;                                                                             //edit by sy 0517
     
   // BIAS
-    // wire [ BBUF_DATA_WIDTH      -1 : 0 ]        bbuf_read_data;
-    // (* MARK_DEBUG="true" *)wire                                        bias_read_req;
-    // wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        bias_read_addr;
-    // wire                                        sys_bias_read_req;
-    // wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        sys_bias_read_addr;
+    wire [ BBUF_DATA_WIDTH      -1 : 0 ]        bbuf_read_data;
+    (* MARK_DEBUG="true" *)wire                                        bias_read_req;
+    wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        bias_read_addr;
+    wire                                        sys_bias_read_req;
+    wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        sys_bias_read_addr;
 
   // OBUF
     wire [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_write_data;
-    // wire                                        obuf_write_req;
-    // wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_write_addr;
-    // wire [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_read_data;
+    wire                                        obuf_write_req;
+    wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_write_addr;
+    wire [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_read_data;
     wire                                        obuf_read_req;
-    // wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_read_addr;
+    wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_read_addr;
 
-    // wire                                        sys_obuf_write_req;
-    // wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        sys_obuf_write_addr;
+    wire                                        sys_obuf_write_req;
+    wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        sys_obuf_write_addr;
 
-    // wire                                        sys_obuf_read_req;
-    // wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        sys_obuf_read_addr;
+    wire                                        sys_obuf_read_req;
+    wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        sys_obuf_read_addr;
 
   // Slave registers
     wire [ CTRL_DATA_WIDTH      -1 : 0 ]        slv_reg0_in;
@@ -634,14 +600,11 @@ module dnnweaver2_controller #(
                                                                                                                                                                     
    wire                                         loop_exit;                                                                                                                                 //edit by sy 0517
    wire                                         sys_inner_loop_start;                                                                                                            //edit by sy 0519
-  //  reg                                          choose_8bit = 0;//ghd_add
+   
 
 //=============================================================
 // Assigns
 //=============================================================
-  // ghd_test
-    // assign choose_8bit_out = choose_8bit;
-
   // TODO: bias tag handling
   // Use the bias tag ready when obuf not needed
     assign compute_req = ibuf_compute_ready && wbuf_compute_ready&&obuf_compute_ready && bias_compute_ready;
@@ -1150,7 +1113,7 @@ module dnnweaver2_controller #(
     .buf_write_req                  ( sys_obuf_write_req             ),
     .buf_write_addr                 ( sys_obuf_write_addr            ),
     .buf_read_data                  (obuf_read_data),
-    .buf_read_req                   ( sys_obuf_read_req              ),//ghd_change
+    .buf_read_req                   ( obuf_buf_read_req              ),
     .buf_read_addr                  ( sys_obuf_read_addr             ),
 
     .pu_buf_read_ready              ( ld_obuf_ready                  ),
@@ -1307,49 +1270,49 @@ module dnnweaver2_controller #(
   
   assign sys_array_c_sel = obuf_biase_sel_new;                                               //edit yt 0720
   
-  // systolic_array #(
-  //   .OBUF_ADDR_WIDTH                ( OBUF_ADDR_WIDTH                ),
-  //   .BBUF_ADDR_WIDTH                ( BBUF_ADDR_WIDTH                ),
-  //   .ACT_WIDTH                      ( DATA_WIDTH                     ),
-  //   .WGT_WIDTH                      ( DATA_WIDTH                     ),
-  //   .BIAS_WIDTH                     ( BIAS_WIDTH                     ),
-  //   .ACC_WIDTH                      ( ACC_WIDTH                      ),
-  //   .ARRAY_N                        ( ARRAY_N                        ),
-  //   .ARRAY_M                        ( ARRAY_M                        ),
-  //   .WBUF_ADDR_WIDTH                ( WBUF_ADDR_WIDTH                ),  // edit by sy 0517
-  //   .LOOP_ITER_W                    ( LOOP_ITER_W                    )  // edit by sy
-  // ) sys_array (
-  //   .clk                            ( clk                            ),
-  //   .reset                          ( reset                          ),
-  //   .acc_clear                      ( acc_clear                      ),
+  systolic_array #(
+    .OBUF_ADDR_WIDTH                ( OBUF_ADDR_WIDTH                ),
+    .BBUF_ADDR_WIDTH                ( BBUF_ADDR_WIDTH                ),
+    .ACT_WIDTH                      ( DATA_WIDTH                     ),
+    .WGT_WIDTH                      ( DATA_WIDTH                     ),
+    .BIAS_WIDTH                     ( BIAS_WIDTH                     ),
+    .ACC_WIDTH                      ( ACC_WIDTH                      ),
+    .ARRAY_N                        ( ARRAY_N                        ),
+    .ARRAY_M                        ( ARRAY_M                        ),
+    .WBUF_ADDR_WIDTH                ( WBUF_ADDR_WIDTH                ),  // edit by sy 0517
+    .LOOP_ITER_W                    ( LOOP_ITER_W                    )  // edit by sy
+  ) sys_array (
+    .clk                            ( clk                            ),
+    .reset                          ( reset                          ),
+    .acc_clear                      ( acc_clear                      ),
 
-  //   .ibuf_read_data                 ( ibuf_read_data                 ),
+    .ibuf_read_data                 ( ibuf_read_data                 ),
 
-  //   .wbuf_read_data                 ( wbuf_read_data                 ),
-  //   .wbuf_read_addr                 ( wbuf_read_addr                 ),                                                                                                 //edit by sy 0518
-  //   .sys_wbuf_read_req              ( sys_wbuf_read_req              ),                                                                                                 //edit by sy 0518
-  //   .sys_wbuf_read_addr             ( sys_wbuf_read_addr             ),                                                                                                 //edit by sy 0518
-  //   .start                          ( compute_req                    ),                                                                                                                                  //edit by sy 0518
-  //   .loop_exit                      ( loop_exit                      ),                                                                                                                                  //edit by sy 0518
-  //   .sys_inner_loop_start           ( sys_inner_loop_start           ),                                                                                        //edit by sy 0518
+    .wbuf_read_data                 ( wbuf_read_data                 ),
+    .wbuf_read_addr                 ( wbuf_read_addr                 ),                                                                                                 //edit by sy 0518
+    .sys_wbuf_read_req              ( sys_wbuf_read_req              ),                                                                                                 //edit by sy 0518
+    .sys_wbuf_read_addr             ( sys_wbuf_read_addr             ),                                                                                                 //edit by sy 0518
+    .start                          ( compute_req                    ),                                                                                                                                  //edit by sy 0518
+    .loop_exit                      ( loop_exit                      ),                                                                                                                                  //edit by sy 0518
+    .sys_inner_loop_start           ( sys_inner_loop_start           ),                                                                                        //edit by sy 0518
 
-  //   .bbuf_read_data                 ( bbuf_read_data                 ),
-  //   .bias_read_req                  ( bias_read_req                  ),
-  //   .bias_read_addr                 ( bias_read_addr                 ),
-  //   .sys_bias_read_req              ( sys_bias_read_req              ),
-  //   .sys_bias_read_addr             ( sys_bias_read_addr             ),
-  //   .bias_prev_sw                   ( sys_array_c_sel                ),
+    .bbuf_read_data                 ( bbuf_read_data                 ),
+    .bias_read_req                  ( bias_read_req                  ),
+    .bias_read_addr                 ( bias_read_addr                 ),
+    .sys_bias_read_req              ( sys_bias_read_req              ),
+    .sys_bias_read_addr             ( sys_bias_read_addr             ),
+    .bias_prev_sw                   ( sys_array_c_sel                ),
 
-  //   .obuf_read_data                 ( obuf_read_data                 ),
-  //   .obuf_read_addr                 ( obuf_read_addr                 ),
-  //   .sys_obuf_read_req              ( sys_obuf_read_req              ),
-  //   .sys_obuf_read_addr             ( sys_obuf_read_addr             ),
-  //   .obuf_write_req                 ( obuf_write_req                 ),
-  //   .obuf_write_addr                ( obuf_write_addr                ),
-  //   .obuf_write_data                ( sys_obuf_write_data            ),
-  //   .sys_obuf_write_req             ( sys_obuf_write_req             ),
-  //   .sys_obuf_write_addr            ( sys_obuf_write_addr            )
-  // );
+    .obuf_read_data                 ( obuf_read_data                 ),
+    .obuf_read_addr                 ( obuf_read_addr                 ),
+    .sys_obuf_read_req              ( sys_obuf_read_req              ),
+    .sys_obuf_read_addr             ( sys_obuf_read_addr             ),
+    .obuf_write_req                 ( obuf_write_req                 ),
+    .obuf_write_addr                ( obuf_write_addr                ),
+    .obuf_write_data                ( sys_obuf_write_data            ),
+    .sys_obuf_write_req             ( sys_obuf_write_req             ),
+    .sys_obuf_write_addr            ( sys_obuf_write_addr            )
+  );
 
 
     wire [ 64                   -1 : 0 ]        obuf_out0;

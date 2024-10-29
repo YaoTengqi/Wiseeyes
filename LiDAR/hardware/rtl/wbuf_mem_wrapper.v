@@ -71,7 +71,7 @@ module wbuf_mem_wrapper #(
     input  wire  [ 2                    -1 : 0 ]        cfg_mem_req_type,
 
   // Systolic Array
-    output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
+    input wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
     // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 

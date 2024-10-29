@@ -13,7 +13,6 @@ module ram_mux #(
     parameter integer  LOOP_ID_W                    = 5,
 
   // Systolic Array
-    parameter integer  NUM_TAGS                     = 2,//ghd_add
     parameter integer  TAG_W                        = $clog2(NUM_TAGS),
     parameter integer  ARRAY_N                      = 32,
     parameter integer  ARRAY_M                      = 32,
@@ -25,7 +24,7 @@ module ram_mux #(
 
   // Buffers
     parameter integer  WEIGHT_ROW_NUM               = 1,                                                                                                                       //edit by sy 0513
-    // parameter integer  NUM_TAGS                     = 2,//ghd_delete
+    parameter integer  NUM_TAGS                     = 2,
     parameter integer  IBUF_CAPACITY_BITS           = ARRAY_N * DATA_WIDTH * 6144 / NUM_TAGS,
     parameter integer  WBUF_CAPACITY_BITS           = ARRAY_M * WEIGHT_ROW_NUM * DATA_WIDTH * 2048 / NUM_TAGS,
     parameter integer  OBUF_CAPACITY_BITS           = ARRAY_M * ACC_WIDTH * 4096 / NUM_TAGS,                                            //edit by sy 0513
@@ -105,6 +104,7 @@ module ram_mux #(
   input wire  [ 2048       -1 : 0 ]        obuf_pu_write_data,
   input wire [ 12       -1 : 0 ]        obuf_pu_read_addr,
   input  wire                                         obuf_pu_read_req,
+  output wire                            obuf_fifo_write_req_limit,
   output wire [ 2048       -1 : 0 ]        obuf_pu_read_data,
   output wire [ 2048       -1 : 0 ]   _obuf_mem_read_data,
 
@@ -142,10 +142,10 @@ module ram_mux #(
   input wire  [ 2048       -1 : 0 ]        LiDAR_obuf_pu_write_data,
   input wire [ 12       -1 : 0 ]        LiDAR_obuf_pu_read_addr,
   input  wire                                        LiDAR_obuf_pu_read_req,
-  input wire                            obuf_fifo_write_req_limit,
   output wire [ 2048       -1 : 0 ]        LiDAR_obuf_pu_read_data,
-  output wire [ 2048       -1 : 0 ]   LiDAR__obuf_mem_read_data,
-  input wire choose_mux_in
+  
+
+    input wire choose_mux_in
 );
 
 
@@ -270,8 +270,9 @@ assign choosed_obuf_buf_write_data = choose_mux_in? obuf_pu_write_data : LiDAR_o
 assign choosed_obuf_tag_buf_read_addr = choose_mux_in? obuf_pu_read_addr : LiDAR_obuf_pu_read_addr;
 assign choosed_obuf_buf_read_req = choose_mux_in? obuf_pu_read_req : LiDAR_obuf_pu_read_req;
 // assign choosed_obuf__buf_read_data = choose_mux_in? obuf_pu_read_data : LiDAR_obuf_pu_read_data; 
-assign LiDAR__obuf_mem_read_data = choosed_obuf__buf_read_data;
+// assign obuf_pu_read_data = choosed_obuf__buf_read_data;
 assign _obuf_mem_read_data = choosed_obuf__buf_read_data;
+assign LiDAR_obuf_pu_read_data = choosed_obuf__buf_read_data;
 
 
 // always @(posedge clk) begin
