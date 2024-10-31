@@ -120,10 +120,10 @@ module simd_pu_core #(
 
     wire                                        st_fifo_full_read_req;
 
-    wire [ FN_WIDTH             -1 : 0 ]        alu_fn_stage2;
-    wire                                        alu_fn_valid_stage2;
+    wire [ FN_WIDTH             -1 : 0 ]        alu_fn_stage2[SIMD_LANES-1:0];
+    wire  [SIMD_LANES-1:0]                                      alu_fn_valid_stage2;
     wire                                        alu_fn_valid_stage3;
-    wire [ IMM_WIDTH            -1 : 0 ]        alu_imm_stage2;
+    wire [ IMM_WIDTH            -1 : 0 ]        alu_imm_stage2[SIMD_LANES-1:0];
     wire                                        alu_in1_src_stage2;
     wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_in0_addr_stage2;
     wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_in1_addr_stage2;
@@ -225,6 +225,7 @@ module simd_pu_core #(
 //==============================================================================
 // PU Store FIFO
 //==============================================================================
+
     assign ddr_st_stream_write_ready = ~st_req_buf_almost_full;
     assign ddr_st1_stream_write_req = st1_data_required && alu_fn_valid_stage3 && alu_fn_stage3 == 'd4;//edit yt
     assign _ddr_st_stream_write_req = ddr_st_stream_write_req || ddr_st1_stream_write_req;
@@ -245,6 +246,11 @@ begin
     assign _obuf_ld_stream_write_data[i*ACC_DATA_WIDTH + ACC_DATA_HALF_WIDTH +: ACC_DATA_HALF_WIDTH] = $signed(obuf_ld_stream_write_data[i*ACC_DATA_WIDTH + OBUF_HVALID_DATA_WIDTH +: OBUF_LVALID_DATA_WIDTH]);
 end
 endgenerate
+
+    wire         _ddr_st_stream_write_req_dly1;
+    register_sync_with_enable #(1) _ddr_st_stream_write_req_dly    
+    (clk, reset, 1'b1, _ddr_st_stream_write_req, _ddr_st_stream_write_req_dly1);
+
   fifo_asymmetric_16 #(
     .WR_DATA_WIDTH                  ( SIMD_DATA_WIDTH                ),
     .RD_DATA_WIDTH                  ( AXI_DATA_WIDTH                 ),
@@ -253,7 +259,7 @@ endgenerate
   ) st_req_buf (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
-    .s_write_req                    ( _ddr_st_stream_write_req       ), //input edit by sy
+    .s_write_req                    ( _ddr_st_stream_write_req_dly1       ), //input edit by sy
     .s_write_data                   ( ddr_st_stream_write_data_reg   ), //output edit by sy 0813
     .s_write_ready                  (                                ), //output
     .s_read_req                     ( st_fifo_full_read_req          ),//ddr_st_stream_read_req         ), //input
@@ -414,20 +420,17 @@ endgenerate
 //==============================================================================
 // delays
 //==============================================================================
-    register_sync_with_enable #(FN_WIDTH) alu_fn_delay_reg1
-    (clk, reset, 1'b1, alu_fn, alu_fn_stage2);
+
     register_sync_with_enable #(FN_WIDTH) alu_fn_delay_reg2//edit by sy
-    (clk, reset, 1'b1, alu_fn_stage2, alu_fn_stage3);
+    (clk, reset, 1'b1, alu_fn_stage2[0], alu_fn_stage3);
     register_sync_with_enable #(1) ddr_st1_stream_write_req_reg1//edit by sy
     (clk, reset, 1'b1, ddr_st1_stream_write_req, ddr_st1_stream_write_req_dly1);
 
-    register_sync_with_enable #(1) alu_fn_valid_delay_reg1
-    (clk, reset, 1'b1, alu_fn_valid, alu_fn_valid_stage2);
     register_sync_with_enable #(1) alu_fn_valid_delay_reg2
-    (clk, reset, 1'b1, alu_fn_valid_stage2, alu_fn_valid_stage3);
+    (clk, reset, 1'b1, alu_fn_valid_stage2[0], alu_fn_valid_stage3);
 
-    register_sync_with_enable #(IMM_WIDTH) alu_imm_delay_reg1
-    (clk, reset, 1'b1, alu_imm, alu_imm_stage2);
+
+
 
     // register_sync_with_enable #(1) alu_in1_src_delay_reg1
     // (clk, reset, 1'b1, alu_in1_src, alu_in1_src_stage2);
@@ -455,6 +458,13 @@ begin: ALU_INST
     //assign local_ld1_data = ddr_ld1_stream_read_data_fix[i*DATA_WIDTH+:DATA_WIDTH];
     assign alu_out[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH] = local_alu_out;
 
+    register_sync_with_enable #(FN_WIDTH) alu_fn_delay_reg1
+    (clk, reset, 1'b1, alu_fn, alu_fn_stage2[i]);
+    register_sync_with_enable #(IMM_WIDTH) alu_imm_delay_reg1
+    (clk, reset, 1'b1, alu_imm, alu_imm_stage2[i]);
+    register_sync_with_enable #(1) alu_fn_valid_delay_reg1
+    (clk, reset, 1'b1, alu_fn_valid, alu_fn_valid_stage2[i]);
+
     pu_alu #(
       .DATA_WIDTH                     ( DATA_WIDTH                     ),
       .ACC_DATA_WIDTH                 ( ACC_DATA_WIDTH                 ),
@@ -462,9 +472,9 @@ begin: ALU_INST
       .FN_WIDTH                       ( FN_WIDTH                       )
     ) scalar_alu (
       .clk                            ( clk                            ), //input
-      .fn_valid                       ( alu_fn_valid_stage2            ), //alu_fn_valid_stage2            ), //input
-      .fn                             ( alu_fn_stage2                  ), //alu_fn_stage2                  ), //input
-      .imm                            ( alu_imm_stage2                 ), //input
+      .fn_valid                       ( alu_fn_valid_stage2[i]            ), //alu_fn_valid_stage2            ), //input
+      .fn                             ( alu_fn_stage2[i]               ), //alu_fn_stage2                  ), //input
+      .imm                            ( alu_imm_stage2[i]              ), //input
       .obuf_data                      ( local_obuf_data                ), //input
       .alu_out                        ( local_alu_out                  ), //output
       .cfg_rs_num_v                   ( cfg_rs_num_v                   ),//input

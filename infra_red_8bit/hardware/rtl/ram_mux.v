@@ -143,8 +143,8 @@ module ram_mux #(
   input  wire                                        LiDAR_obuf_pu_read_req,
   input wire                            obuf_fifo_write_req_limit,
   output wire [ 2048       -1 : 0 ]        LiDAR_obuf_pu_read_data,
-
-    input wire choose_mux_in
+  output wire [ 2048       -1 : 0 ]   LiDAR__obuf_mem_read_data,
+  input wire choose_mux_in
 );
 
 
@@ -269,8 +269,8 @@ assign choosed_obuf_buf_write_data = choose_mux_in? obuf_pu_write_data : LiDAR_o
 assign choosed_obuf_tag_buf_read_addr = choose_mux_in? obuf_pu_read_addr : LiDAR_obuf_pu_read_addr;
 assign choosed_obuf_buf_read_req = choose_mux_in? obuf_pu_read_req : LiDAR_obuf_pu_read_req;
 // assign choosed_obuf__buf_read_data = choose_mux_in? obuf_pu_read_data : LiDAR_obuf_pu_read_data; 
+assign LiDAR__obuf_mem_read_data = choosed_obuf__buf_read_data;
 assign _obuf_mem_read_data = choosed_obuf__buf_read_data;
-assign LiDAR_obuf_pu_read_data = choosed_obuf__buf_read_data;
 
 
 // always @(posedge clk) begin
@@ -429,7 +429,6 @@ obuf #(
     .buf_write_data                 ( choosed_obuf_buf_write_data                 ),//edit by pxq
     .buf_read_addr                  ( choosed_obuf_tag_buf_read_addr              ),
     .buf_read_req                   ( choosed_obuf_buf_read_req                   ),
-    .buf_read_data                  ( choosed_obuf__buf_read_data                 ),
-    .choose_8bit                        (choose_mux_in)
+    .buf_read_data                  ( choosed_obuf__buf_read_data                 )
   );
 endmodule

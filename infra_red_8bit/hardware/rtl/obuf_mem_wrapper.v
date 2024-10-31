@@ -138,8 +138,9 @@ module obuf_mem_wrapper #(
     output wire   buf_write_req_0,
     output wire  [ 2048       -1 : 0 ]        buf_write_data_out,
     output wire [ 12       -1 : 0 ]        tag_buf_read_addr,
-    input  wire                                         buf_read_req,
-    output wire [ 2048       -1 : 0 ]        _buf_read_data
+    //input  wire                                         buf_read_req,
+    input wire [ 2048       -1 : 0 ]        _buf_read_data,
+    input wire                                        obuf_fifo_write_req_limit
 );
 
 //==============================================================================
@@ -332,7 +333,9 @@ module obuf_mem_wrapper #(
       read_req_dly1 <= pu_buf_read_req;
     end
   end
-    assign obuf_ld_stream_write_req = read_req_dly1;// && obuf_fifo_write_req_limit;//edit yt
+   // assign obuf_ld_stream_write_req = read_req_dly1 && obuf_fifo_write_req_limit;//edit yt
+   assign obuf_ld_stream_write_req = read_req_dly1;// && obuf_fifo_write_req_limit;//edit yt
+
 
     assign obuf_ld_stream_write_data = pu_read_data;
     //edit end

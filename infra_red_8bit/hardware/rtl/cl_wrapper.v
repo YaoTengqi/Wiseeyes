@@ -15,6 +15,7 @@ module cl_wrapper #(
     parameter integer  LOOP_ID_W                    = 5,
 
   // Systolic Array
+    parameter integer  NUM_TAGS                     = 2,
     parameter integer  TAG_W                        = $clog2(NUM_TAGS),
     parameter integer  ARRAY_N                      = 32,
     parameter integer  ARRAY_M                      = 32,
@@ -25,8 +26,7 @@ module cl_wrapper #(
     parameter integer  ACC_WIDTH                    = 64,
 
   // Buffers
-    parameter integer  WEIGHT_ROW_NUM               = 1,                                                                                                                       //edit by sy 0513
-    parameter integer  NUM_TAGS                     = 2,
+    parameter integer  WEIGHT_ROW_NUM               = 1,
     parameter integer  IBUF_CAPACITY_BITS           = ARRAY_N * DATA_WIDTH * 6144 / NUM_TAGS,
     parameter integer  WBUF_CAPACITY_BITS           = ARRAY_M * WEIGHT_ROW_NUM * DATA_WIDTH * 2048 / NUM_TAGS,
     parameter integer  OBUF_CAPACITY_BITS           = ARRAY_M * ACC_WIDTH * 4096 / NUM_TAGS,                                            //edit by sy 0513
@@ -60,7 +60,14 @@ module cl_wrapper #(
   // AXI-Lite
     parameter integer  CTRL_ADDR_WIDTH              = 32,
     parameter integer  CTRL_DATA_WIDTH              = 32,
-    parameter integer  CTRL_WSTRB_WIDTH             = CTRL_DATA_WIDTH/8
+    parameter integer  CTRL_WSTRB_WIDTH             = CTRL_DATA_WIDTH/8,
+  
+  // ghd_add_begin
+    parameter integer  WBUF_DATA_WIDTH              = ARRAY_M *WEIGHT_ROW_NUM * DATA_WIDTH,
+    parameter integer  BBUF_DATA_WIDTH              = ARRAY_M * BIAS_WIDTH,
+    parameter integer  IBUF_DATA_WIDTH              = ARRAY_N * DATA_WIDTH,
+    parameter integer  OBUF_DATA_WIDTH              = ARRAY_M * ACC_WIDTH
+  // ghd_add_end
 ) (
     input  wire                                         clk,
     input  wire                                         reset,
@@ -293,36 +300,36 @@ module cl_wrapper #(
     output wire                                         cl_ddr4_rready,
     //add for readonly
         // Master Interface Read Address
-    output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_araddr,
-    output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_arlen,
-    output wire  [ 3                    -1 : 0 ]        cl_ddr5_arsize,
-    output wire  [ 2                    -1 : 0 ]        cl_ddr5_arburst,
-    output wire                                         cl_ddr5_arvalid,
-    output wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_arid,
-    input  wire                                         cl_ddr5_arready,
-    // Master Interface Read Data
-    input  wire  [ INST_DATA_WIDTH    -1 : 0 ]          cl_ddr5_rdata,
-    input  wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_rid,
-    input  wire  [ 2                    -1 : 0 ]        cl_ddr5_rresp,
-    input  wire                                         cl_ddr5_rlast,
-    input  wire                                         cl_ddr5_rvalid,
-    output wire                                         cl_ddr5_rready,
-    output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_awaddr,
-    output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_awlen,
-    output wire  [ 3                    -1 : 0 ]        cl_ddr5_awsize,
-    output wire  [ 2                    -1 : 0 ]        cl_ddr5_awburst,
-    output wire                                         cl_ddr5_awvalid,
-    input  wire                                         cl_ddr5_awready,
-    // Master Interface Write Data
-    output wire  [ PU_AXI_DATA_WIDTH    -1 : 0 ]        cl_ddr5_wdata,
-    output wire  [ PU_WSTRB_W           -1 : 0 ]        cl_ddr5_wstrb,
-    output wire                                         cl_ddr5_wlast,
-    output wire                                         cl_ddr5_wvalid,
-    input  wire                                         cl_ddr5_wready,
-    // Master Interface Write Response
-    input  wire  [ 2                    -1 : 0 ]        cl_ddr5_bresp,
-    input  wire                                         cl_ddr5_bvalid,
-    output wire                                         cl_ddr5_bready,
+    // output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_araddr,
+    // output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_arlen,
+    // output wire  [ 3                    -1 : 0 ]        cl_ddr5_arsize,
+    // output wire  [ 2                    -1 : 0 ]        cl_ddr5_arburst,
+    // output wire                                         cl_ddr5_arvalid,
+    // output wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_arid,
+    // input  wire                                         cl_ddr5_arready,
+    // // Master Interface Read Data
+    // input  wire  [ INST_DATA_WIDTH    -1 : 0 ]          cl_ddr5_rdata,
+    // input  wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_rid,
+    // input  wire  [ 2                    -1 : 0 ]        cl_ddr5_rresp,
+    // input  wire                                         cl_ddr5_rlast,
+    // input  wire                                         cl_ddr5_rvalid,
+    // output wire                                         cl_ddr5_rready,
+    // output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_awaddr,
+    // output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_awlen,
+    // output wire  [ 3                    -1 : 0 ]        cl_ddr5_awsize,
+    // output wire  [ 2                    -1 : 0 ]        cl_ddr5_awburst,
+    // output wire                                         cl_ddr5_awvalid,
+    // input  wire                                         cl_ddr5_awready,
+    // // Master Interface Write Data
+    // output wire  [ PU_AXI_DATA_WIDTH    -1 : 0 ]        cl_ddr5_wdata,
+    // output wire  [ PU_WSTRB_W           -1 : 0 ]        cl_ddr5_wstrb,
+    // output wire                                         cl_ddr5_wlast,
+    // output wire                                         cl_ddr5_wvalid,
+    // input  wire                                         cl_ddr5_wready,
+    // // Master Interface Write Response
+    // input  wire  [ 2                    -1 : 0 ]        cl_ddr5_bresp,
+    // input  wire                                         cl_ddr5_bvalid,
+    // output wire                                         cl_ddr5_bready,
 
   // add for 8bit/16bit ibuf
   output wire [ 14       -1 : 0 ]        ibuf_mem_write_addr,
@@ -359,7 +366,44 @@ module cl_wrapper #(
     output  wire                                         obuf_pu_read_req,
     input wire [ 2048       -1 : 0 ]       _obuf_mem_read_data,
     input wire [ 2048       -1 : 0 ]       obuf_pu_read_data,
-    output wire choose_mux_out     // 选择mux传入infra_red or LiDAR数据进入RAM
+    input wire obuf_fifo_write_req_limit,
+    // output wire choose_mux_out,     // 选择mux传入infra_red or LiDAR数据进入RAM
+
+    ///ghd_add_begin
+
+    output wire                                          acc_clear,
+    output wire [ IBUF_DATA_WIDTH      -1 : 0 ]          ibuf_read_data,
+    output wire [ WBUF_DATA_WIDTH      -1 : 0 ]          wbuf_read_data,
+    output wire [ WBUF_ADDR_WIDTH      -1 : 0 ]          wbuf_read_addr,
+
+    input  wire                                          sys_wbuf_read_req, 
+    input  wire [ WBUF_ADDR_WIDTH      -1 : 0 ]          sys_wbuf_read_addr,       
+    output wire                                          compute_req,
+    output wire                                          loop_exit,             
+    output wire                                          sys_inner_loop_start,
+
+   output wire                                           choose_8bit,
+
+    output wire [ BBUF_DATA_WIDTH      -1 : 0 ]          bbuf_read_data,
+    output wire                                          bias_read_req,
+    output wire [ BBUF_ADDR_WIDTH      -1 : 0 ]          bias_read_addr,
+    input  wire                                          sys_bias_read_req,
+    input  wire [ BBUF_ADDR_WIDTH      -1 : 0 ]          sys_bias_read_addr,
+    output wire                                          sys_array_c_sel,
+
+    output wire                                          obuf_write_req,
+    output wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          obuf_write_addr,
+    output wire [ OBUF_DATA_WIDTH      -1 : 0 ]          obuf_read_data,
+    output wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          obuf_read_addr,
+    input  wire                                          sys_obuf_read_req,
+    input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_read_addr,
+
+    input  wire [ OBUF_DATA_WIDTH      -1 : 0 ]          sys_obuf_write_data,
+    input  wire                                          sys_obuf_write_req,
+    input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_write_addr
+
+    ///ghd_add_end    
+    
 );
 
 //=============================================================
@@ -650,7 +694,43 @@ module cl_wrapper #(
   .obuf_tag_buf_read_addr (obuf_pu_read_addr),
   .obuf_buf_read_req (obuf_pu_read_req),
   .obuf__buf_read_data(_obuf_mem_read_data),
-  .choose_mux_out (choose_mux_out)
+  // .choose_mux_out (choose_mux_out),
+  .obuf_fifo_write_req_limit (obuf_fifo_write_req_limit),
+  
+    ////ghd_add_begin
+
+    .acc_clear                            ( acc_clear                      ),
+    .ibuf_read_data                       ( ibuf_read_data                 ),
+    .wbuf_read_data                       ( wbuf_read_data                 ),
+    .wbuf_read_addr                       ( wbuf_read_addr                 ),
+
+    .sys_wbuf_read_req                    ( sys_wbuf_read_req              ), 
+    .sys_wbuf_read_addr                   ( sys_wbuf_read_addr             ),       
+    .compute_req                          ( compute_req                    ),
+    .loop_exit                            ( loop_exit                      ),             
+    .sys_inner_loop_start                 ( sys_inner_loop_start           ),
+
+    .choose_8bit_out                      ( choose_8bit                    ),
+
+    .bbuf_read_data                       ( bbuf_read_data                 ),
+    .bias_read_req                        ( bias_read_req                  ),
+    .bias_read_addr                       ( bias_read_addr                 ),
+    .sys_bias_read_req                    ( sys_bias_read_req              ),
+    .sys_bias_read_addr                   ( sys_bias_read_addr             ),
+    .sys_array_c_sel                      ( sys_array_c_sel                ),
+
+    .obuf_write_req                       ( obuf_write_req                 ),
+    .obuf_write_addr                      ( obuf_write_addr                ),
+    .obuf_read_data                       ( obuf_read_data                 ),
+    .obuf_read_addr                       ( obuf_read_addr                 ),
+    .sys_obuf_read_req                    ( sys_obuf_read_req              ),
+    .sys_obuf_read_addr                   ( sys_obuf_read_addr             ),
+          
+    .sys_obuf_write_data                  ( sys_obuf_write_data            ),
+    .sys_obuf_write_req                   ( sys_obuf_write_req             ),
+    .sys_obuf_write_addr                  ( sys_obuf_write_addr            )
+
+    ////ghd_add_begin
   );
 //=============================================================
 

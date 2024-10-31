@@ -284,6 +284,7 @@ module controller #(
     //o_dnn_status;//{icash_busy,icash_ready,icash_vdnn_or_adnn,dnn_idle,decoder_done}
     output [4:0]                                        o_dnn_status, 
     input                                               i_frame_data_ready_adnn, //local mic 16384 data ready
+
     // 选择mux传入infra_red or LiDAR数据进入RAM
     output wire           choose_mux_out
   );
@@ -777,7 +778,8 @@ module controller #(
 
     assign slv_reg0_in = slv_reg0_out; // Used as start trigger
     assign slv_reg1_in = slv_reg1_out; // Used as start address
-    assign choose_mux_out = slv_reg1_out;
+    assign choose_mux_out = slv_reg1_out;//ghd_delete
+    // assign choose_mux_out = slv_reg0_out;//ghd_add   
 
     assign slv_reg2_in = dnnweaver2_state;
     assign slv_reg3_in = ibuf_ld_addr;

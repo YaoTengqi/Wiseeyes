@@ -78,6 +78,9 @@ module pu_alu #(
     wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out_16;
     (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out;
 
+    reg  signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_45_d;//32*16 => 48
+    reg  signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_45_d;//32*16 => 48
+
     assign _alu_in0_h32 = obuf_data[63:32]; 
     assign _alu_in0_l32 = obuf_data[31:0]; 
 //======================================================================================
@@ -98,9 +101,13 @@ module pu_alu #(
     assign mul_out_l_45 =$signed( mul_out_l + mul_out_l_rs );
     assign mul_out_h_45 =$signed( mul_out_h + mul_out_h_rs );
 
-
-    assign rshift_out_l = mul_out_l_45 >>> right_shift_imm;//>>> 'd20;
-    assign rshift_out_h = mul_out_h_45 >>> right_shift_imm;//'d20;
+    always @(posedge clk)begin
+    	mul_out_l_45_d   <=  mul_out_l_45 ;
+    	mul_out_h_45_d   <=  mul_out_h_45 ;
+    end
+    
+    assign rshift_out_l = mul_out_l_45_d >>> right_shift_imm;//>>> 'd20;
+    assign rshift_out_h = mul_out_h_45_d >>> right_shift_imm;//'d20;
 
     assign rshift_out_l_linear = out_range_ln? $signed(-128) : out_range_lp ? $signed (127) : rshift_out_l; 
     assign rshift_out_h_linear = out_range_hn? $signed(-128) : out_range_hp ? $signed (127) : rshift_out_h; 
@@ -157,9 +164,13 @@ module pu_alu #(
         right_shift_imm <= rshift_num;
     end
 
+    wire [ FN_WIDTH             -1 : 0 ] fn_dly1;
+    register_sync_with_enable #(FN_WIDTH) fn_dly
+    (clk, reset, 1'b1, fn, fn_dly1);
+
     always @(*)
     begin
-      case (fn)
+      case (fn_dly1)
         FN_CAL: alu_out_d = relu_out;
         FN_MUL: alu_out_d = rshift_out;
         FN_MAX: alu_out_d = max_out;
@@ -167,15 +178,18 @@ module pu_alu #(
       endcase
     end
 
+    wire fn_valid_dly1;
+    register_sync_with_enable #(1) fn_valid_dly
+    (clk, reset, 1'b1, fn_valid, fn_valid_dly1);
 
     always @(posedge clk)
     begin
-      if (fn_valid)
+      if (fn_valid_dly1)
         alu_out_q <= alu_out_d;
     end
 
     always @(posedge clk ) begin
-      if (fn_valid)
+      if (fn_valid_dly1)
         alu_out_q_dly <= alu_out_q;
     end
 

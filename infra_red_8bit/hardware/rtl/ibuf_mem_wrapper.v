@@ -150,7 +150,7 @@ module ibuf_mem_wrapper #(
   output wire  [256 -1 : 0]                                mem_write_data_in_0,
   output wire [ 13       -1 : 0 ]        tag_buf_read_addr,
   input  wire                                         buf_read_req,
-  output wire [ 512       -1 : 0 ]        _buf_read_data
+  input wire [ 512       -1 : 0 ]        _buf_read_data
 
 );
 
