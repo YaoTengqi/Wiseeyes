@@ -348,6 +348,7 @@ module top_wrapper #(
     output wire                                         cl_ddr5_bready
 );
 
+
 //ghd_add_begin
 //    wire choose_8bit_out;
 
@@ -435,11 +436,12 @@ module top_wrapper #(
   wire choose_mux_out;
   wire                            obuf_fifo_write_req_limit;
 
+
 cl_wrapper # (
-)top_cl_wrapper(   
+)top_cl_wrapper(
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),
-    .choose_8bit                    ( choose_8bit                    ),//ghd_add    
+    // .choose_8bit                    ( choose_8bit                    ),//ghd_add
     .pci_cl_data_awaddr             ( pci_cl_data_awaddr             ),
     .pci_cl_data_awlen              ( pci_cl_data_awlen              ),
     .pci_cl_data_awsize             ( pci_cl_data_awsize             ),
@@ -624,105 +626,6 @@ cl_wrapper # (
     .cl_ddr4_rvalid                 ( cl_ddr4_rvalid                 ),
     .cl_ddr4_rready                 ( cl_ddr4_rready                 ),
 
-    // .o_m_axi_asr_awaddr                 ( cl_ddr5_awaddr                 ),
-    // .o_m_axi_asr_awlen                  ( cl_ddr5_awlen                  ),
-    // .o_m_axi_asr_awsize                 ( cl_ddr5_awsize                 ),
-    // .o_m_axi_asr_awburst                ( cl_ddr5_awburst                ),
-    // .o_m_axi_asr_awvalid                ( cl_ddr5_awvalid                ),
-    // .i_m_axi_asr_awready                ( cl_ddr5_awready                ),
-    // .o_m_axi_asr_wdata                  ( cl_ddr5_wdata                  ),
-    // .o_m_axi_asr_wstrb                  ( cl_ddr5_wstrb                  ),
-    // .o_m_axi_asr_wlast                  ( cl_ddr5_wlast                  ),
-    // .o_m_axi_asr_wvalid                 ( cl_ddr5_wvalid                 ),
-    // .i_m_axi_asr_wready                 ( cl_ddr5_wready                 ),
-    // .i_m_axi_asr_bresp                  ( cl_ddr5_bresp                  ),
-    // .i_m_axi_asr_bvalid                 ( cl_ddr5_bvalid                 ),
-    // .o_m_axi_asr_bready                 ( cl_ddr5_bready                 ),
-    // .o_m_axi_icash_araddr                 ( cl_ddr5_araddr                 ),
-    // .o_m_axi_icash_arlen                  ( cl_ddr5_arlen                  ),
-    // .o_m_axi_icash_arsize                 ( cl_ddr5_arsize                 ),
-    // .o_m_axi_icash_arburst                ( cl_ddr5_arburst                ),
-    // .o_m_axi_icash_arvalid                ( cl_ddr5_arvalid                ),
-    // .o_m_axi_icash_arid                   ( cl_ddr5_arid                   ),
-    // .i_m_axi_icash_arready                ( cl_ddr5_arready                ),
-    // .i_m_axi_icash_rdata                  ( cl_ddr5_rdata                  ),
-    // .i_m_axi_icash_rid                    ( cl_ddr5_rid                    ),
-    // .i_m_axi_icash_rresp                  ( cl_ddr5_rresp                  ),
-    // .i_m_axi_icash_rlast                  ( cl_ddr5_rlast                  ),
-    // .i_m_axi_icash_rvalid                 ( cl_ddr5_rvalid                 ),
-    // .o_m_axi_icash_rready                 ( cl_ddr5_rready                 ),
-
- // add for 8bit/16bit ibuf
-  .ibuf_mem_write_addr (tag_mem_write_addr_ibuf),
-  .ibuf_mem_write_req (mem_write_req_in_ibuf),
-  .ibuf_mem_write_data (mem_write_data_in_ibuf),
-  .ibuf_mem_read_addr (tag_buf_read_addr_ibuf),
-  .ibuf_mem_read_req (buf_read_req_ibuf),
-  .ibuf_mem_read_data (_buf_read_data_ibuf),
-  // add for 8bit/16bit bbuf
-  .bbuf_mem_write_addr (tag_mem_write_addr_bbuf),
-  .bbuf_mem_write_req (mem_write_req_bbuf),
-  .bbuf_mem_write_data (mem_write_data_bbuf),
-  .bbuf_mem_read_addr (tag_buf_read_addr_bbuf),
-  .bbuf_mem_read_req (buf_read_req_bbuf),
-  .bbuf_mem_read_data (_buf_read_data_bbuf),
-  // add for 8bit/16bit wbuf
-  .wbuf_mem_write_addr(tag_mem_write_addr_wbuf),
-  .wbuf_mem_write_req (mem_write_req_dly_wbuf),
-  .wbuf_mem_write_data (_mem_write_data_wbuf),
-  .wbuf_mem_read_addr (tag_buf_read_addr_wbuf),
-  .wbuf_mem_read_req (buf_read_req_wbuf),
-  .wbuf_mem_read_data (_buf_read_data_wbuf),
-  // add for 8bit/16bit obuf
-  .obuf_mem_write_addr (tag_mem_write_addr_obuf),
-  .obuf_mem_write_req (mem_write_req_obuf),
-  .obuf_mem_write_data (mem_write_data_obuf),
-  .obuf_mem_read_addr (tag_mem_read_addr_obuf),
-  .obuf_mem_read_req (mem_read_req_obuf),
-  .obuf_mem_read_data (mem_read_data_obuf),
-  .obuf_pu_read_data (pu_read_data_obuf),
-  .obuf_pu_write_addr (tag_buf_write_addr_obuf),
-  .obuf_pu_write_req (buf_write_req_obuf),
-  .obuf_pu_write_data (buf_write_data_obuf),
-  .obuf_pu_read_addr (tag_buf_read_addr_obuf),
-  .obuf_pu_read_req (buf_read_req_obuf),
-  .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
-  ._obuf_mem_read_data(_buf_read_data_obuf),
-  
-  // add for choose infra_red or LiDAR data for RAM
-  //  .choose_mux_out (choose_mux_out),
-   //ghd_add_begin
-        .acc_clear(acc_clear_pd),
-        .ibuf_read_data(ibuf_read_data_pd),
-        .wbuf_read_data(wbuf_read_data_pd),
-        .wbuf_read_addr(wbuf_read_addr_pd),
-        .sys_wbuf_read_req(sys_wbuf_read_req_pd),
-        .sys_wbuf_read_addr(sys_wbuf_read_addr_pd),
-        .compute_req(compute_req_pd),
-        .loop_exit(loop_exit_pd),
-        .sys_inner_loop_start(sys_inner_loop_start_pd),
-        .bbuf_read_data(bbuf_read_data_pd),
-        .bias_read_req(bias_read_req_pd),
-        .bias_read_addr(bias_read_addr_pd),
-        .sys_bias_read_req(sys_bias_read_req_pd),
-        .sys_bias_read_addr(sys_bias_read_addr_pd),
-        .sys_array_c_sel(sys_array_c_sel_pd),
-        .obuf_write_req(obuf_write_req_pd),
-        .obuf_write_addr(obuf_write_addr_pd),
-        .obuf_read_data(obuf_read_data_pd),
-        .obuf_read_addr(obuf_read_addr_pd),
-        .sys_obuf_read_req(sys_obuf_read_req_pd),
-        .sys_obuf_read_addr(sys_obuf_read_addr_pd),
-        .sys_obuf_write_data(sys_obuf_write_data_pd),
-        .sys_obuf_write_req(sys_obuf_write_req_pd),
-        .sys_obuf_write_addr(sys_obuf_write_addr_pd)   
-   //ghd_add_end
-  );
-
-ram_mux#(
-)top_mux(
-  .clk                                 ( clk                            ),
-  .reset                          ( reset                          ),
    // add for 8bit/16bit ibuf
   .ibuf_mem_write_addr (tag_mem_write_addr_ibuf),
   .ibuf_mem_write_req (mem_write_req_in_ibuf),
@@ -757,12 +660,151 @@ ram_mux#(
   .obuf_pu_write_data (buf_write_data_obuf),
   .obuf_pu_read_addr (tag_buf_read_addr_obuf),
   .obuf_pu_read_req (buf_read_req_obuf),
-  ._obuf_mem_read_data(_buf_read_data_obuf),
   .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
-  // .obuf_mem_read_data(_buf_read_data_obuf),
+  ._obuf_mem_read_data(_buf_read_data_obuf),
   // add for choose infra_red or LiDAR data for RAM
-  // .choose_mux_in (choose_mux_out)//ghd_delete
-  .choose_mux_in (choose_8bit)//ghd_add
+  .choose_mux_out (choose_mux_out),
+   //ghd_add_begin
+        .acc_clear(acc_clear_lidar),
+        .ibuf_read_data(ibuf_read_data_lidar),
+        .wbuf_read_data(wbuf_read_data_lidar),
+        .wbuf_read_addr(wbuf_read_addr_lidar),
+        .sys_wbuf_read_req(sys_wbuf_read_req_lidar),
+        .sys_wbuf_read_addr(sys_wbuf_read_addr_lidar),
+        .compute_req(compute_req_lidar),
+        .loop_exit(loop_exit_lidar),
+        .sys_inner_loop_start(sys_inner_loop_start_lidar),
+        .bbuf_read_data(bbuf_read_data_lidar),
+        .bias_read_req(bias_read_req_lidar),
+        .bias_read_addr(bias_read_addr_lidar),
+        .sys_bias_read_req(sys_bias_read_req_lidar),
+        .sys_bias_read_addr(sys_bias_read_addr_lidar),
+        .sys_array_c_sel(sys_array_c_sel_lidar),
+        .obuf_write_req(obuf_write_req_lidar),
+        .obuf_write_addr(obuf_write_addr_lidar),
+        .obuf_read_data(obuf_read_data_lidar),
+        .obuf_read_addr(obuf_read_addr_lidar),
+        .sys_obuf_read_req(sys_obuf_read_req_lidar),
+        .sys_obuf_read_addr(sys_obuf_read_addr_lidar),
+        .sys_obuf_write_data(sys_obuf_write_data_lidar),
+        .sys_obuf_write_req(sys_obuf_write_req_lidar),
+        .sys_obuf_write_addr(sys_obuf_write_addr_lidar)   
+   //ghd_add_end  
+  
+  //  //ghd_add_begin
+  //       .acc_clear(acc_clear_pd),
+  //       .ibuf_read_data(ibuf_read_data_pd),
+  //       .wbuf_read_data(wbuf_read_data_pd),
+  //       .wbuf_read_addr(wbuf_read_addr_pd),
+  //       .sys_wbuf_read_req(sys_wbuf_read_req_pd),
+  //       .sys_wbuf_read_addr(sys_wbuf_read_addr_pd),
+  //       .compute_req(compute_req_pd),
+  //       .loop_exit(loop_exit_pd),
+  //       .sys_inner_loop_start(sys_inner_loop_start_pd),
+  //       .bbuf_read_data(bbuf_read_data_pd),
+  //       .bias_read_req(bias_read_req_pd),
+  //       .bias_read_addr(bias_read_addr_pd),
+  //       .sys_bias_read_req(sys_bias_read_req_pd),
+  //       .sys_bias_read_addr(sys_bias_read_addr_pd),
+  //       .sys_array_c_sel(sys_array_c_sel_pd),
+  //       .obuf_write_req(obuf_write_req_pd),
+  //       .obuf_write_addr(obuf_write_addr_pd),
+  //       .obuf_read_data(obuf_read_data_pd),
+  //       .obuf_read_addr(obuf_read_addr_pd),
+  //       .sys_obuf_read_req(sys_obuf_read_req_pd),
+  //       .sys_obuf_read_addr(sys_obuf_read_addr_pd),
+  //       .sys_obuf_write_data(sys_obuf_write_data_pd),
+  //       .sys_obuf_write_req(sys_obuf_write_req_pd),
+  //       .sys_obuf_write_addr(sys_obuf_write_addr_pd)   
+  //  //ghd_add_end
+
+  );
+
+ram_mux#(
+)top_mux(
+  .clk                                 ( clk                            ),
+  .reset                          ( reset                          ),
+   // add for 8bit/16bit ibuf
+  // .ibuf_mem_write_addr (tag_mem_write_addr_ibuf),
+  // .ibuf_mem_write_req (mem_write_req_in_ibuf),
+  // .ibuf_mem_write_data (mem_write_data_in_ibuf),
+  // .ibuf_mem_read_addr (tag_buf_read_addr_ibuf),
+  // .ibuf_mem_read_req (buf_read_req_ibuf),
+  // .ibuf_mem_read_data (_buf_read_data_ibuf),
+  // // add for 8bit/16bit bbuf
+  // .bbuf_mem_write_addr (tag_mem_write_addr_bbuf),
+  // .bbuf_mem_write_req (mem_write_req_bbuf),
+  // .bbuf_mem_write_data (mem_write_data_bbuf),
+  // .bbuf_mem_read_addr (tag_buf_read_addr_bbuf),
+  // .bbuf_mem_read_req (buf_read_req_bbuf),
+  // .bbuf_mem_read_data (_buf_read_data_bbuf),
+  // // add for 8bit/16bit wbuf
+  // .wbuf_mem_write_addr(tag_mem_write_addr_wbuf),
+  // .wbuf_mem_write_req (mem_write_req_dly_wbuf),
+  // .wbuf_mem_write_data (_mem_write_data_wbuf),
+  // .wbuf_mem_read_addr (tag_buf_read_addr_wbuf),
+  // .wbuf_mem_read_req (buf_read_req_wbuf),
+  // .wbuf_mem_read_data (_buf_read_data_wbuf),
+  // // add for 8bit/16bit obuf
+  // .obuf_mem_write_addr (tag_mem_write_addr_obuf),
+  // .obuf_mem_write_req (mem_write_req_obuf),
+  // .obuf_mem_write_data (mem_write_data_obuf),
+  // .obuf_mem_read_addr (tag_mem_read_addr_obuf),
+  // .obuf_mem_read_req (mem_read_req_obuf),
+  // .obuf_mem_read_data (mem_read_data_obuf),
+  // .obuf_pu_read_data (pu_read_data_obuf),
+  // .obuf_pu_write_addr (tag_buf_write_addr_obuf),
+  // .obuf_pu_write_req (buf_write_req_obuf),
+  // .obuf_pu_write_data (buf_write_data_obuf),
+  // .obuf_pu_read_addr (tag_buf_read_addr_obuf),
+  // .obuf_pu_read_req (buf_read_req_obuf),
+  // ._obuf_mem_read_data(_buf_read_data_obuf),
+  // .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
+  // // .obuf_mem_read_data(_buf_read_data_obuf),
+  // // add for choose infra_red or LiDAR data for RAM
+  // .choose_mux_in (choose_mux_out),//ghd_delete
+  // // .choose_mux_in (choose_8bit)//ghd_add
+
+   // add for 8bit/16bit ibuf
+  .LiDAR_ibuf_mem_write_addr (tag_mem_write_addr_ibuf),
+  .LiDAR_ibuf_mem_write_req (mem_write_req_in_ibuf),
+  .LiDAR_ibuf_mem_write_data (mem_write_data_in_ibuf),
+  .LiDAR_ibuf_mem_read_addr (tag_buf_read_addr_ibuf),
+  .LiDAR_ibuf_mem_read_req (buf_read_req_ibuf),
+  .LiDAR_ibuf_mem_read_data (_buf_read_data_ibuf),
+  // add for 8bit/16bit bbuf
+  .LiDAR_bbuf_mem_write_addr (tag_mem_write_addr_bbuf),
+  .LiDAR_bbuf_mem_write_req (mem_write_req_bbuf),
+  .LiDAR_bbuf_mem_write_data (mem_write_data_bbuf),
+  .LiDAR_bbuf_mem_read_addr (tag_buf_read_addr_bbuf),
+  .LiDAR_bbuf_mem_read_req (buf_read_req_bbuf),
+  .LiDAR_bbuf_mem_read_data (_buf_read_data_bbuf),
+  // add for 8bit/16bit wbuf
+  .LiDAR_wbuf_mem_write_addr(tag_mem_write_addr_wbuf),
+  .LiDAR_wbuf_mem_write_req (mem_write_req_dly_wbuf),
+  .LiDAR_wbuf_mem_write_data (_mem_write_data_wbuf),
+  .LiDAR_wbuf_mem_read_addr (tag_buf_read_addr_wbuf),
+  .LiDAR_wbuf_mem_read_req (buf_read_req_wbuf),
+  .LiDAR_wbuf_mem_read_data (_buf_read_data_wbuf),
+  // add for 8bit/16bit obuf
+  .LiDAR_obuf_mem_write_addr (tag_mem_write_addr_obuf),
+  .LiDAR_obuf_mem_write_req (mem_write_req_obuf),
+  .LiDAR_obuf_mem_write_data (mem_write_data_obuf),
+  .LiDAR_obuf_mem_read_addr (tag_mem_read_addr_obuf),
+  .LiDAR_obuf_mem_read_req (mem_read_req_obuf),
+  .LiDAR_obuf_mem_read_data (mem_read_data_obuf),
+  .LiDAR_obuf_pu_read_data (pu_read_data_obuf),
+  .LiDAR_obuf_pu_write_addr (tag_buf_write_addr_obuf),
+  .LiDAR_obuf_pu_write_req (buf_write_req_obuf),
+  .LiDAR_obuf_pu_write_data (buf_write_data_obuf),
+  .LiDAR_obuf_pu_read_addr (tag_buf_read_addr_obuf),
+  .LiDAR_obuf_pu_read_req (buf_read_req_obuf),
+  .obuf_fifo_write_req_limit(obuf_fifo_write_req_limit),
+  ._obuf_mem_read_data(_buf_read_data_obuf),
+  // add for choose infra_red or LiDAR data for RAM
+  .choose_mux_in (choose_mux_out)//ghd_delete
+  // .choose_mux_in (choose_8bit)//ghd_add
+
 );
 
     mux_sysytolic_array #(
@@ -792,10 +834,10 @@ ram_mux#(
         .INST_DATA_WIDTH(INST_DATA_WIDTH),
         .CTRL_ADDR_WIDTH(CTRL_ADDR_WIDTH),
         .CTRL_DATA_WIDTH(CTRL_DATA_WIDTH)
-    ) u_mux_sysytolic_array (
+    )u_mux_sysytolic_array(
         .clk(clk),
         .reset(reset),
-        .choose_8bit_in(choose_8bit),      
+        .choose_8bit_in(choose_mux_out),      
         
         .acc_clear_pd(acc_clear_pd),
         .ibuf_read_data_pd(ibuf_read_data_pd),

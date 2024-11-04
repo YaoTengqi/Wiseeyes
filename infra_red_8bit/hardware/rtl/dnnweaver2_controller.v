@@ -45,8 +45,6 @@ module dnnweaver2_controller #(
     parameter integer  AXI_ADDR_WIDTH               = 42,
     parameter integer  AXI_ID_WIDTH                 = 1,
     parameter integer  AXI_BURST_WIDTH              = 8,
-    parameter integer  AXI_DATA_WIDTH               = 256,
-
     parameter integer  TID_WIDTH                    = 4,
     parameter integer  IBUF_AXI_DATA_WIDTH          = 64,
     parameter integer  IBUF_WSTRB_W                 = IBUF_AXI_DATA_WIDTH/8,
@@ -73,21 +71,12 @@ module dnnweaver2_controller #(
     parameter integer  OBUF_DATA_WIDTH              = ARRAY_M * ACC_WIDTH,
 
   // Buffer Addr width for PU access to OBUF
-    parameter integer  PU_OBUF_ADDR_WIDTH           = OBUF_ADDR_WIDTH + $clog2(OBUF_DATA_WIDTH / OBUF_AXI_DATA_WIDTH),
-    //cam_in info
-    // sensor out posedge and negedge 
-    parameter integer  CAM0_IN_DATA_WIDTH           =48,
-    parameter integer  CAM0_SENSOR_DATA_WIDTH       =24,
-     //inst from ddr max leng
-    parameter integer  MAX_LENGTH_FROMDDR_B         = 1024*32,
-    parameter integer  MAX_LENGTH_FROMDDR_WIDTH     = $clog2(MAX_LENGTH_FROMDDR_B),
-    parameter integer  ASR_MIC_CH_NUM                    =1, //
-    parameter integer  SL_MIC_CH_NUM                     =4
+    parameter integer  PU_OBUF_ADDR_WIDTH           = OBUF_ADDR_WIDTH + $clog2(OBUF_DATA_WIDTH / OBUF_AXI_DATA_WIDTH)
 
 ) (
     input  wire                                         clk,
     input  wire                                         reset,
-    input  wire                                         resetn,
+
   // PCIe -> CL_wrapper AXI4-Lite interface
   // Slave Write address
     input  wire                                         pci_cl_ctrl_awvalid,
@@ -114,35 +103,35 @@ module dnnweaver2_controller #(
 
   // PCIe -> CL_wrapper AXI4 interface
   // Slave Interface Write Address
-   input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
-   input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
-   input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
-   input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
-   input  wire                                         pci_cl_data_awvalid,
-   output wire                                         pci_cl_data_awready,
- // Slave Interface Write Data
-   input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
-   input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
-   input  wire                                         pci_cl_data_wlast,
-   input  wire                                         pci_cl_data_wvalid,
-   output wire                                         pci_cl_data_wready,
- // Slave Interface Write Response
-   output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
-   output wire                                         pci_cl_data_bvalid,
-   input  wire                                         pci_cl_data_bready,
- // Slave Interface Read Address
-   input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
-   input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,
-   input  wire  [ 3                    -1 : 0 ]        pci_cl_data_arsize,
-   input  wire  [ 2                    -1 : 0 ]        pci_cl_data_arburst,
-   input  wire                                         pci_cl_data_arvalid,
-   output wire                                         pci_cl_data_arready,
- // Slave Interface Read Data
-   output wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_rdata,
-   output wire  [ 2                    -1 : 0 ]        pci_cl_data_rresp,
-   output wire                                         pci_cl_data_rlast,
-   output wire                                         pci_cl_data_rvalid,
-   input  wire                                         pci_cl_data_rready,
+    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
+    input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
+    input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
+    input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
+    input  wire                                         pci_cl_data_awvalid,
+    output wire                                         pci_cl_data_awready,
+  // Slave Interface Write Data
+    input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
+    input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
+    input  wire                                         pci_cl_data_wlast,
+    input  wire                                         pci_cl_data_wvalid,
+    output wire                                         pci_cl_data_wready,
+  // Slave Interface Write Response
+    output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
+    output wire                                         pci_cl_data_bvalid,
+    input  wire                                         pci_cl_data_bready,
+  // Slave Interface Read Address
+    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
+    input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,
+    input  wire  [ 3                    -1 : 0 ]        pci_cl_data_arsize,
+    input  wire  [ 2                    -1 : 0 ]        pci_cl_data_arburst,
+    input  wire                                         pci_cl_data_arvalid,
+    output wire                                         pci_cl_data_arready,
+  // Slave Interface Read Data
+    output wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_rdata,
+    output wire  [ 2                    -1 : 0 ]        pci_cl_data_rresp,
+    output wire                                         pci_cl_data_rlast,
+    output wire                                         pci_cl_data_rvalid,
+    input  wire                                         pci_cl_data_rready,
 
   // CL_wrapper -> DDR0 AXI4 interface
   // Master Interface Write Address
@@ -313,88 +302,8 @@ module dnnweaver2_controller #(
     input  wire                                         cl_ddr4_rlast,
     input  wire                                         cl_ddr4_rvalid,
     output wire                                         cl_ddr4_rready,
-    
-     // Master Interface Read Address
-    output   [ AXI_ID_WIDTH         -1 : 0 ]        o_m_axi_icash_arid,
-    output   [ AXI_ADDR_WIDTH       -1 : 0 ]        o_m_axi_icash_araddr,
-    output   [ AXI_BURST_WIDTH      -1 : 0 ]        o_m_axi_icash_arlen,
-    output   [ 3                    -1 : 0 ]        o_m_axi_icash_arsize,
-    output   [ 2                    -1 : 0 ]        o_m_axi_icash_arburst,
-    output                                          o_m_axi_icash_arvalid,
-    input                                           i_m_axi_icash_arready,
-    // Master Interface Read Data
-    input    [ AXI_ID_WIDTH         -1 : 0 ]        i_m_axi_icash_rid,
-    input    [ INST_DATA_WIDTH      -1 : 0 ]        i_m_axi_icash_rdata,
-    input    [ 2                    -1 : 0 ]        i_m_axi_icash_rresp,
-    input                                           i_m_axi_icash_rlast,
-    input                                           i_m_axi_icash_rvalid,
-    output                                          o_m_axi_icash_rready,
-    //axi_asr write only
-    output  wire [AXI_ID_WIDTH-1:0]                   o_m_axi_asr_awid,
-    output  wire [1:0]                                o_m_axi_asr_awburst,
-    output  wire [AXI_DATA_WIDTH-1:0]                 o_m_axi_asr_wstrb,    
-    
-    output  wire [3:0]                                o_m_axi_asr_awcache,
-    output  wire [0:0]                                o_m_axi_asr_awlock,
-    output  wire [2:0]                                o_m_axi_asr_awprot,
-    output  wire [3:0]                                o_m_axi_asr_awqos,
-    
-    output  wire [AXI_BURST_WIDTH-1:0]                o_m_axi_asr_awlen,
-    input   wire                                      i_m_axi_asr_awready,
-    output  wire [2:0]                                o_m_axi_asr_awsize,
-    output  wire [AXI_ADDR_WIDTH-1:0]                 o_m_axi_asr_awaddr,
-    output  wire                                      o_m_axi_asr_awvalid,
-    
-    output  wire [AXI_DATA_WIDTH-1:0]                 o_m_axi_asr_wdata,
-    output  wire                                      o_m_axi_asr_wlast,
-    input   wire                                      i_m_axi_asr_wready,
-    output  wire                                      o_m_axi_asr_wvalid,
-    
-    input   wire [AXI_ID_WIDTH-1:0]                   i_m_axi_asr_bid,
-    output  wire                                      o_m_axi_asr_bready,
-    input   wire [1:0]                                i_m_axi_asr_bresp,
-    input   wire                                      i_m_axi_asr_bvalid,
-    
-    // ASR mic_if
-    output o_ws_asr,
-	output o_sck_asr,
-	input[ASR_MIC_CH_NUM-1:0] i_sdi_asr,
-	
-	    //ASR config data
-    input [AXI_ADDR_WIDTH-1:0]                      i_s2mm_ddrbase_asr,
-    input [AXI_ADDR_WIDTH-1:0]                      i_s2mm_ddrbase_hardware_asr,
- 
-    input [1:0]                                     i_ctl_asr, //00 nowork,1 from ddr; 2 :en s2mm;
-    // athere add camera interface _phy 
-    // input  [1:0]                                     i_ctl,                                   
-    // input  [AXI_ADDR_WIDTH-1:0]                      i_mm2s_vddn_ddrbase,//address base ab0  
-    // input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            i_mm2s_vddn_leng,//data lengthe         
-    input  [AXI_ADDR_WIDTH-1:0]                      i_mm2s_addn_ddrbase,//address base ab0  
-    input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            i_mm2s_addn_leng,//data lengthe
-    
-    input  [1:0]                                     i_video2ddr_ctl,   //bit0:en,bit1:en_pingpangbuf:
-    input  [AXI_ADDR_WIDTH-1:0]                      i_hdwr2ddr_base,    //todo
-    input  [AXI_ADDR_WIDTH-1:0]                      i_Video2ddr_base_a,//address base fb0
-    input  [AXI_ADDR_WIDTH-1:0]                      i_Video2ddr_base_b,//address base fb0
-    
-    //    o_dnn_status={o_icash_busying,o_icash_ready,o_cur_vdnnh_annl,dnn_idle,decoder_done}
-    //                {指令切换中,指令准备，当前指令1:vdnn,0 adnn,dnn_idle}
-    //    o_dnn_status={01X} is run,other is err or stop        
-    output [4:0]                                        o_dnn_status,
-    //cam0_if
-    input                                               i_cam0_clk,
-    input                                               i_cam0_vs,
-    input                                               i_cam0_hs,
-    input                                               i_cam0_de,
-    input [CAM0_SENSOR_DATA_WIDTH-1:0]                  i_cam0_rgb,
-    //cfg_cam0_if
-    output                                               o_cam0_hpd,
-    inout                                                io_cam0_hdmi_scl,
-    inout                                                io_cam0_hdmi_sda,
-    inout                                                io_cam0_cfg_scl,
-    inout                                                io_cam0_cfg_sda,
-    output                                               o_cam0_rstn,
-    // add for 8bit/16bit ibuf
+
+ // add for 8bit/16bit ibuf
   output wire [ 14       -1 : 0 ]        ibuf_tag_mem_write_addr,
   output wire ibuf_mem_write_req_in,
   output wire  [256  -1 : 0]                                ibuf_mem_write_data_in,
@@ -432,8 +341,8 @@ module dnnweaver2_controller #(
     input wire [ 2048       -1 : 0 ]        obuf__buf_read_data,
 
     // 选择mux传入infra_red or LiDAR数据进入RAM
-    // output wire choose_mux_out,
-    
+    output wire choose_mux_out,
+
     //ghd_add_begin
     output wire                                          acc_clear,
     output wire [ IBUF_DATA_WIDTH      -1 : 0 ]          ibuf_read_data,
@@ -446,7 +355,7 @@ module dnnweaver2_controller #(
     output wire                                          loop_exit,             
     output wire                                          sys_inner_loop_start,
 
-    output wire                                          choose_8bit_out,
+    // output wire                                          choose_8bit_out,
 
     output wire [ BBUF_DATA_WIDTH      -1 : 0 ]          bbuf_read_data,
     output wire                                          bias_read_req,
@@ -466,6 +375,7 @@ module dnnweaver2_controller #(
     input  wire                                          sys_obuf_write_req,
     input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_write_addr
     //ghd_add_end 
+
   );
 
 //=============================================================
@@ -476,7 +386,7 @@ module dnnweaver2_controller #(
   // localparam integer  PMAX                         = DATA_WIDTH;
   // localparam integer  PMIN                         = DATA_WIDTH;
 //=============================================================
-   localparam TX_SIZE_WIDTH                = 8;
+
 //=============================================================
 // Wires/Regs
 //=============================================================
@@ -491,7 +401,7 @@ module dnnweaver2_controller #(
   // OBUF STMEM state
     wire [ 4                    -1 : 0 ]        stmem_state;
     wire [ TAG_W                -1 : 0 ]        stmem_tag;
-   
+
   // PU
     wire                                        pu_compute_start;
     wire                                        pu_compute_ready;
@@ -523,9 +433,9 @@ module dnnweaver2_controller #(
     wire                                        pu_block_start;
     wire                                        pu_block_end;
   // Systolic array
-    // wire                                        acc_clear;
-    // wire [ OBUF_DATA_WIDTH      -1 : 0 ]        sys_obuf_write_data;
-    
+    wire                                        acc_clear;
+    wire [ OBUF_DATA_WIDTH      -1 : 0 ]        sys_obuf_write_data;
+
 
   // Loop iterations
     wire [ LOOP_ITER_W          -1 : 0 ]        cfg_loop_iter;
@@ -592,22 +502,21 @@ module dnnweaver2_controller #(
     wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_wr_addr;
     wire                                        wbuf_wr_addr_v;
 
-
   // IBUF
     // wire [ IBUF_DATA_WIDTH      -1 : 0 ]        ibuf_read_data;
-    wire                                        ibuf_read_req;
+    (* MARK_DEBUG="true" *)wire                                        ibuf_read_req;
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_read_addr;
 
   // WBUF
     // wire [ WBUF_DATA_WIDTH      -1 : 0 ]        wbuf_read_data;
-    wire                                        wbuf_read_req;
+    (* MARK_DEBUG="true" *)wire                                        wbuf_read_req;
     // wire                                        sys_wbuf_read_req;                                                                                                       //edit by sy 0517
     // wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_read_addr;
     // wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        sys_wbuf_read_addr;                                                                             //edit by sy 0517
-
+    
   // BIAS
     // wire [ BBUF_DATA_WIDTH      -1 : 0 ]        bbuf_read_data;
-    // wire                                        bias_read_req;
+    // (* MARK_DEBUG="true" *)wire                                        bias_read_req;
     // wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        bias_read_addr;
     // wire                                        sys_bias_read_req;
     // wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        sys_bias_read_addr;
@@ -696,7 +605,7 @@ module dnnweaver2_controller #(
     wire                                        obuf_tag_ready;
     wire                                        obuf_tag_done;
     wire                                        obuf_compute_ready;
-   
+
     wire                                        bias_tag_ready;
     wire                                        bias_tag_done;
     wire                                        bias_compute_ready;
@@ -707,199 +616,35 @@ module dnnweaver2_controller #(
     wire                                        obuf_tag_reuse;
     wire                                        wbuf_tag_reuse;
     wire                                        bias_tag_reuse;
-    wire                                        sync_tag_req;
-    wire                                        tag_ready;
+    (* MARK_DEBUG="true" *)wire                                        sync_tag_req;
+    (* MARK_DEBUG="true" *)wire                                        tag_ready;
 
-    wire                                        compute_done;
-    // wire                                        compute_req;
+    (* MARK_DEBUG="true" *)wire                                        compute_done;
+    (* MARK_DEBUG="true" *)wire                                        compute_req;
 
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        tie_ibuf_buf_base_addr;
     wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        tie_wbuf_buf_base_addr;
     wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        tie_obuf_buf_base_addr;
     wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        tie_bias_buf_base_addr;
 
-    // wire                                        sys_array_c_sel;
+    wire                                        sys_array_c_sel;
     wire                                        base_obuf_stride_v;                   //edit yt 0720
     wire                                        obuf_biase_sel_new;                   //edit yt 0720
 //=============================================================
                                                                                                                                                                     
-   // wire                                         loop_exit;                                                                                                                                 //edit by sy 0517
-   // wire                                         sys_inner_loop_start;                                                                                                            //edit by sy 0519
-// DSP_MULTIPLEX                                                                                                   //edit by sy 0519
-   wire                                         choose_8bit;//edit by sy 0819  
-   wire [ ADDR_WIDTH      -1 : 0 ]              ibuf_offset_addr;//edit by sy 0819    
-   assign choose_8bit_out = choose_8bit;//ghd_add  
-//=============================================================
-// Assigns
-//=============================================================       
-   //************************************************************************************
-   //add for asr data write 2021-08-13
-    wire[ IBUF_DATA_WIDTH-1  : 0 ]                      w_data_adnn_asr_audo_in_o; 
-    wire[ IBUF_ADDR_WIDTH-1  : 0 ]    					w_add_adnn_asr_audo_in_o;
-    wire      									        w_valid_adnn_asr_audo_in_o;
-    
-    wire                                                w_is_run_adnn_asr_audo_in_o;
-    wire                                                w_frame_adnn_asr_audo_in_o;  
-    wire                                                w_frame_data_ready_adnn_asr_audo_in_o;
-    wire [4:0]                                          w_dnn_status;//{icash_busy,icash_ready,icash_vdnn_or_adnn,dnn_idle,decoder_done}
-   //************************************************************************************                                                                                                      //edit by sy 0519
-   //********************************************************************************
-   //add for video dma s2mm 2021-07-22
-        wire  [ TX_SIZE_WIDTH        -1 : 0 ]                 w_s2mem_size;
-        wire  [AXI_ADDR_WIDTH-1:0]                            w_s2mem_addr;
-        wire                                                  w_s2mem_addr_req;
-        wire                                                  w_s2mem_addr_done;
-        wire                                                  w_s2mem_addr_ready;
-        
-        wire  [IBUF_AXI_DATA_WIDTH-1:0]                       w_s2mem_data;
-        wire                                                  w_s2mem_data_req;
-        wire                                                  w_s2mem_data_ready;
-   //**********************************************************************************
-   //
-  
-    
-    //RGB接口
-    wire  wrst;
-    
-    (* mark_debug = "true" *)wire                                     clk_cam;
-    (* mark_debug = "true" *)wire                                     w_hs;  
-    (* mark_debug = "true" *)wire                                     w_vs;  
-    (* mark_debug = "true" *)wire                                     w_de;  
-    (* mark_debug = "true" *)wire [CAM0_IN_DATA_WIDTH-1:0]            w_video_pix	;
-    
-// ongly test for rgb file ,normal  from camera
-//clk_wiz_27M27 u_camclk_test
-//   (
-//    // Clock out ports
-//    .clk_out1(clk_cam),     // output clk_out1
-//    // Status and control signals
-//    .reset(reset), // input reset
-//    .locked(wrst),       // output locked
-//   // Clock in ports
-//    .clk_in1(clk)      // input clk_in1
-//);
-////BUFGFS 
-////cam0 if
-// sdi_inout_top u_video_driver(
-//    .clk_cam	(clk_cam         ),
-//    .reset		(!wrst	         ),
+   wire                                         loop_exit;                                                                                                                                 //edit by sy 0517
+   wire                                         sys_inner_loop_start;                                                                                                            //edit by sy 0519
+  //  reg                                          choose_8bit = 0;//ghd_add
 
-					
-//    //RGB接口       
-//    .video_hs_o		(	),     //行同步信�?
-//    .video_vs_o		(w_vs	),     //场同步信�?
-//    .video_de_o		(w_de	),     //数据使能
-//    .video_rgb_o	(w_video_pix)    //RGB888颜色数据
-					
-//    //.pixel_xpos_o	(pixel_xpos_o),   //像素点横坐标
-//    //.pixel_ypos_o   (pixel_ypos_o) //像素点纵坐标
-//);   
-//this is for testhdmi
-//20210819 add
-//  sdi_inout_top #(
-//  .IN_DATA_WIDTH(       CAM0_SENSOR_DATA_WIDTH              )
-//  ) u_video_driver(
-//      //cfg if
-//      .hpd(           o_cam0_hpd                             ), 
-//      .hdmi_in_scl(   io_cam0_hdmi_scl                        ),
-//      .hdmi_in_sda(   io_cam0_hdmi_sda                        ),
-//      .hdmi_edid_scl( io_cam0_cfg_scl                         ),
-//      .hdmi_edid_sda( io_cam0_cfg_sda                         ),
-//      .hdmi_in_nreset(o_cam0_rstn                            ),
-//      .i_clk	    (i_cam0_clk                                 ),
-//      .clk(          clk                                     ),
-//      .rst		    (reset	                                ),
-//      .i_hs		    (i_cam0_hs	                            ),     //行同步信�?
-//      .i_vs		    (i_cam0_vs	                            ),     //场同步信�?
-//      .i_de		    (i_cam0_de	                            ),     //数据使能
-//      .i_din	        (i_cam0_rgb                             ),    //RGB888颜色数据
-					
-//     //RGB接口
-//     .cam_clk        (  clk_cam                              ), 
-//     .o_hs		    (	                                    ),     //行同步信�?
-//     .o_vs		    (w_vs	                                ),     //场同步信�?
-//     .o_de		    (w_de	                                ),     //数据使能
-//     .o_data	        (w_video_pix                            )    //RGB888颜色数据
-					
-    //.pixel_xpos_o	(pixel_xpos_o),   //像素点横坐标
-    //.pixel_ypos_o   (pixel_ypos_o) //像素点纵坐标
-// ); 
-//wire                    w_hs_cdc_o;  
-wire                                      w_vs_cdc_o;  
-reg                                       r_fs_filter;
-wire                                      w_de_cdc_o;  
-wire [CAM0_IN_DATA_WIDTH-1:0]             w_video_pix_cdc_o;
-wire                                      w_fs_start; 
-wire     w_cdc_empty,w_cdc_rd_en;
- assign  w_cdc_rd_en = !w_cdc_empty;
- reg     r_cdc_rd_en;
- assign  w_fs_start =r_fs_filter||w_vs_cdc_o;
- always @(posedge clk)begin
-       if(reset)               r_cdc_rd_en <= 'd0;      
-       else                    r_cdc_rd_en <=  w_cdc_rd_en;
-       end
- always @(posedge clk)begin
-       if(reset)               r_fs_filter <= 'd0;
-       else if(r_cdc_rd_en)    r_fs_filter <=  w_vs_cdc_o;
-       else                    r_fs_filter <=  r_fs_filter;
-       end
- fifo_async #(
- .data_depth( 4                         ),
- .IN_WIDTH(  CAM0_IN_DATA_WIDTH+2       ),
- .OUT_WIDTH( CAM0_IN_DATA_WIDTH+2       )
- )u_video_fifocdc(
-  .rst(          !wrst                                 ),
-  .clr(          'd0                                   ), 
-  .wr_clk(       clk_cam                               ),
-  .i_wr_en(      1'd1                                  ),
-  .i_din(        {w_video_pix,w_de,w_vs}               ),
-  .rd_clk(       clk                                   ),
-  .rd_en(        w_cdc_rd_en                           ),
-  .dout(     {w_video_pix_cdc_o,w_de_cdc_o,w_vs_cdc_o} ),
-  .empty(        w_cdc_empty                           )
- );
-video2ddr_base_gen #(
-    .TX_SIZE_WIDTH     (   TX_SIZE_WIDTH               ),
-    .COLOR_WIDTH       (   CAM0_IN_DATA_WIDTH          )
-)u_video_s2mm(
-    .clk(                                 clk),//
-    .reset(                             reset),//
-    .i_video2ddr_ctl(                    i_video2ddr_ctl),
-    .i_Video2ddr_base_a(   i_Video2ddr_base_a),
-    .i_Video2ddr_base_b(   i_Video2ddr_base_b),
-    .i_fs_start(           w_fs_start                  ),
-    //.i_hs(video_hs_o),
-    .i_de(                               w_de_cdc_o     ),
-    //.i_clk_cam(                       clk_cam),
-    .i_pix_data(                  w_video_pix_cdc_o     ),
-    .o_fbptr(                                           ),
-    
-    .o_s2mem_size(              w_s2mem_size            ),
-    .o_s2mem_addr(              w_s2mem_addr            ),
-    .i_s2mem_addr_req(          w_s2mem_addr_req        ),
-    .i_s2mem_done(              w_s2mem_addr_done       ),
-    .o_s2mem_addr_ready(        w_s2mem_addr_ready      ),
-    
-    
-    .o_s2mem_data(              w_s2mem_data            ),
-    .i_s2mem_data_req(          w_s2mem_data_req        ),
-   .o_s2mem_data_ready(        w_s2mem_data_ready       ) 
-   
-//    .i_video2ddr_ctl(i_video2ddr_ctl),
-//    .i_Video2ddr_base_a(i_Video2ddr_base_a),
-//    .i_Video2ddr_base_b(i_Video2ddr_base_b)   
-//    .o_mem_read_data(         w_mem_read_data),
-//    .o_mem_read_size(         w_mem_read_size),
-//    .o_mem_read_addr(         w_mem_read_addr),
-//    .o_mem_read_req(           w_mem_read_req)
- );   
- 
 //=============================================================
 // Assigns
 //=============================================================
+  // ghd_test
+    // assign choose_8bit_out = choose_8bit;
+
   // TODO: bias tag handling
   // Use the bias tag ready when obuf not needed
-    assign compute_req = ibuf_compute_ready && wbuf_compute_ready && obuf_compute_ready && bias_compute_ready;
+    assign compute_req = ibuf_compute_ready && wbuf_compute_ready&&obuf_compute_ready && bias_compute_ready;
     assign tag_ready = (ibuf_tag_ready && wbuf_tag_ready&& bias_tag_ready);                                           //edit by sy 0722
 
   // ST tie-offs
@@ -954,9 +699,7 @@ video2ddr_base_gen #(
     .pu_compute_done                ( pu_compute_done                ), //input
     .pu_write_done                  ( pu_write_done                  ), //input
     .pu_ctrl_state                  ( pu_ctrl_state                  ), //input
-    // DSP_MULTIPLEX
-    .ibuf_offset_addr               ( ibuf_offset_addr               ), //output edit by sy 0819
-    .choose_8bit                    ( choose_8bit                    ), //output edit by sy 0819
+
     //DEBUG
     .obuf_ld_stream_read_count      ( obuf_ld_stream_read_count      ), //input
     .obuf_ld_stream_write_count     ( obuf_ld_stream_write_count     ), //input
@@ -1011,45 +754,31 @@ video2ddr_base_gen #(
     .pci_cl_ctrl_rresp              ( pci_cl_ctrl_rresp              ), //output
     .pci_cl_ctrl_rready             ( pci_cl_ctrl_rready             ), //input
 
-   .pci_cl_data_awaddr             ( pci_cl_data_awaddr             ), //input
-   .pci_cl_data_awlen              ( pci_cl_data_awlen              ), //input
-   .pci_cl_data_awsize             ( pci_cl_data_awsize             ), //input
-   .pci_cl_data_awburst            ( pci_cl_data_awburst            ), //input
-   .pci_cl_data_awvalid            ( pci_cl_data_awvalid            ), //input
-   .pci_cl_data_awready            ( pci_cl_data_awready            ), //output
-   .pci_cl_data_wdata              ( pci_cl_data_wdata              ), //input
-   .pci_cl_data_wstrb              ( pci_cl_data_wstrb              ), //input
-   .pci_cl_data_wlast              ( pci_cl_data_wlast              ), //input
-   .pci_cl_data_wvalid             ( pci_cl_data_wvalid             ), //input
-   .pci_cl_data_wready             ( pci_cl_data_wready             ), //output
-   .pci_cl_data_bresp              ( pci_cl_data_bresp              ), //output
-   .pci_cl_data_bvalid             ( pci_cl_data_bvalid             ), //output
-   .pci_cl_data_bready             ( pci_cl_data_bready             ), //input
-   .pci_cl_data_araddr             ( pci_cl_data_araddr             ), //input
-   .pci_cl_data_arlen              ( pci_cl_data_arlen              ), //input
-   .pci_cl_data_arsize             ( pci_cl_data_arsize             ), //input
-   .pci_cl_data_arburst            ( pci_cl_data_arburst            ), //input
-   .pci_cl_data_arvalid            ( pci_cl_data_arvalid            ), //input
-   .pci_cl_data_arready            ( pci_cl_data_arready            ), //output
-   .pci_cl_data_rdata              ( pci_cl_data_rdata              ), //output
-   .pci_cl_data_rresp              ( pci_cl_data_rresp              ), //output
-   .pci_cl_data_rlast              ( pci_cl_data_rlast              ), //output
-   .pci_cl_data_rvalid             ( pci_cl_data_rvalid             ), //output
-   .pci_cl_data_rready             ( pci_cl_data_rready             ), //input
-    .o_m_axi_icash_arid(        o_m_axi_icash_arid                    ),
-    .o_m_axi_icash_araddr(       o_m_axi_icash_araddr                 ),
-    .o_m_axi_icash_arlen(        o_m_axi_icash_arlen                  ),
-    .o_m_axi_icash_arsize(       o_m_axi_icash_arsize                 ),
-    .o_m_axi_icash_arburst(     o_m_axi_icash_arburst                 ),
-    .o_m_axi_icash_arvalid(     o_m_axi_icash_arvalid                 ),
-    .i_m_axi_icash_arready(     i_m_axi_icash_arready                 ),
-    // Master Interface Read Data
-    .i_m_axi_icash_rid(         i_m_axi_icash_rid                     ),
-    .i_m_axi_icash_rdata(       i_m_axi_icash_rdata                   ),
-    .i_m_axi_icash_rresp(       i_m_axi_icash_rresp                   ),
-    .i_m_axi_icash_rlast(       i_m_axi_icash_rlast                   ),
-    .i_m_axi_icash_rvalid(      i_m_axi_icash_rvalid                  ),
-    .o_m_axi_icash_rready(      o_m_axi_icash_rready                  ),
+    .pci_cl_data_awaddr             ( pci_cl_data_awaddr             ), //input
+    .pci_cl_data_awlen              ( pci_cl_data_awlen              ), //input
+    .pci_cl_data_awsize             ( pci_cl_data_awsize             ), //input
+    .pci_cl_data_awburst            ( pci_cl_data_awburst            ), //input
+    .pci_cl_data_awvalid            ( pci_cl_data_awvalid            ), //input
+    .pci_cl_data_awready            ( pci_cl_data_awready            ), //output
+    .pci_cl_data_wdata              ( pci_cl_data_wdata              ), //input
+    .pci_cl_data_wstrb              ( pci_cl_data_wstrb              ), //input
+    .pci_cl_data_wlast              ( pci_cl_data_wlast              ), //input
+    .pci_cl_data_wvalid             ( pci_cl_data_wvalid             ), //input
+    .pci_cl_data_wready             ( pci_cl_data_wready             ), //output
+    .pci_cl_data_bresp              ( pci_cl_data_bresp              ), //output
+    .pci_cl_data_bvalid             ( pci_cl_data_bvalid             ), //output
+    .pci_cl_data_bready             ( pci_cl_data_bready             ), //input
+    .pci_cl_data_araddr             ( pci_cl_data_araddr             ), //input
+    .pci_cl_data_arlen              ( pci_cl_data_arlen              ), //input
+    .pci_cl_data_arsize             ( pci_cl_data_arsize             ), //input
+    .pci_cl_data_arburst            ( pci_cl_data_arburst            ), //input
+    .pci_cl_data_arvalid            ( pci_cl_data_arvalid            ), //input
+    .pci_cl_data_arready            ( pci_cl_data_arready            ), //output
+    .pci_cl_data_rdata              ( pci_cl_data_rdata              ), //output
+    .pci_cl_data_rresp              ( pci_cl_data_rresp              ), //output
+    .pci_cl_data_rlast              ( pci_cl_data_rlast              ), //output
+    .pci_cl_data_rvalid             ( pci_cl_data_rvalid             ), //output
+    .pci_cl_data_rready             ( pci_cl_data_rready             ), //input
 
     .ibuf_compute_ready             ( ibuf_compute_ready             ), //input
     .wbuf_compute_ready             ( wbuf_compute_ready             ), //input
@@ -1124,23 +853,10 @@ video2ddr_base_gen #(
     .snoop_cl_ddr4_wready           ( cl_ddr4_wready                 ), //input
     .snoop_cl_ddr4_rvalid           ( cl_ddr4_rvalid                 ), //input
     .snoop_cl_ddr4_rready           ( cl_ddr4_rready                 ), //input
-
     .ld_obuf_req                    ( ld_obuf_req                    ), //input
-    .ld_obuf_ready                  ( ld_obuf_ready                  ),  //input
+    .ld_obuf_ready                  ( ld_obuf_ready                  ),//input
     .obuf_stride_vv                 ( base_obuf_stride_v             ), //output edit yt 0720
-    
-    // .i_ctl                          (i_ctl                                ),
-    // .i_mm2s_vddn_ddrbase            (i_mm2s_vddn_ddrbase                  ),
-    // .i_mm2s_vddn_leng               (i_mm2s_vddn_leng                     ),
-    .i_mm2s_addn_ddrbase            (i_mm2s_addn_ddrbase                  ),
-    .i_mm2s_addn_leng               (i_mm2s_addn_leng                     ),
-    //*******************************************************************************
-    //add for asr data write 2021-08-13
-    .o_dnn_status                   (w_dnn_status                          ),//add for asr data write 2021-08-13
-    .i_frame_data_ready_adnn        (w_frame_data_ready_adnn_asr_audo_in_o ), //add for asr data write 2021-08-13
-
     .choose_mux_out (choose_mux_out) // 选择mux传入infra_red or LiDAR数据进入RAM
-    //*********************************************************************************
   );
 //=============================================================
 
@@ -1197,81 +913,17 @@ video2ddr_base_gen #(
 
     .bias_ld_addr                   ( bias_read_addr                 ), //output
     .bias_ld_addr_v                 ( bias_read_req                  ), //output
-    .obuf_ld_addr_biasuse           ( obuf_ld_addr                   ), //input
-    .obuf_ld_addr_v_biasuse         ( obuf_ld_addr_v                 ), //input
-    
+
     .loop_exit                      ( loop_exit                      ), //output                                                                                 edit by sy 0519
     .sys_inner_loop_start           ( sys_inner_loop_start           ), //output                                                                                 edit by sy 0519
  
     .bias_sw_compute_done           (compute_done                    ), //input                                                                 //edit by sy 0529    
     .in_base_obuf_stride_v          (  base_obuf_stride_v            ),//input  edit yt 0720
     .base_cfg_loop_stride           (  cfg_loop_stride               ),//input  edit yt 0720
-    .obuf_bias_sel_out              (  obuf_biase_sel_new            ),//output  edit yt 0720 cfg_loop_stride
-    //.i_is_run_adnn                       ( w_is_run_adnn_asr_audo_in_o),
-    .i_decoder_done                   (  w_dnn_status[0]                 ) //input edit by pxq 0924)
+    .obuf_bias_sel_out              (  obuf_biase_sel_new            )//output  edit yt 0720 cfg_loop_stride
     );
 //=============================================================
 
-//=============================================================
-// 4x Memory wrappers - IBUF, WBUF, OBUF, Bias
-//=============================================================
-//********************asr star*********************************************
-//add for asr data write 2021-08-13
-// asr_audo_in u_asr(
-// //.mic_clk(           clk           ),
-//     .rst(                          reset                                          ),
-//     .clk(                          clk                                            ),
-    
-//     .cs_en(                        w_dnn_status[4:2]==3'b010/*i_ctl[0]==0*/       ),
-//     .i_ctl(                        i_ctl_asr                                      ),
-//     .i_s2mm_ddrbase(               i_s2mm_ddrbase_asr                             ),
-//     .i_s2mm_ddrbase_hardware(      i_s2mm_ddrbase_hardware_asr                    ),
-//         // data
-//      //.i_de(             i_de          ),
-//     .i_dnn_idle(                   w_dnn_status[1]                                ),
-//      //.i_data(           i_data        ),
-//      //  sensor Mic_if
-//      .o_ws(                o_ws_asr                                               ),
-//      .o_sck(               o_sck_asr                                              ),
-//      .i_sdi(               i_sdi_asr                                              ),
-//         // output data
-//      .o_data(                       w_data_adnn_asr_audo_in_o                     ),
-//      .o_add(                        w_add_adnn_asr_audo_in_o                      ),
-//      .o_valid(                      w_valid_adnn_asr_audo_in_o                    ),
-//      .o_adnn_is_run(                w_is_run_adnn_asr_audo_in_o                   ),
-//      .o_frame(                      w_frame_adnn_asr_audo_in_o                    ),
-//      .o_frame_data_rdy(             w_frame_data_ready_adnn_asr_audo_in_o         ),  
-//   //to ps  int
-//   .int_pl2ps(                                                                     ),
-//   //axi
-//     .o_m_axi_awid(          o_m_axi_asr_awid                                          ),
-//     .o_m_axi_awburst(       o_m_axi_asr_awburst                                       ),
-//     .o_m_axi_wstrb(         o_m_axi_asr_wstrb                                         ),
-                                                                                        
-//     .o_m_axi_awcache(       o_m_axi_asr_awcache                                       ),
-//     .o_m_axi_awlock(        o_m_axi_asr_awlock                                        ),
-//     .o_m_axi_awprot(        o_m_axi_asr_awprot                                        ),
-//     .o_m_axi_awqos(         o_m_axi_asr_awqos                                         ),
-                                                                                       
-//     .o_m_axi_awlen(          o_m_axi_asr_awlen                                        ),
-//     .i_m_axi_awready(        i_m_axi_asr_awready                                      ),
-//     .o_m_axi_awsize(         o_m_axi_asr_awsize                                       ),
-//     .o_m_axi_awaddr(         o_m_axi_asr_awaddr                                       ),
-//     .o_m_axi_awvalid(        o_m_axi_asr_awvalid                                      ),
-                                                                                        
-//     .o_m_axi_wdata(          o_m_axi_asr_wdata                                        ),
-//     .o_m_axi_wlast(          o_m_axi_asr_wlast                                        ),
-//     .i_m_axi_wready(         i_m_axi_asr_wready                                       ),
-//     .o_m_axi_wvalid(         o_m_axi_asr_wvalid                                       ),
-                                                                                        
-//     .i_m_axi_bid(            i_m_axi_asr_bid                                          ),
-//     .o_m_axi_bready(         o_m_axi_asr_bready                                       ),
-//     .i_m_axi_bresp(          i_m_axi_asr_bresp                                        ),
-//     .i_m_axi_bvalid(         i_m_axi_asr_bvalid                                       )
-
-// );
-
-//********************asr end*********************************************
 //=============================================================
 // 4x Memory wrappers - IBUF, WBUF, OBUF, Bias
 //=============================================================
@@ -1303,9 +955,6 @@ video2ddr_base_gen #(
     .tag_done                       ( ibuf_tag_done                  ), //output
 
     .tag_base_ld_addr               ( ibuf_ld_addr                   ), //input
-    // DSP_MULTIPLEX
-    .tag_base_ld_addr_eight_bit     ( ibuf_offset_addr               ), //output edit by sy 0819
-    .choose_8bit                    ( choose_8bit                    ), //output edit by sy 0819    
 
     .cfg_loop_iter_v                ( cfg_loop_iter_v                ), //input
     .cfg_loop_iter                  ( cfg_loop_iter                  ), //input
@@ -1323,31 +972,10 @@ video2ddr_base_gen #(
     .cfg_mem_req_id                 ( cfg_mem_req_id                 ), // specify which scratchpad
     .cfg_mem_req_loop_id            ( cfg_mem_req_loop_id            ), // specify which loop
 
-    .buf_read_data                  ( ibuf_read_data                 ), //output
-    // .buf_read_req                   ( ibuf_read_req                  ),//ghd_change
+    .buf_read_data                  ( ibuf_read_data                 ),
+    .buf_read_req                   ( ibuf_read_req                  ),
     .buf_read_addr                  ( ibuf_read_addr                 ),
-    
-//******************************************************************************************************
-    .i_data_adnn(                    w_data_adnn_asr_audo_in_o       ),//add for asr data write 2021-08-13
-    .i_add_adnn(                     w_add_adnn_asr_audo_in_o        ),//add for asr data write 2021-08-13
-    .i_valid_adnn(                   w_valid_adnn_asr_audo_in_o      ),//add for asr data write 2021-08-13
-    
-    // .i_is_run_adnn(                  w_is_run_adnn_asr_audo_in_o     ),//add for asr data write 2021-08-13
-    .i_frame_adnn(                   w_frame_adnn_asr_audo_in_o      ),//add for asr data write 2021-08-13
-    .i_frame_data_ready_adnn(  w_frame_data_ready_adnn_asr_audo_in_o ),//add for asr data write 2021-08-13
-    .i_decoder_done(                 w_dnn_status[0]                 ),
-//******************************************************************************************************
-//****************************************************************************
-    .i_s2mem_size                    (  w_s2mem_size                ),//add for video dma s2mm 2021-07-22
-    .i_s2mem_addr                    (  w_s2mem_addr                ),//add for video dma s2mm 2021-07-22
-    .o_s2mem_addr_req                (  w_s2mem_addr_req            ),//add for video dma s2mm 2021-07-22
-    .o_s2mem_addr_done               (  w_s2mem_addr_done           ),//add for video dma s2mm 2021-07-22
-    .i_s2mem_addr_ready              (  w_s2mem_addr_ready          ),//add for video dma s2mm 2021-07-22
-        
-    .i_s2mem_data                    (  w_s2mem_data                ),//add for video dma s2mm 2021-07-22
-    .o_s2mem_data_req                (  w_s2mem_data_req            ),//add for video dma s2mm 2021-07-22
-    .i_s2mem_data_ready              (  w_s2mem_data_ready          ),//add for video dma s2mm 2021-07-22
-//*****************************************************************************
+
     .mws_awaddr                     ( cl_ddr0_awaddr                 ),
     .mws_awlen                      ( cl_ddr0_awlen                  ),
     .mws_awsize                     ( cl_ddr0_awsize                 ),
@@ -1375,17 +1003,16 @@ video2ddr_base_gen #(
     .mws_rlast                      ( cl_ddr0_rlast                  ),
     .mws_rvalid                     ( cl_ddr0_rvalid                 ),
     .mws_rready                     ( cl_ddr0_rready                 ),
-  // add for 8bit/16bit ibuf
-   .tag_mem_write_addr_0  (ibuf_tag_mem_write_addr),
-   .mem_write_req_in_0  (ibuf_mem_write_req_in),
-   .mem_write_data_in_0 (ibuf_mem_write_data_in),
-   .tag_buf_read_addr (ibuf_tag_buf_read_addr),
-  //  .buf_read_req  (buf_read_req_ibuf),
-  ._buf_read_data   (ibuf__buf_read_data)
+
+   .tag_mem_write_addr (ibuf_tag_mem_write_addr),
+   .mem_write_req (ibuf_mem_write_req_in),
+   .mem_write_data (ibuf_mem_write_data_in),
+   .tag_buf_read_addr(ibuf_tag_buf_read_addr),
+  //  .buf_read_req (buf_read_req_ibuf),
+   ._buf_read_data (ibuf__buf_read_data)
     );
-  assign ibuf_buf_read_req= ibuf_read_req; 
-  assign    o_dnn_status    =   w_dnn_status;//add for asr data write 2021-08-13
- 
+  assign ibuf_buf_read_req = ibuf_read_req;
+
   wbuf_mem_wrapper #(
     // Internal Parameters
     .AXI_DATA_WIDTH                 ( WBUF_AXI_DATA_WIDTH            ),
@@ -1403,7 +1030,7 @@ video2ddr_base_gen #(
   ) wbuf_mem (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
-    .choose_8bit                    ( choose_8bit                    ), //output edit by sy 0819
+
     .compute_done                   ( compute_done                   ), //input
     .compute_ready                  ( wbuf_compute_ready             ), //input
     .compute_bias_prev_sw           (                                ), //output
@@ -1431,8 +1058,8 @@ video2ddr_base_gen #(
     .cfg_mem_req_id                 ( cfg_mem_req_id                 ), // specify which scratchpad
     .cfg_mem_req_loop_id            ( cfg_mem_req_loop_id            ), // specify which loop
 
-    // .buf_read_data                  ( wbuf_read_data                 ),//ghd_change
-    //.buf_read_req                   ( sys_wbuf_read_req              ),
+    .buf_read_data                  ( wbuf_read_data                 ),
+    .buf_read_req                   ( sys_wbuf_read_req              ),
     .buf_read_addr                  ( sys_wbuf_read_addr             ),
 
     .mws_awaddr                     ( cl_ddr2_awaddr                 ),
@@ -1462,16 +1089,16 @@ video2ddr_base_gen #(
     .mws_rlast                      ( cl_ddr2_rlast                  ),
     .mws_rvalid                     ( cl_ddr2_rvalid                 ),
     .mws_rready                     ( cl_ddr2_rready                 ),
-    // add for 8bit/16bit
-   .tag_mem_write_addr (wbuf_tag_mem_write_addr),
-   .mem_write_req_dly (wbuf_mem_write_req_dly),
-   ._mem_write_data (wbuf__mem_write_data),
-   .tag_buf_read_addr (wbuf_tag_buf_read_addr)
-  //  .buf_read_req (buf_read_req_wbuf),
-  //  ._buf_read_data (_buf_read_data_wbuf)
+
+      // add for 8bit/16bit wbuf
+    .tag_mem_write_addr (wbuf_tag_mem_write_addr),
+    .mem_write_req (wbuf_mem_write_req_dly),
+    .mem_write_data (wbuf__mem_write_data),
+    .tag_buf_read_addr (wbuf_tag_buf_read_addr)
+    // .buf_read_req (wbuf_buf_read_req)
     );
     assign wbuf_buf_read_req = sys_wbuf_read_req;
-    assign wbuf_read_data = wbuf__buf_read_data ;
+    assign wbuf_read_data = wbuf__buf_read_data;
 
   obuf_mem_wrapper #(
     // Internal Parameters
@@ -1522,8 +1149,8 @@ video2ddr_base_gen #(
     .buf_write_data                 ( obuf_write_data                ),
     .buf_write_req                  ( sys_obuf_write_req             ),
     .buf_write_addr                 ( sys_obuf_write_addr            ),
-    .buf_read_data                  ( obuf_read_data                 ),
-    //.buf_read_req                   ( sys_obuf_read_req              ),
+    .buf_read_data                  (obuf_read_data),
+    .buf_read_req                   ( sys_obuf_read_req              ),//ghd_change
     .buf_read_addr                  ( sys_obuf_read_addr             ),
 
     .pu_buf_read_ready              ( ld_obuf_ready                  ),
@@ -1567,6 +1194,7 @@ video2ddr_base_gen #(
     .mws_rlast                      ( cl_ddr1_rlast                  ),
     .mws_rvalid                     ( cl_ddr1_rvalid                 ),
     .mws_rready                     ( cl_ddr1_rready                 ),
+
     // add for 8bit/16bit obuf
     .tag_mem_write_addr (obuf_tag_mem_write_addr),
     .mem_write_req (obuf_mem_write_req),
@@ -1575,15 +1203,15 @@ video2ddr_base_gen #(
     .mem_read_req (obuf_mem_read_req),
     .mem_read_data (obuf_mem_read_data),
     .pu_read_data (obuf_pu_read_data),
-    .tag_buf_write_addr_out (obuf_tag_buf_write_addr),
+    .tag_buf_write_addr_0_out (obuf_tag_buf_write_addr),
     .buf_write_req_0 (obuf_buf_write_req),
-    .buf_write_data_out (obuf_buf_write_data),
+    .buf_write_data_0_out (obuf_buf_write_data),
     .tag_buf_read_addr (obuf_tag_buf_read_addr),
-    // .buf_read_req (buf_read_req_obuf),
+    // .buf_read_req (obuf_buf_read_req),
     ._buf_read_data (obuf__buf_read_data),
     .obuf_fifo_write_req_limit (obuf_fifo_write_req_limit)
     );
-    assign obuf_buf_read_req = sys_obuf_read_req;
+   assign obuf_buf_read_req = sys_obuf_read_req;
 
   bbuf_mem_wrapper #(
     // Internal Parameters
@@ -1602,8 +1230,7 @@ video2ddr_base_gen #(
   ) bbuf_mem (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
-    
-    //.choose_8bit                    ( choose_8bit                    ), //output edit by sy 0819    
+
     .compute_done                   ( compute_done                   ), //input
     .compute_ready                  ( bias_compute_ready             ), //input
     .compute_bias_prev_sw           (                                ), //output
@@ -1631,8 +1258,8 @@ video2ddr_base_gen #(
     .cfg_mem_req_id                 ( cfg_mem_req_id                 ), // specify which scratchpad
     .cfg_mem_req_loop_id            ( cfg_mem_req_loop_id            ), // specify which loop
 
-    .buf_read_data                  ( bbuf_read_data                 ),// output
-    //.buf_read_req                   ( sys_bias_read_req              ),
+    .buf_read_data                  ( bbuf_read_data                 ),
+    .buf_read_req                   ( sys_bias_read_req              ),
     .buf_read_addr                  ( sys_bias_read_addr             ),
 
     .mws_awaddr                     ( cl_ddr3_awaddr                 ),
@@ -1662,17 +1289,17 @@ video2ddr_base_gen #(
     .mws_rlast                      ( cl_ddr3_rlast                  ),
     .mws_rvalid                     ( cl_ddr3_rvalid                 ),
     .mws_rready                     ( cl_ddr3_rready                 ),
-    //add for 8bit/16bit bbuf
-    .tag_mem_write_addr (bbuf_tag_mem_write_addr),
-    .mem_write_req (bbuf_mem_write_req),
-    .mem_write_data (bbuf_mem_write_data),
-    .tag_buf_read_addr (bbuf_tag_buf_read_addr),
-    // .buf_read_req (buf_read_req_bbuf),
-    ._buf_read_data(bbuf__buf_read_data)
+
+   // add for 8bit/16bit bbuf
+   .tag_mem_write_addr (bbuf_tag_mem_write_addr),
+   .mem_write_req (bbuf_mem_write_req),
+   .mem_write_data (bbuf_mem_write_data),
+   .tag_buf_read_addr(bbuf_tag_buf_read_addr),
+  //  .buf_read_req (buf_read_req_bbuf),
+   ._buf_read_data (bbuf__buf_read_data)
     );
     assign bbuf_buf_read_req = sys_bias_read_req;
 //=============================================================
-
 
 //=============================================================
 // Systolic Array
@@ -1680,51 +1307,49 @@ video2ddr_base_gen #(
   
   assign sys_array_c_sel = obuf_biase_sel_new;                                               //edit yt 0720
   
-//  systolic_array #(
-//    .OBUF_ADDR_WIDTH                ( OBUF_ADDR_WIDTH                ),
-//    .BBUF_ADDR_WIDTH                ( BBUF_ADDR_WIDTH                ),
-//    .ACT_WIDTH                      ( DATA_WIDTH                     ),
-//    .WGT_WIDTH                      ( DATA_WIDTH                     ),
-//    .BIAS_WIDTH                     ( BIAS_WIDTH                     ),
-//    .ACC_WIDTH                      ( ACC_WIDTH                      ),
-//    .ARRAY_N                        ( ARRAY_N                        ),
-//    .ARRAY_M                        ( ARRAY_M                        ),
-//    .WBUF_ADDR_WIDTH                ( WBUF_ADDR_WIDTH                ),  // edit by sy 0517
-//    .LOOP_ITER_W                    ( LOOP_ITER_W                    )  // edit by sy
-//  ) sys_array (
-//    .clk                            ( clk                            ),
-//    .reset                          ( reset                          ),
-//    .acc_clear                      ( acc_clear                      ),
+  // systolic_array #(
+  //   .OBUF_ADDR_WIDTH                ( OBUF_ADDR_WIDTH                ),
+  //   .BBUF_ADDR_WIDTH                ( BBUF_ADDR_WIDTH                ),
+  //   .ACT_WIDTH                      ( DATA_WIDTH                     ),
+  //   .WGT_WIDTH                      ( DATA_WIDTH                     ),
+  //   .BIAS_WIDTH                     ( BIAS_WIDTH                     ),
+  //   .ACC_WIDTH                      ( ACC_WIDTH                      ),
+  //   .ARRAY_N                        ( ARRAY_N                        ),
+  //   .ARRAY_M                        ( ARRAY_M                        ),
+  //   .WBUF_ADDR_WIDTH                ( WBUF_ADDR_WIDTH                ),  // edit by sy 0517
+  //   .LOOP_ITER_W                    ( LOOP_ITER_W                    )  // edit by sy
+  // ) sys_array (
+  //   .clk                            ( clk                            ),
+  //   .reset                          ( reset                          ),
+  //   .acc_clear                      ( acc_clear                      ),
 
-//    .ibuf_read_data                 ( ibuf_read_data                 ),
+  //   .ibuf_read_data                 ( ibuf_read_data                 ),
 
-//    .wbuf_read_data                 ( wbuf_read_data                 ),
-//    .wbuf_read_addr                 ( wbuf_read_addr                 ),                                                                                                 //edit by sy 0518
-//    .sys_wbuf_read_req              ( sys_wbuf_read_req              ),                                                                                                 //edit by sy 0518
-//    .sys_wbuf_read_addr             ( sys_wbuf_read_addr             ),                                                                                                 //edit by sy 0518
-//    .start                          ( compute_req                    ),                                                                                                                                  //edit by sy 0518
-//    .loop_exit                      ( loop_exit                      ),                                                                                                                                  //edit by sy 0518
-//    .sys_inner_loop_start           ( sys_inner_loop_start           ),//edit by sy
+  //   .wbuf_read_data                 ( wbuf_read_data                 ),
+  //   .wbuf_read_addr                 ( wbuf_read_addr                 ),                                                                                                 //edit by sy 0518
+  //   .sys_wbuf_read_req              ( sys_wbuf_read_req              ),                                                                                                 //edit by sy 0518
+  //   .sys_wbuf_read_addr             ( sys_wbuf_read_addr             ),                                                                                                 //edit by sy 0518
+  //   .start                          ( compute_req                    ),                                                                                                                                  //edit by sy 0518
+  //   .loop_exit                      ( loop_exit                      ),                                                                                                                                  //edit by sy 0518
+  //   .sys_inner_loop_start           ( sys_inner_loop_start           ),                                                                                        //edit by sy 0518
 
-//    .choose_8bit                    ( choose_8bit                    ), //output edit by sy 0819    
+  //   .bbuf_read_data                 ( bbuf_read_data                 ),
+  //   .bias_read_req                  ( bias_read_req                  ),
+  //   .bias_read_addr                 ( bias_read_addr                 ),
+  //   .sys_bias_read_req              ( sys_bias_read_req              ),
+  //   .sys_bias_read_addr             ( sys_bias_read_addr             ),
+  //   .bias_prev_sw                   ( sys_array_c_sel                ),
 
-//    .bbuf_read_data                 ( bbuf_read_data                 ),
-//    .bias_read_req                  ( bias_read_req                  ),
-//    .bias_read_addr                 ( bias_read_addr                 ),
-//    .sys_bias_read_req              ( sys_bias_read_req              ),
-//    .sys_bias_read_addr             ( sys_bias_read_addr             ),
-//    .bias_prev_sw                   ( sys_array_c_sel                ),
-
-//    .obuf_read_data                 ( obuf_read_data                 ),
-//    .obuf_read_addr                 ( obuf_read_addr                 ),
-//    .sys_obuf_read_req              ( sys_obuf_read_req              ),
-//    .sys_obuf_read_addr             ( sys_obuf_read_addr             ),
-//    .obuf_write_req                 ( obuf_write_req                 ),
-//    .obuf_write_addr                ( obuf_write_addr                ),
-//    .obuf_write_data                ( sys_obuf_write_data            ),
-//    .sys_obuf_write_req             ( sys_obuf_write_req             ),
-//    .sys_obuf_write_addr            ( sys_obuf_write_addr            )
-//  );
+  //   .obuf_read_data                 ( obuf_read_data                 ),
+  //   .obuf_read_addr                 ( obuf_read_addr                 ),
+  //   .sys_obuf_read_req              ( sys_obuf_read_req              ),
+  //   .sys_obuf_read_addr             ( sys_obuf_read_addr             ),
+  //   .obuf_write_req                 ( obuf_write_req                 ),
+  //   .obuf_write_addr                ( obuf_write_addr                ),
+  //   .obuf_write_data                ( sys_obuf_write_data            ),
+  //   .sys_obuf_write_req             ( sys_obuf_write_req             ),
+  //   .sys_obuf_write_addr            ( sys_obuf_write_addr            )
+  // );
 
 
     wire [ 64                   -1 : 0 ]        obuf_out0;
@@ -1742,28 +1367,28 @@ video2ddr_base_gen #(
     wire [ 64                   -1 : 0 ]        obuf_in2;
     wire [ 64                   -1 : 0 ]        obuf_in3;
 
-    wire [ 32                   -1 : 0 ]        bias_in0;
-    wire [ 32                   -1 : 0 ]        bias_in1;
-    wire [ 32                   -1 : 0 ]        bias_in2;
-    wire [ 32                   -1 : 0 ]        bias_in3;
+    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in0;
+    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in1;
+    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in2;
+    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in3;
 
     wire [ 64                   -1 : 0 ]        obuf_mem_out0;
     wire [ 64                   -1 : 0 ]        obuf_mem_out1;
 
-    wire [ 16                   -1 : 0 ]        ibuf_in0;
-    wire [ 16                   -1 : 0 ]        ibuf_in1;
-    wire [ 16                   -1 : 0 ]        ibuf_in2;
-    wire [ 16                   -1 : 0 ]        ibuf_in3;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in0;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in1;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in2;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in3;
 
     wire [ 16                   -1 : 0 ]        ibuf_in4;
     wire [ 16                   -1 : 0 ]        ibuf_in5;
     wire [ 16                   -1 : 0 ]        ibuf_in6;
     wire [ 16                   -1 : 0 ]        ibuf_in7;
 
-    wire [ 16                   -1 : 0 ]        wbuf_in0;
-    wire [ 16                   -1 : 0 ]        wbuf_in1;
-    wire [ 16                   -1 : 0 ]        wbuf_in2;
-    wire [ 16                   -1 : 0 ]        wbuf_in3;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in0;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in1;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in2;
+    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in3;
 
     wire [ 16                   -1 : 0 ]        wbuf_in4;
     wire [ 16                   -1 : 0 ]        wbuf_in5;
@@ -1838,7 +1463,6 @@ video2ddr_base_gen #(
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
     .done                           ( pu_done                        ), //output
-    .choose_8bit                     ( choose_8bit                   ), //output edit by sy 0819    
     //DEBUG
     .obuf_ld_stream_read_count      ( obuf_ld_stream_read_count      ), //output
     .obuf_ld_stream_write_count     ( obuf_ld_stream_write_count     ), //output

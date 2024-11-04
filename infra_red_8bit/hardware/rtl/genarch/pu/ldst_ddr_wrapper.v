@@ -109,7 +109,7 @@ module ldst_ddr_wrapper #(
 //==============================================================================
 // Wires/Regs
 //==============================================================================
-    (* MARK_DEBUG="true" *)wire                                        st_done;
+    wire                                        st_done;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld0_data;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld1_data;
   // Loads
@@ -126,8 +126,8 @@ module ldst_ddr_wrapper #(
                                                                                                                                                                                                    //edit by sy 0618 begin
     wire [ MEM_REQ_W            -1 : 0 ]        st_req_size;
     
-    (* MARK_DEBUG="true" *)wire                                        st_ready;
-    (* MARK_DEBUG="true" *)wire                                        st_addr_req;
+    wire                                        st_ready;
+    wire                                        st_addr_req;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        st_addr;
         
     wire                                        st0_stall;
@@ -140,7 +140,7 @@ module ldst_ddr_wrapper #(
     reg  [ LOOP_ID_W            -1 : 0 ]        st0_loop_id_counter;
     wire                                        st0_loop_iter_v;
     wire [ LOOP_ITER_W          -1 : 0 ]        st0_loop_iter;
-    (* MARK_DEBUG="true" *)wire                                        st0_loop_done;
+    wire                                        st0_loop_done;
     wire                                        st0_loop_init;
     wire                                        st_loop_enter;
     wire                                        st_loop_exit;
@@ -215,7 +215,7 @@ module ldst_ddr_wrapper #(
     wire [ AXI_DATA_WIDTH       -1 : 0 ]   mem_read_data;
    //upsample                                                                                                                                                               //edit by sy 0706
    reg                                         upsample_required;   
-   (* MARK_DEBUG="true" *)reg [3-1 : 0]                           upsample_state;
+   reg [3-1 : 0]                           upsample_state;
    wire [3-1 : 0]                           upsample_state_q;   
    wire [3-1 : 0]                           _upsample_state;      
    reg  [STRIDE_TYPE_WIDTH + STRIDE_TYPE_WIDTH -1 :0]          _upsample_num;
@@ -411,7 +411,7 @@ assign _ddr_st_stream_read_ready = ddr_st_stream_read_ready || (upsample_state =
 // FSM for Stores
 //==============================================================================                                                edit by sy 0618 begin
     reg       [3-1:0]                                  st_addr_state_d;
-    (* MARK_DEBUG="true" *)reg       [3-1:0]                                  st_addr_state_q;
+    reg       [3-1:0]                                  st_addr_state_q;
   always @(posedge clk)
   begin
     if (reset)

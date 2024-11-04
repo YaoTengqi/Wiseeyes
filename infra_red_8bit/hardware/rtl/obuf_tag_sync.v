@@ -167,9 +167,15 @@ end
 always @(posedge clk) begin
   tag_req_dly<=tag_req_prev;
   tag_reuse_dly<=tag_reuse_prev;
-  tag_bias_prev_sw_dly<=tag_bias_prev_sw_prev;
-  tag_ddr_pe_sw_dly<=tag_ddr_pe_sw_prev;
 end
+
+always @(posedge clk) begin
+  tag_bias_prev_sw_dly<='b1;   //tag_bias_prev_sw_dly<=tag_bias_prev_sw_prev;
+  tag_ddr_pe_sw_dly<='b1;      //tag_ddr_pe_sw_dly<=tag_ddr_pe_sw_prev;
+end
+
+
+
 
 always @(posedge clk) begin
   if(block_done_prev)begin

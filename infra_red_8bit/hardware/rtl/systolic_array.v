@@ -465,9 +465,9 @@ begin: ACCUMULATOR
     wire [ ACC_WIDTH            -1 : 0 ]        obuf_in;
     wire [ PE_OUT_WIDTH         -1 : 0 ]        sys_col_out;
     wire [ ACC_WIDTH            -1 : 0 ]        acc_out_q;
-     wire [ ACC_WIDTH            -1 : 0 ]        acc_out_q0;
-     wire [ACC_WIDTH - 1 : 0]   set0;
-     assign set0 = { {32{1'b1}},{2{1'b0}},{30{1'b1}}};
+    //  wire [ ACC_WIDTH            -1 : 0 ]        acc_out_q0;
+    //  wire [ACC_WIDTH - 1 : 0]   set0;
+    //  assign set0 = { {32{1'b1}},{2{1'b0}},{30{1'b1}}};
 
     wire                                        local_acc;
     wire                                        local_bias_sel;
@@ -479,42 +479,45 @@ begin: ACCUMULATOR
 
     wire [ ACC_WIDTH            -1 : 0 ]        local_bias_data;
     wire [ ACC_WIDTH            -1 : 0 ]        local_obuf_data;
-    wire [ ACC_WIDTH            -1 : 0 ]        _local_bias_data; //edit by sy 0823
+    wire [ ACC_WIDTH            -1 : 0 ]        _local_bias_data;
     
     assign local_bias_data = $signed(bbuf_read_data[BIAS_WIDTH*i+:BIAS_WIDTH]);
     assign local_obuf_data = obuf_read_data[ACC_WIDTH*i+:ACC_WIDTH];
-    assign _local_bias_data = choose_8bit? {2'b0,local_bias_data[29:0],2'b0,local_bias_data[29:0]}: local_bias_data;//edit by sy 0823
+    assign _local_bias_data = choose_8bit? {local_bias_data[31:0],local_bias_data[31:0]}: local_bias_data;
 
-    assign obuf_in = ~local_bias_sel ? _local_bias_data : local_obuf_data;//edit by sy 0823
+    assign obuf_in = ~local_bias_sel ? _local_bias_data : local_obuf_data;
     assign accumulator_out[ACC_WIDTH*i+:ACC_WIDTH] = acc_out_q;
     assign sys_col_out = systolic_out[PE_OUT_WIDTH*i+:PE_OUT_WIDTH];
     //edit by sy 0820 begin
     wire signed [ ACC_WIDTH    -1 : 0 ]        add_in;
     assign add_in = local_acc ? acc_out_q : obuf_in;
     
-    wire signed [ ACC_WIDTH    -1 : 0 ]        _sys_col_out; 
-    wire signed [ 23    -1 : 0 ]        _sys_col_out1;
-    wire signed [ 23    -1 : 0 ]        _sys_col_out2;  
-    wire signed [ ACC_WIDTH    -1 : 0 ]        _sys_col_out_64b;
+    // wire signed [ ACC_WIDTH    -1 : 0 ]        _sys_col_out; 
+
+    // wire signed [ ACC_WIDTH    -1 : 0 ]        _sys_col_out_64b;
     
-    //test begin
-    wire signed [ 32    -1 : 0 ]        acc_out_q1;
-    wire signed [ 32    -1 : 0 ]        acc_out_q2;
-    wire signed [ 32         -1 : 0 ]        test_col1;
-    wire signed [ 32         -1 : 0 ]        test_col2; 
-    wire signed [ 32         -1 : 0 ]        test_add1;
-    wire signed [ 32         -1 : 0 ]        test_add2;     
-    reg signed [ 32         -1 : 0 ]        test_add_out1;
-    reg signed [ 32         -1 : 0 ]        test_add_out2;     
+    //test begin--------------------------------------------------------------------------------
+    wire signed [ PE_OUT_WIDTH/2    -1 : 0 ]        _sys_col_out1;
+    wire signed [ PE_OUT_WIDTH/2    -1 : 0 ]        _sys_col_out2;  
+    wire signed [ ACC_WIDTH/2    -1 : 0 ]        acc_out_q1;
+    wire signed [ ACC_WIDTH/2    -1 : 0 ]        acc_out_q2;
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_col1;
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_col2; 
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_add1;
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_add2;     
+    reg signed [ ACC_WIDTH/2         -1 : 0 ]        test_add_out1;
+    reg signed [ ACC_WIDTH/2         -1 : 0 ]        test_add_out2;     
     wire add_result1;
     wire add_result2;
     wire local_acc_enable_dly;
     register_sync #(1) test_enable (clk, reset, local_acc_enable, local_acc_enable_dly);
-    assign test_add1 = $signed(add_in[29:0]);
-    assign test_add2 = $signed(add_in[61:32]);           
+    assign test_add1 = $signed(add_in[31:0]);
+    assign test_add2 = $signed(add_in[63:32]);           
     assign add_result1 = (test_add_out1 == acc_out_q1)||(~local_acc_enable_dly) ? 1'b1 : 1'b0;
     assign add_result2 = (test_add_out2 == acc_out_q2)||(~local_acc_enable_dly) ? 1'b1 : 1'b0;
-     
+    assign _sys_col_out1 = sys_col_out[23:0];
+    assign _sys_col_out2 = sys_col_out[47:24];
+
   always@(posedge clk)begin
     if(reset)begin
       test_add_out1<='b0;
@@ -526,29 +529,24 @@ begin: ACCUMULATOR
     end
   end      
   
-    assign acc_out_q1 = $signed(acc_out_q[29:0]);
-    assign acc_out_q2 = $signed(acc_out_q[61:32]);  
-    //test end
-    assign _sys_col_out_64b = $signed(sys_col_out);
-    assign acc_out_q = choose_8bit? ( acc_out_q0&set0) : acc_out_q0;
-    
-    assign _sys_col_out1 = sys_col_out[22:0];
-    assign _sys_col_out2 = sys_col_out[46:24];
-    assign _sys_col_out = choose_8bit? {{7{_sys_col_out2[20]}},_sys_col_out2,2'b0,{7{_sys_col_out1[20]}},_sys_col_out1}: _sys_col_out_64b;
-    //edit by sy 0820 end
+    assign acc_out_q1 = $signed(acc_out_q[31:0]);
+    assign acc_out_q2 = $signed(acc_out_q[63:32]);  
+    //test end-------------------------------------------------------------------------------------------
+
     signed_adder #(
     .DTYPE                          ( DTYPE                          ),
     .REGISTER_OUTPUT                ( "TRUE"                         ),
-    .IN1_WIDTH                      ( ACC_WIDTH                      ),  //edit by sy 0820
+    .IN1_WIDTH                      ( PE_OUT_WIDTH                      ),  //edit by sy 0820
     .IN2_WIDTH                      ( ACC_WIDTH                      ),
     .OUT_WIDTH                      ( ACC_WIDTH                      )
     ) adder_inst (
     .clk                            ( clk                            ),  // input
     .reset                          ( reset                          ),  // input
+    .choose_8bit                    ( choose_8bit                     ),// input
     .enable                         ( local_acc_enable               ),
-    .a                              ( _sys_col_out                   ),
+    .a                              ( sys_col_out                   ),
     .b                              ( add_in                         ),
-    .out                            ( acc_out_q0                     )
+    .out                            ( acc_out_q                     )
       );
 end
 endgenerate

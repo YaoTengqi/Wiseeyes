@@ -25,7 +25,7 @@ module tag_sync #(
     output wire                                         compute_tag_ready,
     output wire                                         compute_bias_prev_sw,
     output wire  [ TAG_W                -1 : 0 ]        compute_tag,
-    (* MARK_DEBUG="true" *)input  wire                                         ldmem_tag_done,
+    input  wire                                         ldmem_tag_done,
     output wire                                         ldmem_tag_ready,
     output wire  [ TAG_W                -1 : 0 ]        ldmem_tag,
     input  wire  [ TAG_W                -1 : 0 ]        raw_stmem_tag,
@@ -42,7 +42,7 @@ module tag_sync #(
     reg  [ TAG_W                -1 : 0 ]        prev_tag;
     reg  [ TAG_W                -1 : 0 ]        tag_alloc;
     reg  [ TAG_W                -1 : 0 ]        ldmem_tag_alloc;
-    (* MARK_DEBUG="true" *)reg  [ TAG_W                -1 : 0 ]        compute_tag_alloc;
+    reg  [ TAG_W                -1 : 0 ]        compute_tag_alloc;
     reg  [ TAG_W                -1 : 0 ]        stmem_tag_alloc;
     reg  [ 2                    -1 : 0 ]        tag0_state_d;
     reg  [ 2                    -1 : 0 ]        tag0_state_q;
@@ -53,7 +53,7 @@ module tag_sync #(
 
     wire [ NUM_TAGS             -1 : 0 ]        local_next_compute_tag;
     wire [ NUM_TAGS             -1 : 0 ]        local_tag_ready;
-    (* MARK_DEBUG="true" *)wire [ NUM_TAGS             -1 : 0 ]        local_compute_tag_ready;
+    wire [ NUM_TAGS             -1 : 0 ]        local_compute_tag_ready;
 //    wire [ NUM_TAGS             -1 : 0 ]        local_compute_tag_reuse;
     wire [ NUM_TAGS             -1 : 0 ]        local_bias_prev_sw;
     wire [ NUM_TAGS             -1 : 0 ]        local_stmem_ddr_pe_sw;
@@ -223,9 +223,8 @@ module tag_sync #(
     .stmem_tag_done                 ( _stmem_tag_done                ), // input
     .stmem_tag_ready                ( _stmem_tag_ready               ) // output
         );
-       
-    end
 
+    end
   endgenerate
 //==============================================================================
 

@@ -16,6 +16,7 @@ module signed_adder #(
     input  wire                                         clk,
     input  wire                                         reset,
     input  wire                                         enable,
+    input  wire                                         choose_8bit,
     input  wire  [ IN1_WIDTH            -1 : 0 ]        a,
     input  wire  [ IN2_WIDTH            -1 : 0 ]        b,
     output wire  [ OUT_WIDTH            -1 : 0 ]        out
@@ -23,39 +24,32 @@ module signed_adder #(
 
   generate
     if (DTYPE == "FXP") begin
-      wire signed [ IN1_WIDTH-1:0] _a;
-      wire signed [ IN2_WIDTH-1:0] _b;
-      wire signed [ OUT_WIDTH-1:0] alu_out;
-      assign _a = a;
-      assign _b = b;
-      assign alu_out = _a + _b;
+      reg signed [ OUT_WIDTH-1:0] alu_out;
+      reg signed [ OUT_WIDTH/2-1:0] alu_out1;
+      reg signed [ OUT_WIDTH/2-1:0] alu_out2;
+      wire signed [IN1_WIDTH/2-1 : 0] a1;
+      wire signed [IN1_WIDTH/2-1 : 0] a2;
+      wire signed [IN2_WIDTH/2-1 : 0] b1;
+      wire signed [IN2_WIDTH/2-1 : 0] b2;
+
+      assign a1 = a[IN1_WIDTH/2-1 : 0];
+      assign a2 = a[IN1_WIDTH-1:IN1_WIDTH/2];
+      assign b1 = b[IN2_WIDTH/2-1 : 0];
+      assign b2 = b[IN2_WIDTH-1:IN2_WIDTH/2];
+
       if (REGISTER_OUTPUT == "TRUE") begin
-        reg [OUT_WIDTH-1:0] _alu_out;
         always @(posedge clk)
         begin
           if (enable)
-            _alu_out <= alu_out;
+            alu_out1 <= a1 + b1;
+            alu_out2 <= a2 + b2;              
+            alu_out <= a + b;
         end
-        assign out = _alu_out;
-      end else
-        assign out = alu_out;
+        assign out = choose_8bit ? {alu_out2,alu_out1} : alu_out;
+      end 
+        
     end
-    else if (DTYPE == "FP32") begin
-      fp32_add add (
-        .clk                            ( clk                            ),
-        .a                              ( a                              ),
-        .b                              ( b                              ),
-        .result                         ( out                            )
-        );
-    end
-    else if (DTYPE == "FP16") begin
-      fp_mixed_add add (
-        .clk                            ( clk                            ),
-        .a                              ( a                              ),
-        .b                              ( b                              ),
-        .result                         ( out                            )
-        );
-    end
+
   endgenerate
 
 endmodule

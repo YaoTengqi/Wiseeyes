@@ -35,11 +35,12 @@ module obuf #(
   input  wire  [ BUF_ADDR_WIDTH       -1 : 0 ]        buf_read_addr,
   output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
   output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        pu_read_data,     //edit yt 
+  output wire                                         obuf_fifo_write_req_limit, //edit yt 
 
   input  wire                                         buf_write_req,
   input  wire  [ BUF_ADDR_WIDTH       -1 : 0 ]        buf_write_addr,
   input  wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data,
-  output wire                                         obuf_fifo_write_req_limit //edit yt 
+  input wire choose_8bit
   );
 
   genvar m;
@@ -87,23 +88,35 @@ module obuf #(
         assign local_mem_read_req = mem_read_req;
         assign mem_read_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH] = local_mem_read_data;
       end
-      else begin  //edit yt
+      else begin
         wire [ BUF_ID_W             -1 : 0 ]        local_mem_read_buf_id;
+        reg  [ BUF_ID_W             -1 : 0 ]        local_mem_read_buf_id_dly;
+
         assign {local_mem_write_addr, local_mem_write_buf_id} = mem_write_addr;
         assign local_mem_write_req = mem_write_req && local_mem_write_buf_id == buf_id;
         assign local_mem_write_data = mem_write_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH];
 
         assign {local_mem_read_addr, local_mem_read_buf_id} = mem_read_addr;
 
-	if (m==0)begin
+                                                                                                                                          //edit yt
+        //assign local_mem_read_req = mem_read_req && local_mem_read_buf_id == buf_id;
+        assign local_mem_read_req = mem_read_req; //&& (&local_mem_read_buf_id ==1'b0);//new
+        if (m==0)begin
           assign obuf_fifo_write_req_limit = &local_mem_read_buf_id;
         end
-        assign local_mem_read_req = mem_read_req; //&& (&local_mem_read_buf_id ==1'b0);//new
         assign pu_read_data[m* DATA_WIDTH+:DATA_WIDTH] = local_mem_read_data;
         //edit end
 
-        assign mem_read_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH] = 0;
+        assign mem_read_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH] = local_mem_read_buf_id_dly == buf_id ? local_mem_read_data : 'bz;
 
+
+        always @(posedge clk)
+        begin
+          if (reset)
+            local_mem_read_buf_id_dly <= 0;
+          else if (mem_read_req)
+            local_mem_read_buf_id_dly <= local_mem_read_buf_id;
+        end
 
       end
 

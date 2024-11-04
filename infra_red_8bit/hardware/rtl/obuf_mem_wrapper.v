@@ -73,8 +73,8 @@ module obuf_mem_wrapper #(
     input  wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data,
     input  wire                                         buf_write_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_write_addr,
-    output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
-    // input  wire                                         buf_read_req,
+    (* MARK_DEBUG="true" *)output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
+    // (* MARK_DEBUG="true" *)input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 
   // PU
@@ -86,8 +86,8 @@ module obuf_mem_wrapper #(
     output wire                                         obuf_ld_stream_write_req,
 
     output wire                                         pu_compute_start,
-    input  wire                                         pu_compute_ready,
-    input  wire                                         pu_compute_done,
+    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_ready,
+    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_done,
 
   // CL_wrapper -> DDR AXI4 interface
     // Master Interface Write Address
@@ -125,8 +125,9 @@ module obuf_mem_wrapper #(
 
     output wire  [ 4                    -1 : 0 ]        stmem_state,
     output wire  [ TAG_W                -1 : 0 ]        stmem_tag,
-    output wire                                         stmem_ddr_pe_sw,
-      // add for 8bit/16bit obuf
+    (* MARK_DEBUG="true" *)output wire                                         stmem_ddr_pe_sw,
+
+          // add for 8bit/16bit obuf
     output wire [ 15       -1 : 0 ]        tag_mem_write_addr,
     output wire                                        mem_write_req,
     output wire [ 256       -1 : 0 ]        mem_write_data,
@@ -134,13 +135,13 @@ module obuf_mem_wrapper #(
     output wire                                        mem_read_req,
     input wire [ 256       -1 : 0 ]        mem_read_data,
     input wire [ 2048       -1 : 0 ]        pu_read_data,
-    output wire [ 12       -1 : 0 ]        tag_buf_write_addr_out,
+    output wire [ 12       -1 : 0 ]        tag_buf_write_addr_0_out,
     output wire   buf_write_req_0,
-    output wire  [ 2048       -1 : 0 ]        buf_write_data_out,
+    output wire  [ 2048       -1 : 0 ]        buf_write_data_0_out,
     output wire [ 12       -1 : 0 ]        tag_buf_read_addr,
-    //input  wire                                         buf_read_req,
+    input  wire                                         buf_read_req,
     input wire [ 2048       -1 : 0 ]        _buf_read_data,
-    input wire                                        obuf_fifo_write_req_limit
+    output wire                                        obuf_fifo_write_req_limit
 );
 
 //==============================================================================
@@ -181,12 +182,12 @@ module obuf_mem_wrapper #(
     wire                                        ldmem_tag_ready;
     wire [ TAG_W                -1 : 0 ]        ldmem_tag;
     wire                                        stmem_tag_done;
-    wire                                        stmem_tag_ready;
+    (* MARK_DEBUG="true" *)wire                                        stmem_tag_ready;
 
-    reg  [ 4                    -1 : 0 ]        ldmem_state_d;
+    (* MARK_DEBUG="true" *)reg  [ 4                    -1 : 0 ]        ldmem_state_d;
     reg  [ 4                    -1 : 0 ]        ldmem_state_q;
 
-    reg  [ 4                    -1 : 0 ]        stmem_state_d;
+    (* MARK_DEBUG="true" *)reg  [ 4                    -1 : 0 ]        stmem_state_d;
     reg  [ 4                    -1 : 0 ]        stmem_state_q;
 
     wire                                        ld_mem_req_v;
@@ -269,7 +270,7 @@ module obuf_mem_wrapper #(
 
     wire                                        axi_wr_req;
     wire [ AXI_ID_WIDTH         -1 : 0 ]        axi_wr_req_id;
-    wire                                        axi_wr_done;
+    (* MARK_DEBUG="true" *)wire                                        axi_wr_done;
     wire [ MEM_REQ_W            -1 : 0 ]        axi_wr_req_size;
     wire                                        axi_wr_ready;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_wr_addr;
@@ -286,19 +287,20 @@ module obuf_mem_wrapper #(
     wire                                        axi_mem_read_ready;
     // wire                                        mem_read_req;
     wire                                        mem_read_ready;
+    // assign mem_write_data = buf_write_data_0_out;
 
   // Adding register to buf read data
     // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
 
     // wire [ BUF_DATA_WIDTH       -1 : 0 ]        pu_read_data;                                                                                       //edit yt
-    //wire                                        obuf_fifo_write_req_limit;                                                                          //edit yt
+    // wire                                        obuf_fifo_write_req_limit;                                                                          //edit yt
 
 
 
     // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_read_addr;
     // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
 
-    // wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
+    // (* MARK_DEBUG="true" *)wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
     wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr;
 //==============================================================================
 
@@ -333,9 +335,7 @@ module obuf_mem_wrapper #(
       read_req_dly1 <= pu_buf_read_req;
     end
   end
-   // assign obuf_ld_stream_write_req = read_req_dly1 && obuf_fifo_write_req_limit;//edit yt
-   assign obuf_ld_stream_write_req = read_req_dly1;// && obuf_fifo_write_req_limit;//edit yt
-
+    assign obuf_ld_stream_write_req = read_req_dly1 && obuf_fifo_write_req_limit;//edit yt
 
     assign obuf_ld_stream_write_data = pu_read_data;
     //edit end
@@ -481,11 +481,12 @@ reg  [ 4                    -1 : 0 ]        obuf_init_state_q;
 
 
 
-reg [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr_0;
-reg  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data_0;
-// wire   buf_write_req_0;
-assign tag_buf_write_addr_out = tag_buf_write_addr_0;
-assign buf_write_data_out = buf_write_data_0;
+(* MARK_DEBUG="true" *)reg [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr_0;
+assign tag_buf_write_addr_0_out = tag_buf_write_addr_0;
+(* MARK_DEBUG="true" *)reg  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data_0;
+assign buf_write_data_0_out = buf_write_data_0;
+
+// (* MARK_DEBUG="true" *)wire   buf_write_req_0;
 
 wire  buf_write_req_dly1;
 wire buf_write_req_1;
@@ -807,7 +808,7 @@ register_sync#(1) buf_write_req_dlyreg(clk,reset,buf_write_req_dly1,buf_write_re
 
     localparam integer  WAIT_CYCLE_WIDTH             = $clog2(ARRAY_N) > 5 ? $clog2(ARRAY_N) : 5;
     reg  [ WAIT_CYCLE_WIDTH        : 0 ]        wait_cycles_d;
-    reg  [ WAIT_CYCLE_WIDTH        : 0 ]        wait_cycles_q;
+    (* MARK_DEBUG="true" *)reg  [ WAIT_CYCLE_WIDTH        : 0 ]        wait_cycles_q;
 
   always @(posedge clk)
   begin
@@ -1064,7 +1065,7 @@ register_sync#(1) buf_write_req_dlyreg(clk,reset,buf_write_req_dly1,buf_write_re
   //   .mem_read_req                   ( mem_read_req                   ),
   //   .mem_read_data                  ( mem_read_data                  ),
   //   .pu_read_data                   ( pu_read_data                   ), //edit yt
-  //   //.obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit yt
+  //   .obuf_fifo_write_req_limit      ( obuf_fifo_write_req_limit      ), //edit y
   //   .buf_write_addr                 ( tag_buf_write_addr_0             ),//edit by pxq
   //   .buf_write_req                  ( buf_write_req_0                  ),//edit by pxq
   //   .buf_write_data                 ( buf_write_data_0                 ),//edit by pxq

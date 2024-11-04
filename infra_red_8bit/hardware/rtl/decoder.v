@@ -27,8 +27,8 @@ module decoder #(
     output wire  [ IMEM_ADDR_W          -1 : 0 ]        imem_read_addr,
     output wire                                         imem_read_req,
   // Handshake
-    (*MARK_DEBUG="true" *)input  wire                                         start,
-    (*MARK_DEBUG="true" *)output wire                                         done,
+    input  wire                                         start,
+    output wire                                         done,
     output wire                                         loop_ctrl_start,
     input  wire                                         loop_ctrl_done,
     input  wire                                         block_done,
@@ -59,16 +59,10 @@ module decoder #(
     output wire  [ MEM_REQ_SIZE_W       -1 : 0 ]        cfg_buf_req_size,
     output wire                                         cfg_buf_req_type, // 0: RD, 1: WR
     output wire  [ BUF_TYPE_W           -1 : 0 ]        cfg_buf_req_loop_id, // specify which scratchpad
-  // DSP_MULTIPLEX
-    output wire                                         choose_8bit,//edit by sy 0819
-    output wire  [ DDR_ADDR_W           -1 : 0 ]        ibuf_offset_addr,//edit by sy 0819
   // PU
     output wire  [ INST_W               -1 : 0 ]        cfg_pu_inst, // instructions for PU
     output wire                                         cfg_pu_inst_v,  // instructions for PU
-    output wire                                         pu_block_start
-
-
-
+    output wire                                         pu_block_start 
 );
 
 //=============================================================
@@ -95,8 +89,6 @@ module decoder #(
     localparam integer  OP_PU_BLOCK_START            = 10;
     localparam integer  OP_COMPUTE_R                 = 11;
     localparam integer  OP_COMPUTE_I                 = 12;
-    localparam integer  DSP_MULTIPLEX                = 13;//edit by sy 0819
-    
 
     localparam integer  MEM_LOAD                     = 0;
     localparam integer  MEM_STORE                    = 1;
@@ -108,7 +100,7 @@ module decoder #(
 // Wires/Regs
 //=============================================================
     reg  [ 7                       : 0 ]        done_wait_d;
-    (*MARK_DEBUG="true" *)reg  [ 7                       : 0 ]        done_wait_q;
+    reg  [ 7                       : 0 ]        done_wait_q;
     reg  [ IMM_WIDTH            -1 : 0 ]        loop_stride_hi;
 
 
@@ -117,20 +109,20 @@ module decoder #(
     wire [ IMM_WIDTH            -1 : 0 ]        pu_num_instructions;
 
     reg  [ STATE_W              -1 : 0 ]        state_q;
-    (*MARK_DEBUG="true" *)reg  [ STATE_W              -1 : 0 ]        state_d;
+    reg  [ STATE_W              -1 : 0 ]        state_d;
     (* MARK_DEBUG="true" *)wire [ STATE_W              -1 : 0 ]        state;
 
-    (* MARK_DEBUG="true" *)wire [ OP_CODE_W            -1 : 0 ]        op_code;
-    (*MARK_DEBUG="true" *)wire [ OP_SPEC_W            -1 : 0 ]        op_spec;
+    wire [ OP_CODE_W            -1 : 0 ]        op_code;
+    wire [ OP_SPEC_W            -1 : 0 ]        op_spec;
     wire [ LOOP_ID_W            -1 : 0 ]        loop_level;
     wire [ LOOP_ID_W            -1 : 0 ]        loop_id;
-    (*MARK_DEBUG="true" *)wire [ IMM_WIDTH            -1 : 0 ]        immediate;
+    wire [ IMM_WIDTH            -1 : 0 ]        immediate;
 
     wire [ BUF_TYPE_W           -1 : 0 ]        buf_id;
 
     wire                                        inst_valid;
     reg                                         _inst_valid;
-    (* MARK_DEBUG="true" *)wire                                        block_end;
+    wire                                        block_end;
 
     reg  [ IMM_WIDTH            -1 : 0 ]        pu_inst_counter_d;
     reg  [ IMM_WIDTH            -1 : 0 ]        pu_inst_counter_q;
@@ -141,13 +133,7 @@ module decoder #(
     wire                                        base_addr_v;
     wire [ BUF_TYPE_W           -1 : 0 ]        base_addr_id;
     wire [ 2                    -1 : 0 ]        base_addr_part;
-    wire [ IMM_WIDTH + LOOP_ID_W            -1 : 0 ]        base_addr;
-    
-    wire                                        offset_addr_v;
-    wire [ BUF_TYPE_W           -1 : 0 ]        offset_addr_id;
-    wire [ 2                    -1 : 0 ]        offset_addr_part;
-    wire [ IMM_WIDTH + LOOP_ID_W            -1 : 0 ]        offset_addr;    
-    
+  wire [ IMM_WIDTH + LOOP_ID_W            -1 : 0 ]        base_addr;
 //=============================================================
 
 //=============================================================
@@ -198,36 +184,18 @@ module decoder #(
     assign base_addr_id = buf_id;
     assign base_addr_part = op_spec[1:0];
 
-    assign offset_addr_v = (op_code == DSP_MULTIPLEX) && inst_valid;
-    assign offset_addr = {loop_id, immediate};
-    assign offset_addr_id = buf_id;
-    assign offset_addr_part = op_spec[1:0];
-
     assign pu_num_instructions = immediate;
     assign pu_block_start = inst_valid && (op_code == OP_PU_BLOCK_START);
     assign pu_block_end = state == FSM_PU_BLOCK && pu_inst_counter_q == 0;
     assign cfg_pu_inst_v = state == FSM_PU_BLOCK;
     assign cfg_pu_inst = imem_read_data;
 //=============================================================
+
 //=============================================================
 // FSM
 //=============================================================
-
-    reg                                         _bit_choose;//edit by sy 0819
-    assign choose_8bit = _bit_choose;
-    
-    always @(posedge clk)
-    begin
-      if (reset)
-        _bit_choose <= 0;
-      else if(block_done)
-        _bit_choose <= 0;
-      else if(op_code == DSP_MULTIPLEX)
-        _bit_choose <= 1;
-    end
-    
     reg                                         last_block_d;
-    (*MARK_DEBUG="true" *)reg                                         last_block_q;
+    reg                                         last_block_q;
     assign last_block = last_block_q;
 always @(posedge clk)
 begin
@@ -290,7 +258,7 @@ end
       FSM_NEXT_BLOCK: begin
         if (last_block_q) begin
           done_wait_d = 8'd128;
-          state_d = FSM_DONE_WAIT;
+          state_d = FSM_DONE;
         end
         else begin
           state_d = FSM_DECODE;
@@ -351,14 +319,12 @@ end
     reg  [ 21                   -1 : 0 ]        _bias_base_addr;
     reg  [ 21                   -1 : 0 ]        _ibuf_base_addr;
     reg  [ 21                   -1 : 0 ]        _wbuf_base_addr;
-    reg  [ 21                   -1 : 0 ]        _ibuf_offset_addr;
 
     assign ibuf_base_addr[i*21+:21] = _ibuf_base_addr;
     assign wbuf_base_addr[i*21+:21] = _wbuf_base_addr;
     assign obuf_base_addr[i*21+:21] = _obuf_base_addr;
     assign bias_base_addr[i*21+:21] = _bias_base_addr;
-    assign ibuf_offset_addr[i*21+:21] = _ibuf_offset_addr;
-    
+
       always @(posedge clk)
         if (reset)
           _ibuf_base_addr <= 0;
@@ -366,14 +332,6 @@ end
           _ibuf_base_addr <= base_addr;
         else if (block_done)
           _ibuf_base_addr <= 0;
-
-      always @(posedge clk)
-        if (reset)
-          _ibuf_offset_addr <= 0;
-        else if (offset_addr_v && offset_addr_id == 0 && offset_addr_part == i)
-          _ibuf_offset_addr <= offset_addr;
-        else if (block_done)
-          _ibuf_offset_addr <= 0;
 
       always @(posedge clk)
         if (reset)

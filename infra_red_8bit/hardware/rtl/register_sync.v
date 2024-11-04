@@ -12,16 +12,19 @@ module register_sync #(
   input  wire                             reset,
   // input  wire                             enable,
   input  wire        [ WIDTH -1 : 0 ]     in,
-  output reg         [ WIDTH -1 : 0 ]     out
+  output wire        [ WIDTH -1 : 0 ]     out
 );
 
+  reg [ WIDTH -1 : 0 ] out_reg;
 
   always @(posedge clk)
   begin
     // if (reset)
       // out_reg <= 'b0;
     // else if (enable)
-      out <= in;
+      out_reg <= in;
   end
+
+  assign out = out_reg;
 
 endmodule
