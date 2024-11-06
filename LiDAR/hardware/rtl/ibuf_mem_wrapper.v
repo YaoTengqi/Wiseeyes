@@ -71,6 +71,7 @@ module ibuf_mem_wrapper #(
     output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
     // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
+    input wire                                             i_decoder_done,
 
   // CL_wrapper -> DDR AXI4 interface
     // Master Interface Write Address
@@ -484,12 +485,35 @@ module ibuf_mem_wrapper #(
 
     assign compute_tag_done = compute_done;
     assign compute_ready = compute_tag_ready;
-
     assign ldmem_tag_done = ldmem_state_q == LDMEM_DONE;
+
     assign ldmem_ready = ldmem_tag_ready;
   // assign ldmem_tag_done = mws_ld_done;
 
     assign stmem_tag_done = stmem_state_q == STMEM_DONE;
+
+wire  i_is_run_adnn=0;
+(* MARK_DEBUG="true" *)reg  first_layer_sw;
+(*MARK_DEBUG ="true"*)reg  [8 -1 : 0]   current_layer =0;
+always @(posedge clk) begin
+  if(current_layer == 1 && (~i_is_run_adnn))begin
+    first_layer_sw<=1;
+  end
+  else
+    first_layer_sw<=0;
+end
+
+  always @(posedge clk) begin
+    if(reset)begin
+      current_layer<='b0;
+    end
+    if(i_decoder_done)begin
+      current_layer<='b0;
+    end
+    if(mws_ld_loop_iter_loop_id==0&&mws_ld_loop_iter_v)begin
+      current_layer<=current_layer+1;
+    end
+  end
 
   tag_sync  #(
     .NUM_TAGS                       ( NUM_TAGS                       )

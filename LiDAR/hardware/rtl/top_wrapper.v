@@ -404,37 +404,37 @@ module top_wrapper #(
    wire [ 512       -1 : 0 ]        _buf_read_data_ibuf;
 
     // add for 8bit/16bit bbuf
-     wire [ 11       -1 : 0 ]        tag_mem_write_addr_bbuf;
-     wire                                        mem_write_req_bbuf;
-     wire [ 256       -1 : 0 ]        mem_write_data_bbuf;
-     wire [ 9       -1 : 0 ]        tag_buf_read_addr_bbuf;
-      wire                                         buf_read_req_bbuf;
-    wire [ 1024       -1 : 0 ]        _buf_read_data_bbuf;
+   wire [ 11       -1 : 0 ]        tag_mem_write_addr_bbuf;
+   wire                                        mem_write_req_bbuf;
+   wire [ 256       -1 : 0 ]        mem_write_data_bbuf;
+   wire [ 9       -1 : 0 ]        tag_buf_read_addr_bbuf;
+   wire                                         buf_read_req_bbuf;
+   wire [ 1024       -1 : 0 ]        _buf_read_data_bbuf;
 
    // add for 8bit/16bit wbuf
-    wire [ 12       -1 : 0 ]        tag_mem_write_addr_wbuf;
-    wire                                        mem_write_req_dly_wbuf;
-    wire [ 256       -1 : 0 ]        _mem_write_data_wbuf;
-    wire [ 11       -1 : 0 ]        tag_buf_read_addr_wbuf;
-    wire                                         buf_read_req_wbuf;
-    wire  [ 512       -1 : 0 ]        _buf_read_data_wbuf;
+   wire [ 12       -1 : 0 ]        tag_mem_write_addr_wbuf;
+   wire                                        mem_write_req_dly_wbuf;
+   wire [ 256       -1 : 0 ]        _mem_write_data_wbuf;
+   wire [ 11       -1 : 0 ]        tag_buf_read_addr_wbuf;
+   wire                                         buf_read_req_wbuf;
+   wire  [ 512       -1 : 0 ]        _buf_read_data_wbuf;
 
    // add for 8bit/16bit obuf
-     wire [ 15       -1 : 0 ]        tag_mem_write_addr_obuf;
-     wire                                        mem_write_req_obuf;
-     wire [ 256       -1 : 0 ]        mem_write_data_obuf;
-     wire [ 15       -1 : 0 ]        tag_mem_read_addr_obuf;
-     wire                                        mem_read_req_obuf;
-    wire [ 256       -1 : 0 ]        mem_read_data_obuf;
-    wire [ 2048       -1 : 0 ]        pu_read_data_obuf;
-     wire [ 12       -1 : 0 ]        tag_buf_write_addr_obuf;
-     wire   buf_write_req_obuf;
-     wire  [ 2048       -1 : 0 ]        buf_write_data_obuf;
-     wire [ 12       -1 : 0 ]        tag_buf_read_addr_obuf;
-      wire                                         buf_read_req_obuf;
-    wire [ 2048       -1 : 0 ]        _buf_read_data_obuf;
-  wire choose_mux_out;
-  wire                            obuf_fifo_write_req_limit;
+   wire [ 15       -1 : 0 ]        tag_mem_write_addr_obuf;
+   wire                                        mem_write_req_obuf;
+   wire [ 256       -1 : 0 ]        mem_write_data_obuf;
+   wire [ 15       -1 : 0 ]        tag_mem_read_addr_obuf;
+   wire                                        mem_read_req_obuf;
+   wire [ 256       -1 : 0 ]        mem_read_data_obuf;
+   wire [ 2048       -1 : 0 ]        pu_read_data_obuf;
+   wire [ 12       -1 : 0 ]        tag_buf_write_addr_obuf;
+   wire   buf_write_req_obuf;
+   wire  [ 2048       -1 : 0 ]        buf_write_data_obuf;
+   wire [ 12       -1 : 0 ]        tag_buf_read_addr_obuf;
+   wire                                         buf_read_req_obuf;
+   wire [ 2048       -1 : 0 ]        _buf_read_data_obuf;
+   wire choose_mux_out;
+   wire                            obuf_fifo_write_req_limit;
 
 
 cl_wrapper # (
@@ -889,7 +889,7 @@ ram_mux#(
         .sys_obuf_write_req_lidar(sys_obuf_write_req_lidar),
         .sys_obuf_write_addr_lidar(sys_obuf_write_addr_lidar)
 
-        // .acc_clear(acc_clear),
+        // .acc_clear(acc_clear),~/DNNAccel_1029_lidar/sim/test_yolo_demo
         // .ibuf_read_data(ibuf_read_data),
         // .wbuf_read_data(wbuf_read_data),
         // .wbuf_read_addr(wbuf_read_addr),
@@ -905,12 +905,7 @@ ram_mux#(
         // .sys_bias_read_addr(sys_bias_read_addr),
         // .sys_array_c_sel(sys_array_c_sel),
         // .obuf_write_req(obuf_write_req),
-        // .obuf_write_addr(obuf_write_addr),
-        // .obuf_read_data(obuf_read_data),
-        // .obuf_read_addr(obuf_read_addr),
-        // .sys_obuf_read_req(sys_obuf_read_req),
-        // .sys_obuf_read_addr(sys_obuf_read_addr),
-        // .sys_obuf_write_data(sys_obuf_write_data),
+        // .obuf_write_addr(obuf_write_addr),~/DNNAccel_1029_lidar/sim/test_yolo_demo),
         // .sys_obuf_write_req(sys_obuf_write_req),
         // .sys_obuf_write_addr(sys_obuf_write_addr)
     );

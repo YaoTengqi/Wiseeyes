@@ -321,7 +321,7 @@ assign sys_obuf_write_addr_lidar= (choose_8bit_in == 1'b0) ? sys_obuf_write_addr
     .loop_exit                      ( loop_exit                      ),//input                                                                                                                                   //edit by sy 0518
     .sys_inner_loop_start           ( sys_inner_loop_start           ),//input 
 
-    // .choose_8bit                    ( choose_8bit_in                 ),//input   
+    .choose_8bit                    ( choose_8bit_in                 ),//input   
 
     .bbuf_read_data                 ( bbuf_read_data                 ),//input  
     .bias_read_req                  ( bias_read_req                  ),//input  

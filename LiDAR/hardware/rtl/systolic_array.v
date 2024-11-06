@@ -17,9 +17,10 @@ module systolic_array #(
     parameter integer  LOOP_ITER_W                  = 8,//edit by sy
       // General
     parameter integer  MULT_OUT_WIDTH               = ACT_WIDTH + WGT_WIDTH,
-    parameter integer  PE_OUT_WIDTH                 = MULT_OUT_WIDTH + $clog2(ARRAY_N),
+    parameter integer  PE_OUT_WIDTH                 = 48,//edit by pxq
+    parameter integer  PE_OUT_HALF_WIDTH            = PE_OUT_WIDTH/2,
 
-    parameter integer  SYSTOLIC_OUT_WIDTH           = ARRAY_M * ACC_WIDTH,
+    parameter integer  SYSTOLIC_OUT_WIDTH           = ARRAY_M * PE_OUT_WIDTH,
     parameter integer  IBUF_DATA_WIDTH              = ARRAY_N * ACT_WIDTH,
     parameter integer  WBUF_DATA_WIDTH              = ARRAY_M *WGT_WIDTH,//edit by sy
     parameter integer  OUT_WIDTH                    = ARRAY_M * ACC_WIDTH,
@@ -65,7 +66,12 @@ module systolic_array #(
     output wire  [ OUT_WIDTH            -1 : 0 ]        obuf_write_data,
     input  wire  [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_write_addr,
     output wire                                         sys_obuf_write_req,
-    output wire  [ OBUF_ADDR_WIDTH      -1 : 0 ]        sys_obuf_write_addr
+    output wire  [ OBUF_ADDR_WIDTH      -1 : 0 ]        sys_obuf_write_addr,
+    //================================================================= IO modify edit by pxq 0819
+   input wire                                           choose_8bit//0 - 16bit 1-8bit
+
+
+    //==================================================================
 );
 
 //=========================================
@@ -104,14 +110,14 @@ module systolic_array #(
     wire [ ARRAY_M              -1 : 0 ]        systolic_acc_clear;
     wire [ ARRAY_M              -1 : 0 ]        _systolic_acc_clear;
     
-    (* MARK_DEBUG="true" *)wire                                        _sys_obuf_write_req;
-    
 //=========================================
 // wbuf choose                                                                                                                                                                              edit by sy
 //=========================================
-    reg  [ 16      -1 : 0 ]        cnt = 'b0;
+    reg  [ 7      -1 : 0 ]        cnt = 'b0;
     reg  [ STATE_W              -1 : 0 ]        state = 1'b0;
-    reg  [ WBUF_DATA_REG_WIDTH   -1 : 0 ]       wbuf_read_data_reg = 'b0;
+    
+//    reg  [ WBUF_DATA_REG_WIDTH   -1 : 0 ]       wbuf_read_data_reg = 'b0;
+    reg  [ WBUF_DATA_WIDTH -1 : 0 ] wbuf_read_data_reg [ 0 : ARRAY_M -1 ];
     reg  [ WBUF_ADDR_WIDTH   -1 : 0 ]       _sys_wbuf_read_addr;
     
   localparam integer  IDLE                          = 0;
@@ -148,14 +154,14 @@ module systolic_array #(
       INNER_LOOP: begin
          _sys_wbuf_read_addr <= _sys_wbuf_read_addr + 1'b1;
          cnt <= cnt + 1'd1;
-         wbuf_read_data_reg[cnt*WBUF_DATA_WIDTH+:WBUF_DATA_WIDTH] <= wbuf_read_data;
+         wbuf_read_data_reg[cnt] <= wbuf_read_data;
          if(cnt == 8'd30)
             state <= WAIT3;
          else 
             state <= INNER_LOOP;
         end
      WAIT3: begin
-        wbuf_read_data_reg[cnt*WBUF_DATA_WIDTH+:WBUF_DATA_WIDTH] <= wbuf_read_data;
+        wbuf_read_data_reg[cnt] <= wbuf_read_data;
         state <= EXIT_LOOP;
      end
 
@@ -191,6 +197,7 @@ begin: LOOP_OUTPUT_FORWARD
     wire [ WGT_WIDTH            -1 : 0 ]        b;       // Input Operand b
     wire [ PE_OUT_WIDTH         -1 : 0 ]        pe_out;  // Output of signed spatial multiplier
     wire [ PE_OUT_WIDTH         -1 : 0 ]        c;       // Output  of mac
+    wire                                                           _choose_8bit; //sel 8bit or 16bit 0-16bit 1-8bit
 
   //==============================================================
   // Operands for the parametric PE
@@ -198,16 +205,20 @@ begin: LOOP_OUTPUT_FORWARD
   if (m == 0)
   begin
     assign a = ibuf_read_data[n*ACT_WIDTH+:ACT_WIDTH];
+    assign _choose_8bit=choose_8bit;
   end
   else
   begin
     wire [ ACT_WIDTH            -1 : 0 ]        fwd_a;
+    wire                                                          fwd_choose_8bit;
     assign fwd_a = LOOP_INPUT_FORWARD[m-1].LOOP_OUTPUT_FORWARD[n].a;
+    assign fwd_choose_8bit = LOOP_INPUT_FORWARD[m-1].LOOP_OUTPUT_FORWARD[n]._choose_8bit;
     // register_sync #(ACT_WIDTH) fwd_a_reg (clk, reset, fwd_a, a);
     assign a = fwd_a;
+    assign _choose_8bit=fwd_choose_8bit;
   end
 
-    assign b = wbuf_read_data_reg[(m+n*ARRAY_M)*WGT_WIDTH+:WGT_WIDTH];                                                                                           // edit by sy  0508
+    assign b =  wbuf_read_data_reg[n][ m*WGT_WIDTH +: WGT_WIDTH];
   //==============================================================
 
   wire [1:0] prev_level_mode = 0;
@@ -216,7 +227,7 @@ begin: LOOP_OUTPUT_FORWARD
 
   // output forwarding
   if (n == 0)
-    assign c = {PE_OUT_WIDTH{1'bz}};
+    assign c ='b0;
   else
     assign c = LOOP_INPUT_FORWARD[m].LOOP_OUTPUT_FORWARD[n-1].pe_out;
 
@@ -224,14 +235,15 @@ begin: LOOP_OUTPUT_FORWARD
     .PE_MODE                        ( PE_MODE                        ),
     .ACT_WIDTH                      ( ACT_WIDTH                      ),
     .WGT_WIDTH                      ( WGT_WIDTH                      ),
-    .PE_OUT_WIDTH                   ( PE_OUT_WIDTH                   )
+    .PE_OUT_WIDTH                   ( PE_OUT_WIDTH                   )   //edit by pxq 0820
   ) pe_inst (
     .clk                            ( clk                            ),  // input
     .reset                          ( reset                          ),  // input
     .a                              ( a                              ),  // input
     .b                              ( b                              ),  // input
     .c                              ( c                              ),  // input
-    .out                            ( pe_out                         )   // output // pe_out = a * b + c
+    .out                            ( pe_out                         ) ,  // output // pe_out = a * b + c
+    .choose_8bit                    ( _choose_8bit                   )
     );
 
   if (n == ARRAY_N - 1)
@@ -400,7 +412,7 @@ endgenerate
     assign obuf_write_data = accumulator_out;
     assign sys_obuf_read_req = systolic_out_valid[0];
   register_sync #(1) acc_out_vld (clk, reset, systolic_out_valid[0], acc_out_valid);
-
+    wire                                        _sys_obuf_write_req;
   register_sync #(1) sys_obuf_write_req_delay (clk, reset, acc_out_valid, _sys_obuf_write_req);
   register_sync #(1) _sys_obuf_write_req_delay (clk, reset, _sys_obuf_write_req, sys_obuf_write_req);
 
@@ -453,6 +465,9 @@ begin: ACCUMULATOR
     wire [ ACC_WIDTH            -1 : 0 ]        obuf_in;
     wire [ PE_OUT_WIDTH         -1 : 0 ]        sys_col_out;
     wire [ ACC_WIDTH            -1 : 0 ]        acc_out_q;
+    //  wire [ ACC_WIDTH            -1 : 0 ]        acc_out_q0;
+    //  wire [ACC_WIDTH - 1 : 0]   set0;
+    //  assign set0 = { {32{1'b1}},{2{1'b0}},{30{1'b1}}};
 
     wire                                        local_acc;
     wire                                        local_bias_sel;
@@ -464,72 +479,77 @@ begin: ACCUMULATOR
 
     wire [ ACC_WIDTH            -1 : 0 ]        local_bias_data;
     wire [ ACC_WIDTH            -1 : 0 ]        local_obuf_data;
-
+    wire [ ACC_WIDTH            -1 : 0 ]        _local_bias_data;
+    
     assign local_bias_data = $signed(bbuf_read_data[BIAS_WIDTH*i+:BIAS_WIDTH]);
     assign local_obuf_data = obuf_read_data[ACC_WIDTH*i+:ACC_WIDTH];
+    assign _local_bias_data = choose_8bit? {local_bias_data[31:0],local_bias_data[31:0]}: local_bias_data;
 
-    assign obuf_in = ~local_bias_sel ? local_bias_data : local_obuf_data;
+    assign obuf_in = ~local_bias_sel ? _local_bias_data : local_obuf_data;
     assign accumulator_out[ACC_WIDTH*i+:ACC_WIDTH] = acc_out_q;
     assign sys_col_out = systolic_out[PE_OUT_WIDTH*i+:PE_OUT_WIDTH];
-
-  wire signed [ ACC_WIDTH    -1 : 0 ]        add_in;
+    //edit by sy 0820 begin
+    wire signed [ ACC_WIDTH    -1 : 0 ]        add_in;
     assign add_in = local_acc ? acc_out_q : obuf_in;
+    
+    // wire signed [ ACC_WIDTH    -1 : 0 ]        _sys_col_out; 
+
+    // wire signed [ ACC_WIDTH    -1 : 0 ]        _sys_col_out_64b;
+    
+    //test begin--------------------------------------------------------------------------------
+    wire signed [ PE_OUT_WIDTH/2    -1 : 0 ]        _sys_col_out1;
+    wire signed [ PE_OUT_WIDTH/2    -1 : 0 ]        _sys_col_out2;  
+    wire signed [ ACC_WIDTH/2    -1 : 0 ]        acc_out_q1;
+    wire signed [ ACC_WIDTH/2    -1 : 0 ]        acc_out_q2;
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_col1;
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_col2; 
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_add1;
+    wire signed [ ACC_WIDTH/2         -1 : 0 ]        test_add2;     
+    reg signed [ ACC_WIDTH/2         -1 : 0 ]        test_add_out1;
+    reg signed [ ACC_WIDTH/2         -1 : 0 ]        test_add_out2;     
+    wire add_result1;
+    wire add_result2;
+    wire local_acc_enable_dly;
+    register_sync #(1) test_enable (clk, reset, local_acc_enable, local_acc_enable_dly);
+    assign test_add1 = $signed(add_in[31:0]);
+    assign test_add2 = $signed(add_in[63:32]);           
+    assign add_result1 = (test_add_out1 == acc_out_q1)||(~local_acc_enable_dly) ? 1'b1 : 1'b0;
+    assign add_result2 = (test_add_out2 == acc_out_q2)||(~local_acc_enable_dly) ? 1'b1 : 1'b0;
+    assign _sys_col_out1 = sys_col_out[23:0];
+    assign _sys_col_out2 = sys_col_out[47:24];
+
+  always@(posedge clk)begin
+    if(reset)begin
+      test_add_out1<='b0;
+      test_add_out2<='b0;
+    end
+    else begin
+      test_add_out1<=_sys_col_out1 + test_add1;
+      test_add_out2<=_sys_col_out2 + test_add2;
+    end
+  end      
+  
+    assign acc_out_q1 = $signed(acc_out_q[31:0]);
+    assign acc_out_q2 = $signed(acc_out_q[63:32]);  
+    //test end-------------------------------------------------------------------------------------------
 
     signed_adder #(
     .DTYPE                          ( DTYPE                          ),
     .REGISTER_OUTPUT                ( "TRUE"                         ),
-    .IN1_WIDTH                      ( PE_OUT_WIDTH                   ),
+    .IN1_WIDTH                      ( PE_OUT_WIDTH                      ),  //edit by sy 0820
     .IN2_WIDTH                      ( ACC_WIDTH                      ),
     .OUT_WIDTH                      ( ACC_WIDTH                      )
     ) adder_inst (
     .clk                            ( clk                            ),  // input
     .reset                          ( reset                          ),  // input
+    .choose_8bit                    ( choose_8bit                     ),// input
     .enable                         ( local_acc_enable               ),
-    .a                              ( sys_col_out                    ),
+    .a                              ( sys_col_out                   ),
     .b                              ( add_in                         ),
-    .out                            ( acc_out_q                      )
+    .out                            ( acc_out_q                     )
       );
 end
 endgenerate
-
-//=========================================
-(* MARK_DEBUG="true" *)wire       [31:0]        acc_info_0           ;
-(* MARK_DEBUG="true" *)wire       [31:0]        acc_info_1           ;
-(* MARK_DEBUG="true" *)wire       [31:0]        acc_info_2           ;
-
-(* MARK_DEBUG="true" *)wire       [ 2:0]        acc_sel_info         ;
-(* MARK_DEBUG="true" *)wire       [ 2:0]        bias_sel_info        ;
-
-(* MARK_DEBUG="true" *)wire       [31:0]        bias_data_info_0     ;
-(* MARK_DEBUG="true" *)wire       [31:0]        bias_data_info_1     ;
-(* MARK_DEBUG="true" *)wire       [31:0]        bias_data_info_2     ;
-
-(* MARK_DEBUG="true" *)wire       [31:0]        obuf_data_info_0     ;
-(* MARK_DEBUG="true" *)wire       [31:0]        obuf_data_info_1     ;
-(* MARK_DEBUG="true" *)wire       [31:0]        obuf_data_info_2     ;
-
-(* MARK_DEBUG="true" *)wire       [31:0]        sys_col_data_info_0     ;
-(* MARK_DEBUG="true" *)wire       [31:0]        sys_col_data_info_1     ;
-(* MARK_DEBUG="true" *)wire       [31:0]        sys_col_data_info_2     ;
-
-assign acc_info_0 = accumulator_out[  31 :   0]                  ;
-assign acc_info_1 = accumulator_out[  95 :  64]                  ;
-assign acc_info_2 = accumulator_out[ 159 : 128]                  ;
-
-assign acc_sel_info  = acc[2:0]                  ;
-assign bias_sel_info = bias_sel[2:0]   ;
-
-assign bias_data_info_0 = $signed(bbuf_read_data[ 31 :   0])     ;
-assign bias_data_info_1 = $signed(bbuf_read_data[ 95 :  64])     ;
-assign bias_data_info_2 = $signed(bbuf_read_data[159 : 128])     ;
-
-assign obuf_data_info_0 = obuf_read_data[ 31 :   0]              ;
-assign obuf_data_info_1 = obuf_read_data[ 95 :  64]              ;
-assign obuf_data_info_2 = obuf_read_data[159 : 128]              ;
-
-assign sys_col_data_info_0 = systolic_out[ 31 :   0]              ;
-assign sys_col_data_info_1 = systolic_out[ 95 :  64]              ;
-assign sys_col_data_info_2 = systolic_out[159 : 128]              ;
 //=========================================
 
 `ifdef COCOTB_TOPLEVEL_systolic_array
