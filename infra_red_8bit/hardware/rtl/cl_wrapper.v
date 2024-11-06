@@ -15,6 +15,8 @@ module cl_wrapper #(
     parameter integer  LOOP_ID_W                    = 5,
 
   // Systolic Array
+    parameter integer  NUM_TAGS                     = 2,
+    parameter integer  TAG_W                        = $clog2(NUM_TAGS),
     parameter integer  ARRAY_N                      = 32,
     parameter integer  ARRAY_M                      = 32,
 
@@ -24,8 +26,7 @@ module cl_wrapper #(
     parameter integer  ACC_WIDTH                    = 64,
 
   // Buffers
-    parameter integer  WEIGHT_ROW_NUM             = 1,                                                                                                                       //edit by sy 0513
-    parameter integer  NUM_TAGS                     = 2,
+    parameter integer  WEIGHT_ROW_NUM               = 1,
     parameter integer  IBUF_CAPACITY_BITS           = ARRAY_N * DATA_WIDTH * 6144 / NUM_TAGS,
     parameter integer  WBUF_CAPACITY_BITS           = ARRAY_M * WEIGHT_ROW_NUM * DATA_WIDTH * 2048 / NUM_TAGS,
     parameter integer  OBUF_CAPACITY_BITS           = ARRAY_M * ACC_WIDTH * 4096 / NUM_TAGS,                                            //edit by sy 0513
@@ -60,7 +61,7 @@ module cl_wrapper #(
     parameter integer  CTRL_ADDR_WIDTH              = 32,
     parameter integer  CTRL_DATA_WIDTH              = 32,
     parameter integer  CTRL_WSTRB_WIDTH             = CTRL_DATA_WIDTH/8,
-
+  
   // ghd_add_begin
     parameter integer  WBUF_DATA_WIDTH              = ARRAY_M *WEIGHT_ROW_NUM * DATA_WIDTH,
     parameter integer  BBUF_DATA_WIDTH              = ARRAY_M * BIAS_WIDTH,
@@ -95,37 +96,37 @@ module cl_wrapper #(
     output wire  [ 2                    -1 : 0 ]        pci_cl_ctrl_rresp,
     input  wire                                         pci_cl_ctrl_rready,
 
-  // PCIe -> CL_wrapper AXI4 interface
-    // Slave Interface Write Address
-    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
-    input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
-    input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
-    input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
-    input  wire                                         pci_cl_data_awvalid,
-    output wire                                         pci_cl_data_awready,
-  // Slave Interface Write Data
-    input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
-    input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
-    input  wire                                         pci_cl_data_wlast,
-    input  wire                                         pci_cl_data_wvalid,
-    output wire                                         pci_cl_data_wready,
-  // Slave Interface Write Response
-    output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
-    output wire                                         pci_cl_data_bvalid,
-    input  wire                                         pci_cl_data_bready,
-  // Slave Interface Read Address
-    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
-    input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,
-    input  wire  [ 3                    -1 : 0 ]        pci_cl_data_arsize,
-    input  wire  [ 2                    -1 : 0 ]        pci_cl_data_arburst,
-    input  wire                                         pci_cl_data_arvalid,
-    output wire                                         pci_cl_data_arready,
-  // Slave Interface Read Data
-    output wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_rdata,
-    output wire  [ 2                    -1 : 0 ]        pci_cl_data_rresp,
-    output wire                                         pci_cl_data_rlast,
-    output wire                                         pci_cl_data_rvalid,
-    input  wire                                         pci_cl_data_rready,
+ // PCIe -> CL_wrapper AXI4 interface
+   // Slave Interface Write Address
+   input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
+   input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
+   input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
+   input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
+   input  wire                                         pci_cl_data_awvalid,
+   output wire                                         pci_cl_data_awready,
+ // Slave Interface Write Data
+   input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
+   input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
+   input  wire                                         pci_cl_data_wlast,
+   input  wire                                         pci_cl_data_wvalid,
+   output wire                                         pci_cl_data_wready,
+ // Slave Interface Write Response
+   output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
+   output wire                                         pci_cl_data_bvalid,
+   input  wire                                         pci_cl_data_bready,
+ // Slave Interface Read Address
+   input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
+   input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,
+   input  wire  [ 3                    -1 : 0 ]        pci_cl_data_arsize,
+   input  wire  [ 2                    -1 : 0 ]        pci_cl_data_arburst,
+   input  wire                                         pci_cl_data_arvalid,
+   output wire                                         pci_cl_data_arready,
+ // Slave Interface Read Data
+   output wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_rdata,
+   output wire  [ 2                    -1 : 0 ]        pci_cl_data_rresp,
+   output wire                                         pci_cl_data_rlast,
+   output wire                                         pci_cl_data_rvalid,
+   input  wire                                         pci_cl_data_rready,
 
   // CL_wrapper -> DDR0 AXI4 interface
     // Master Interface Write Address
@@ -297,8 +298,40 @@ module cl_wrapper #(
     input  wire                                         cl_ddr4_rlast,
     input  wire                                         cl_ddr4_rvalid,
     output wire                                         cl_ddr4_rready,
-    
- // add for 8bit/16bit ibuf
+    //add for readonly
+        // Master Interface Read Address
+    // output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_araddr,
+    // output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_arlen,
+    // output wire  [ 3                    -1 : 0 ]        cl_ddr5_arsize,
+    // output wire  [ 2                    -1 : 0 ]        cl_ddr5_arburst,
+    // output wire                                         cl_ddr5_arvalid,
+    // output wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_arid,
+    // input  wire                                         cl_ddr5_arready,
+    // // Master Interface Read Data
+    // input  wire  [ INST_DATA_WIDTH    -1 : 0 ]          cl_ddr5_rdata,
+    // input  wire  [ AXI_ID_WIDTH         -1 : 0 ]        cl_ddr5_rid,
+    // input  wire  [ 2                    -1 : 0 ]        cl_ddr5_rresp,
+    // input  wire                                         cl_ddr5_rlast,
+    // input  wire                                         cl_ddr5_rvalid,
+    // output wire                                         cl_ddr5_rready,
+    // output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        cl_ddr5_awaddr,
+    // output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        cl_ddr5_awlen,
+    // output wire  [ 3                    -1 : 0 ]        cl_ddr5_awsize,
+    // output wire  [ 2                    -1 : 0 ]        cl_ddr5_awburst,
+    // output wire                                         cl_ddr5_awvalid,
+    // input  wire                                         cl_ddr5_awready,
+    // // Master Interface Write Data
+    // output wire  [ PU_AXI_DATA_WIDTH    -1 : 0 ]        cl_ddr5_wdata,
+    // output wire  [ PU_WSTRB_W           -1 : 0 ]        cl_ddr5_wstrb,
+    // output wire                                         cl_ddr5_wlast,
+    // output wire                                         cl_ddr5_wvalid,
+    // input  wire                                         cl_ddr5_wready,
+    // // Master Interface Write Response
+    // input  wire  [ 2                    -1 : 0 ]        cl_ddr5_bresp,
+    // input  wire                                         cl_ddr5_bvalid,
+    // output wire                                         cl_ddr5_bready,
+
+  // add for 8bit/16bit ibuf
   output wire [ 14       -1 : 0 ]        ibuf_mem_write_addr,
   output wire ibuf_mem_write_req,
   output wire  [256  -1 : 0]                                ibuf_mem_write_data,
@@ -333,8 +366,8 @@ module cl_wrapper #(
     output  wire                                         obuf_pu_read_req,
     input wire [ 2048       -1 : 0 ]       _obuf_mem_read_data,
     input wire [ 2048       -1 : 0 ]       obuf_pu_read_data,
-    output wire obuf_fifo_write_req_limit,
-    output wire choose_mux_out,     // 选择mux传入infra_red or LiDAR数据进入RAM
+    input wire obuf_fifo_write_req_limit,
+    // output wire choose_mux_out,     // 选择mux传入infra_red or LiDAR数据进入RAM
 
     ///ghd_add_begin
 
@@ -349,7 +382,7 @@ module cl_wrapper #(
     output wire                                          loop_exit,             
     output wire                                          sys_inner_loop_start,
 
-    // output wire                                          choose_8bit,
+   output wire                                           choose_8bit,
 
     output wire [ BBUF_DATA_WIDTH      -1 : 0 ]          bbuf_read_data,
     output wire                                          bias_read_req,
@@ -370,6 +403,7 @@ module cl_wrapper #(
     input  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]          sys_obuf_write_addr
 
     ///ghd_add_end    
+    
 );
 
 //=============================================================
@@ -391,7 +425,7 @@ module cl_wrapper #(
     .DATA_WIDTH                     ( DATA_WIDTH                     ),
     .BIAS_WIDTH                     ( BIAS_WIDTH                     ),
     .ACC_WIDTH                      ( ACC_WIDTH                      ),
-    .WEIGHT_ROW_NUM             ( WEIGHT_ROW_NUM             ),                                                                                     //edit by sy 0513
+    .WEIGHT_ROW_NUM                 ( WEIGHT_ROW_NUM                 ),                                                                                     //edit by sy 0513
 
     .IBUF_CAPACITY_BITS             ( IBUF_CAPACITY_BITS             ),
     .WBUF_CAPACITY_BITS             ( WBUF_CAPACITY_BITS             ),
@@ -597,6 +631,34 @@ module cl_wrapper #(
     .cl_ddr4_rvalid                 ( cl_ddr4_rvalid                 ),
     .cl_ddr4_rready                 ( cl_ddr4_rready                 ),
 
+    .o_m_axi_asr_awaddr                 ( cl_ddr5_awaddr                 ),
+    .o_m_axi_asr_awlen                  ( cl_ddr5_awlen                  ),
+    .o_m_axi_asr_awsize                 ( cl_ddr5_awsize                 ),
+    .o_m_axi_asr_awburst                ( cl_ddr5_awburst                ),
+    .o_m_axi_asr_awvalid                ( cl_ddr5_awvalid                ),
+    .i_m_axi_asr_awready                ( cl_ddr5_awready                ),
+    .o_m_axi_asr_wdata                  ( cl_ddr5_wdata                  ),
+    .o_m_axi_asr_wstrb                  ( cl_ddr5_wstrb                  ),
+    .o_m_axi_asr_wlast                  ( cl_ddr5_wlast                  ),
+    .o_m_axi_asr_wvalid                 ( cl_ddr5_wvalid                 ),
+    .i_m_axi_asr_wready                 ( cl_ddr5_wready                 ),
+    .i_m_axi_asr_bresp                  ( cl_ddr5_bresp                  ),
+    .i_m_axi_asr_bvalid                 ( cl_ddr5_bvalid                 ),
+    .o_m_axi_asr_bready                 ( cl_ddr5_bready                 ),
+    .o_m_axi_icash_araddr                 ( cl_ddr5_araddr                 ),
+    .o_m_axi_icash_arlen                  ( cl_ddr5_arlen                  ),
+    .o_m_axi_icash_arsize                 ( cl_ddr5_arsize                 ),
+    .o_m_axi_icash_arburst                ( cl_ddr5_arburst                ),
+    .o_m_axi_icash_arvalid                ( cl_ddr5_arvalid                ),
+    .o_m_axi_icash_arid                   ( cl_ddr5_arid                   ),
+    .i_m_axi_icash_arready                ( cl_ddr5_arready                ),
+    .i_m_axi_icash_rdata                  ( cl_ddr5_rdata                  ),
+    .i_m_axi_icash_rid                    ( cl_ddr5_rid                    ),
+    .i_m_axi_icash_rresp                  ( cl_ddr5_rresp                  ),
+    .i_m_axi_icash_rlast                  ( cl_ddr5_rlast                  ),
+    .i_m_axi_icash_rvalid                 ( cl_ddr5_rvalid                 ),
+    .o_m_axi_icash_rready                 ( cl_ddr5_rready                 ),
+
   // add for 8bit/16bit ibuf
   .ibuf_tag_mem_write_addr (ibuf_mem_write_addr),
   .ibuf_mem_write_req_in (ibuf_mem_write_req),
@@ -632,8 +694,9 @@ module cl_wrapper #(
   .obuf_tag_buf_read_addr (obuf_pu_read_addr),
   .obuf_buf_read_req (obuf_pu_read_req),
   .obuf__buf_read_data(_obuf_mem_read_data),
-  .choose_mux_out (choose_mux_out),
+  // .choose_mux_out (choose_mux_out),
   .obuf_fifo_write_req_limit (obuf_fifo_write_req_limit),
+  
     ////ghd_add_begin
 
     .acc_clear                            ( acc_clear                      ),
@@ -647,7 +710,7 @@ module cl_wrapper #(
     .loop_exit                            ( loop_exit                      ),             
     .sys_inner_loop_start                 ( sys_inner_loop_start           ),
 
-    // .choose_8bit_out                      ( choose_8bit                    ),
+    .choose_8bit_out                      ( choose_8bit                    ),
 
     .bbuf_read_data                       ( bbuf_read_data                 ),
     .bias_read_req                        ( bias_read_req                  ),

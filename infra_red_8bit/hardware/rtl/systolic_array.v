@@ -20,7 +20,7 @@ module systolic_array #(
     parameter integer  PE_OUT_WIDTH                 = 48,//edit by pxq
     parameter integer  PE_OUT_HALF_WIDTH            = PE_OUT_WIDTH/2,
 
-    parameter integer  SYSTOLIC_OUT_WIDTH           = ARRAY_M * ACC_WIDTH,
+    parameter integer  SYSTOLIC_OUT_WIDTH           = ARRAY_M * PE_OUT_WIDTH,
     parameter integer  IBUF_DATA_WIDTH              = ARRAY_N * ACT_WIDTH,
     parameter integer  WBUF_DATA_WIDTH              = ARRAY_M *WGT_WIDTH,//edit by sy
     parameter integer  OUT_WIDTH                    = ARRAY_M * ACC_WIDTH,

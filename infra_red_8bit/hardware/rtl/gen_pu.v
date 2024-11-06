@@ -41,7 +41,7 @@ module gen_pu #(
 (
     input  wire                                         clk,
     input  wire                                         reset,
-
+    input  wire                                         choose_8bit,
   // Handshake
     output wire                                         done,
     output wire  [ 3                    -1 : 0 ]        pu_ctrl_state,
@@ -122,7 +122,7 @@ module gen_pu #(
     wire                                        ddr_st_stream_write_req;
     wire                                        ddr_st_stream_write_ready;
 
-    (* MARK_DEBUG="true" *)wire                                        ld_obuf_done;
+    wire                                        ld_obuf_done;
 
     wire                                        ddr_st_done;
 
@@ -152,10 +152,10 @@ module gen_pu #(
     wire                                        obuf_ld_stream_write_ready;
     wire                                        ddr_ld0_stream_write_req;
     wire                                        ddr_ld0_stream_write_ready;
-    wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld0_stream_write_data;
+    wire [ AXI_DATA_WIDTH*2       -1 : 0 ]        ddr_ld0_stream_write_data;
     wire                                        ddr_ld1_stream_write_req;
     wire                                        ddr_ld1_stream_write_ready;
-    wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld1_stream_write_data;
+    wire [ AXI_DATA_WIDTH*2       -1 : 0 ]        ddr_ld1_stream_write_data;
     wire                                        ddr_st_stream_read_req;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data;
     wire                                        ddr_st_stream_read_ready;
@@ -187,14 +187,21 @@ module gen_pu #(
     wire                                        ddr_st_req;
     wire                                        ddr_st_ready;
     wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_st_data;
-    
+    wire                                        cfg_block_padding_v;//edit yt1028
+    wire                                        cfg_rs_num_v;
+    wire [ IMM_WIDTH            -1 : 0 ]        diff_rows;//edit yt1028
+    wire                                        st_addr_valid_pd;
 //==============================================================================
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        pu_ddr_st1_base_addr;//edit by sy
     wire                                        st1_data_required;//edit by sy
+    wire                                        ld01_write_req;
+    wire                                        st_fifo_extra_read_req;
+    wire                                        st_fifo_read_req;
 //==============================================================================
 // Assigns
 //==============================================================================
     assign pu_write_done = ddr_st_done;
+    assign ld01_write_req  = ddr_ld0_stream_write_req | ddr_ld1_stream_write_req;
 //==============================================================================
 
 //==============================================================================
@@ -236,7 +243,10 @@ module gen_pu #(
     .cfg_loop_stride_v              ( cfg_loop_stride_v              ), //output
     .cfg_loop_stride                ( cfg_loop_stride                ), //output
     .cfg_loop_stride_type           ( cfg_loop_stride_type           ), //output
-
+    .cfg_block_padding_v            ( cfg_block_padding_v            ), //output //edit yt1028
+    .diff_rows                      ( diff_rows                      ), //output //edit yt1028
+    .st_addr_valid_pd               ( st_addr_valid_pd               ),//output //edit yt 
+    .cfg_rs_num_v                   ( cfg_rs_num_v                   ),//output //edit yt
     .obuf_ld_stream_read_req        ( obuf_ld_stream_read_req        ), //output
     .obuf_ld_stream_read_ready      ( obuf_ld_stream_read_ready      ), //input
     .ddr_ld0_stream_read_req        ( ddr_ld0_stream_read_req        ), //output
@@ -253,7 +263,8 @@ module gen_pu #(
     .alu_in1_addr                   ( alu_in1_addr                   ), //output
     .alu_imm                        ( alu_imm                        ), //output
     .alu_out_addr                   ( alu_out_addr                   ), //output
-    .alu_fn                         ( alu_fn                         )  //output
+    .alu_fn                         ( alu_fn                         ), //output
+    .ld01_write_req                 ( ld01_write_req                 )//input
   );
 //==============================================================================
 
@@ -309,6 +320,7 @@ module gen_pu #(
   u_ldst_ddr_wrapper (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
+    .choose_8bit                    ( choose_8bit                    ), //input    
     .start                          ( pu_ddr_start                   ), //input
     .pu_block_start                 ( pu_block_start                 ), //input
     .done                           ( ddr_st_done                    ), //output
@@ -322,6 +334,10 @@ module gen_pu #(
     .cfg_loop_iter_v                ( cfg_loop_iter_v                ), //input
     .cfg_loop_iter                  ( cfg_loop_iter                  ), //input
     .cfg_loop_iter_type             ( cfg_loop_iter_type             ), //input
+
+    .cfg_block_padding_v            ( cfg_block_padding_v            ), //input //edit yt1028
+    .diff_rows                      ( diff_rows                      ), //input //edit yt1028
+    .st_addr_valid_pd               ( st_addr_valid_pd               ),//input
 
     .cfg_mem_req_v                  ( cfg_mem_req_v                  ), //input
     .cfg_mem_req_type               ( cfg_mem_req_type               ), //input
@@ -367,7 +383,10 @@ module gen_pu #(
     .pu_ddr_rresp                   ( pu_ddr_rresp                   ), //input
     .pu_ddr_rlast                   ( pu_ddr_rlast                   ), //input
     .pu_ddr_rvalid                  ( pu_ddr_rvalid                  ), //input
-    .pu_ddr_rready                  ( pu_ddr_rready                  )  //output
+    .pu_ddr_rready                  ( pu_ddr_rready                  ), //output
+    .ddr_ld0_stream_read_req        ( ddr_ld0_stream_read_req        ),//input
+    .ddr_ld1_stream_read_req        ( ddr_ld1_stream_read_req        ), //input
+    .st_fifo_extra_read_req         ( st_fifo_extra_read_req         ) //input
   );
 //==============================================================================
 
@@ -392,6 +411,7 @@ module gen_pu #(
   ) simd_core (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
+    .choose_8bit                    ( choose_8bit                    ), //input
 
     .obuf_ld_stream_write_req       ( obuf_ld_stream_write_req       ), //input
     .obuf_ld_stream_write_ready     ( obuf_ld_stream_write_ready     ), //output
@@ -434,7 +454,11 @@ module gen_pu #(
     .alu_in0_addr                   ( alu_in0_addr                   ), //input
     .alu_in1_src                    ( alu_in1_src                    ), //input
     .alu_in1_addr                   ( alu_in1_addr                   ), //input
-    .alu_out_addr                   ( alu_out_addr                   )  //input
+    .alu_out_addr                   ( alu_out_addr                   ), //input
+    .cfg_rs_num_v                   ( cfg_rs_num_v                   ),
+    .rshift_num                     ( cfg_loop_iter                  ),
+    .ddr_st_done                    ( ddr_st_done                    ),
+    .st_fifo_extra_read_req         ( st_fifo_extra_read_req         ) //input
   );
 //==============================================================================
 

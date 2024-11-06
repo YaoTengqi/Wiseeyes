@@ -1,12 +1,12 @@
 `timescale 1ns/1ps
-module fifo
+module fifo_16
 #(  // Parameters
   parameter          DATA_WIDTH                   = 64,
   parameter          INIT                         = "init.mif",
   parameter          ADDR_WIDTH                   = 4,
   parameter          RAM_DEPTH                    = (1 << ADDR_WIDTH),
   parameter          INITIALIZE_FIFO              = "no",
-  parameter          TYPE                         = "block" //distributed
+  parameter          TYPE                         = "distributed"
 )(  // Ports
   input  wire                                         clk,
   input  wire                                         reset,
@@ -16,8 +16,8 @@ module fifo
   output reg   [ DATA_WIDTH           -1 : 0 ]        s_read_data,
   output wire                                         s_read_ready,
   output wire                                         s_write_ready,
-  output reg                                          almost_full,
-  output reg                                          almost_empty
+  output wire                                         almost_full,
+  output wire                                         almost_empty
 );
 
 // Port Declarations
@@ -36,7 +36,8 @@ module fifo
   reg _almost_empty;
 
   (* ram_style = TYPE *)
-  reg     [DATA_WIDTH   -1 : 0 ]    mem[0:RAM_DEPTH-1];
+  reg     [DATA_WIDTH   -1 : 0 ]    mem[0:RAM_DEPTH-1]        ;
+  parameter                         ALMOST_FULL_VALUE  =  16  ;
 // ******************************************************************
 // FIFO Logic
 // ******************************************************************
@@ -55,22 +56,24 @@ module fifo
   always @(posedge clk)
   begin
     if (reset)
-      almost_full <= 1'b0;
-    else if (s_write_req && !s_read_req && fifo_count == RAM_DEPTH-4)
-      almost_full <= 1'b1;
-    else if (~s_write_req && s_read_req && fifo_count == RAM_DEPTH-4)
-      almost_full <= 1'b0;
+      _almost_full <= 1'b0;
+    else if (s_write_req && !s_read_req && fifo_count == RAM_DEPTH-ALMOST_FULL_VALUE)
+      _almost_full <= 1'b1;
+    else if (~s_write_req && s_read_req && fifo_count == RAM_DEPTH-ALMOST_FULL_VALUE)
+      _almost_full <= 1'b0;
   end
+  assign almost_full = _almost_full;
 
   always @(posedge clk)
   begin
     if (reset)
-      almost_empty <= 1'b0;
+      _almost_empty <= 1'b0;
     else if (~s_write_req && s_read_req && fifo_count == 4)
-      almost_empty <= 1'b1;
+      _almost_empty <= 1'b1;
     else if (s_write_req && ~s_read_req && fifo_count == 4)
-      almost_empty <= 1'b0;
+      _almost_empty <= 1'b0;
   end
+  assign almost_empty = _almost_empty;
 
   assign s_read_ready = !empty;
   assign s_write_ready = !full;

@@ -17,9 +17,9 @@ module signed_adder #(
     input  wire                                         reset,
     input  wire                                         enable,
     input  wire                                         choose_8bit,
-    input  wire  [ IN1_WIDTH            -1 : 0 ]        a,
-    input  wire  [ IN2_WIDTH            -1 : 0 ]        b,
-    output wire  [ OUT_WIDTH            -1 : 0 ]        out
+    input  wire signed [ IN1_WIDTH            -1 : 0 ]        a,
+    input  wire signed [ IN2_WIDTH            -1 : 0 ]        b,
+    output wire signed [ OUT_WIDTH            -1 : 0 ]        out
   );
 
   generate

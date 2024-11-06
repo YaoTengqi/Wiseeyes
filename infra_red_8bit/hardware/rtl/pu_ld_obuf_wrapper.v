@@ -31,7 +31,7 @@ module pu_ld_obuf_wrapper #(
     input  wire                                         clk,
     input  wire                                         reset,
 
-    (* MARK_DEBUG="true" *)input  wire                                         start,
+    input  wire                                         start,
     output wire                                         done,
     input  wire  [ ADDR_WIDTH           -1 : 0 ]        base_addr,
 
@@ -40,8 +40,8 @@ module pu_ld_obuf_wrapper #(
     input  wire  [ ADDR_STRIDE_W        -1 : 0 ]        cfg_loop_stride,
     input  wire  [ STRIDE_TYPE_WIDTH       -1 : 0 ]     cfg_loop_stride_type,
 
-    (* MARK_DEBUG="true" *)input  wire                                         cfg_loop_iter_v,
-    (* MARK_DEBUG="true" *)input  wire  [ LOOP_ITER_W          -1 : 0 ]        cfg_loop_iter,
+    input  wire                                         cfg_loop_iter_v,
+    input  wire  [ LOOP_ITER_W          -1 : 0 ]        cfg_loop_iter,
     input  wire  [ 3                    -1 : 0 ]        cfg_loop_iter_type,
 
   // LD
@@ -68,19 +68,19 @@ module pu_ld_obuf_wrapper #(
     wire [ LOOP_ID_W            -1 : 0 ]        loop_ctrl_index;
     wire                                        loop_ctrl_index_valid;
     wire                                        loop_ctrl_init;
-    (* MARK_DEBUG="true" *)wire                                        loop_ctrl_done;
+    wire                                        loop_ctrl_done;
     wire                                        loop_ctrl_enter;
     wire                                        loop_ctrl_exit;
     wire                                        loop_ctrl_next_addr;
 
-    (* MARK_DEBUG="true" *)wire [ ADDR_WIDTH           -1 : 0 ]        ld_addr;
+    wire [ ADDR_WIDTH           -1 : 0 ]        ld_addr;
     reg  [ ADDR_WIDTH           -1 : 0 ]        ld_addr_d;
     reg  [ ADDR_WIDTH           -1 : 0 ]        ld_addr_q;
-    (* MARK_DEBUG="true" *)wire                                        ld_addr_valid;
+    wire                                        ld_addr_valid;
 
     wire                                        obuf_ld_loop_iter_v;
-    (* MARK_DEBUG="true" *)reg                                         mem_access_state_q;
-    (* MARK_DEBUG="true" *)reg                                         done_state_q;
+    reg                                         mem_access_state_q;
+    reg                                         done_state_q;
 //==============================================================================
 
 //==============================================================================
@@ -104,7 +104,7 @@ module pu_ld_obuf_wrapper #(
 
     localparam          FIFO_ID_WIDTH                = $clog2(NUM_FIFO);
     reg  [ FIFO_ID_WIDTH        -1 : 0 ]        fifo_id_d;
-    (* MARK_DEBUG="true" *)reg  [ FIFO_ID_WIDTH        -1 : 0 ]        fifo_id_q;
+    reg  [ FIFO_ID_WIDTH        -1 : 0 ]        fifo_id_q;
 
     always @(posedge clk)
     begin
@@ -137,19 +137,19 @@ endgenerate
       case (mem_access_state_q)
         0: begin
           if (mem_req && NUM_FIFO > 1) begin
-            mem_access_state_d = 1;
+            mem_access_state_d = 0;//edit yt
             fifo_id_d = 1;
             ld_addr_d = ld_addr;
           end
         end
         1: begin
-          if (mem_req) begin
-            if (fifo_id_q == NUM_FIFO-1) begin
+          if (mem_req) begin //edit yt
+            //if (fifo_id_q == NUM_FIFO-1) begin
               fifo_id_d = 0;
               mem_access_state_d = 0;
-            end else begin
-              fifo_id_d = fifo_id_q + 1;
-            end
+           // end else begin
+              //fifo_id_d = fifo_id_q + 1;
+            //end
           end
         end
       endcase

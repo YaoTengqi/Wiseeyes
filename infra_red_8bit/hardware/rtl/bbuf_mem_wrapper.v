@@ -106,15 +106,14 @@ module bbuf_mem_wrapper #(
     input  wire                                         mws_rlast,
     input  wire                                         mws_rvalid,
     output wire                                         mws_rready,
-
-  // add for 8bit/16bit bbuf
-  output wire [ 11       -1 : 0 ]        tag_mem_write_addr,
-  output wire mem_write_req,
-  output wire  [256 -1 : 0]                                mem_write_data,
-  output wire [ 9       -1 : 0 ]        tag_buf_read_addr,
-  input  wire                                         buf_read_req,
-  output wire [ 1024       -1 : 0 ]        _buf_read_data
     
+    // add for 8bit/16bit bbuf
+    output wire [ 11       -1 : 0 ]        tag_mem_write_addr,
+    output wire                                        mem_write_req,
+    output wire [ 256       -1 : 0 ]        mem_write_data,
+    output wire [ 9       -1 : 0 ]        tag_buf_read_addr,
+    //input  wire                                         buf_read_req,
+    input wire [ 1024       -1 : 0 ]        _buf_read_data
 );
 
 //==============================================================================

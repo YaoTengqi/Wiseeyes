@@ -1,141 +1,199 @@
 `timescale 1ns / 1ps
+//edit 0820
 module pu_alu #(
     parameter integer  DATA_WIDTH                   = 16,
     parameter integer  ACC_DATA_WIDTH               = 64,
+    parameter integer  HALF_ACC_DATA_WIDTH          = 32,
     parameter integer  IMM_WIDTH                    = 16,
     parameter integer  FN_WIDTH                     = 2
 ) (
     input  wire                                         clk,
-    input  wire                                         fn_valid,
-    input  wire  [ FN_WIDTH             -1 : 0 ]        fn,
-    input  wire  [ IMM_WIDTH            -1 : 0 ]        imm,
-    input  wire  [ ACC_DATA_WIDTH       -1 : 0 ]        alu_in0,
-    input  wire                                         alu_in1_src,
-    input  wire  [ DATA_WIDTH           -1 : 0 ]        alu_in1,
+    (*MARK_DEBUG ="true"*)input  wire                                         fn_valid,
+    (*MARK_DEBUG ="true"*)input  wire        [ FN_WIDTH             -1 : 0 ]        fn,
+    (*MARK_DEBUG ="true"*)input  wire signed [ IMM_WIDTH            -1 : 0 ]        imm,
+    (*MARK_DEBUG ="true"*)input  wire signed [ ACC_DATA_WIDTH       -1 : 0 ]        obuf_data,
+    input  wire                                         choose_8bit,//0-16b , 1-8b
+    input  wire                                         cfg_rs_num_v,
+    input  wire signed [ IMM_WIDTH            -1 : 0 ]        rshift_num,
     output wire  [ ACC_DATA_WIDTH       -1 : 0 ]        alu_out
 );
 
-    reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_d;
-    reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q;
-
+    //edit yt
+    reg  signed                       [ IMM_WIDTH                -1 : 0 ]        right_shift_imm=0;
+    reg  signed                       [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_d=0;
+    (*MARK_DEBUG ="true"*)reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q=0;
+    (*MARK_DEBUG ="true"*)reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q_dly=0;
   // Instruction types
-    localparam integer  FN_NOP                       = 0;
-    localparam integer  FN_ADD                       = 1;
-    localparam integer  FN_SUB                       = 2;
-    localparam integer  FN_MUL                       = 3;
-    localparam integer  FN_MVHI                      = 4;
-
+    //localparam integer  FN_NOP                      = 0;
+    localparam integer  FN_MUL                      = 3;//FOR TC
+    localparam integer  FN_CAL                      = 4;//FOR TC+RL
     localparam integer  FN_MAX                       = 5;
-    localparam integer  FN_MIN                       = 6;
 
-    localparam integer  FN_RSHIFT                    = 7;
 
-    wire signed [ DATA_WIDTH           -1 : 0 ]        _alu_in1;
-    wire signed [ DATA_WIDTH           -1 : 0 ]        _alu_in0;
 
-    wire signed[ ACC_DATA_WIDTH           -1 : 0 ]        add_out;
-    wire signed[ ACC_DATA_WIDTH           -1 : 0 ]        sub_out;
-    wire signed[ ACC_DATA_WIDTH           -1 : 0 ]        mul_out;
-    wire signed[ ACC_DATA_WIDTH           -1 : 0 ]        max_out;
-    wire signed[ ACC_DATA_WIDTH           -1 : 0 ]        min_out;
-    wire signed[ ACC_DATA_WIDTH           -1 : 0 ]        rshift_out;
-    wire signed[ ACC_DATA_WIDTH       -1 : 0 ]        _rshift_out;
-    wire [ DATA_WIDTH           -1 : 0 ]        mvhi_out;
-    wire                                        gt_out;
+    wire signed [ HALF_ACC_DATA_WIDTH           -1 : 0 ]        _alu_in0_h32;
+    wire signed [ HALF_ACC_DATA_WIDTH           -1 : 0 ]        _alu_in0_l32;
 
-    wire [ 5                    -1 : 0 ]        shift_amount;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l;//32*16 => 48
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_all_bit;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_ls;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_rs;
 
-    assign _alu_in1 = alu_in1_src ? imm : alu_in1;
-    assign _alu_in0 = alu_in0;
-    assign add_out = _alu_in0 + _alu_in1;
-    assign sub_out = _alu_in0 - _alu_in1;
-    assign mul_out = _alu_in0 * _alu_in1;
-    assign gt_out = _alu_in0 > _alu_in1;
-    assign max_out = gt_out ? _alu_in0 : _alu_in1;
-    assign min_out = ~gt_out ? _alu_in0 : _alu_in1;
-    assign mvhi_out = {imm, 16'b0};
-//EDIT YT
-    assign shift_amount = _alu_in1;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_all_bit;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_ls;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_rs;
 
-    assign _rshift_out = $signed(alu_in0) >>> shift_amount;
+    wire signed[ ACC_DATA_WIDTH                           -1 : 0 ]        mul_out;
 
-    wire signed [ DATA_WIDTH           -1 : 0 ]        _max;
-    wire signed [ DATA_WIDTH           -1 : 0 ]        _min;
-    wire                                        overflow;
-    wire                                        sign;
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_45;//32*16 => 48
+    wire signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_45;//32*16 => 48
 
-    assign overflow = (_rshift_out > _max) || (_rshift_out < _min);
-    assign sign = $signed(alu_in0) < 0;
+    wire                                                        out_range_l0;
+    wire                                                        out_range_h0;
+    wire                                                        out_range_l255;
+    wire                                                        out_range_h255;
 
-    assign _max = (1 << (DATA_WIDTH - 1)) - 1;
-    assign _min = -(1 << (DATA_WIDTH - 1));
+    wire                                                        out_range_ln;
+    wire                                                        out_range_hn;
+    wire                                                        out_range_lp;
+    wire                                                        out_range_hp;//h/l neg&pos
 
-    assign rshift_out = overflow ? sign ? _min : _max : _rshift_out;
+    wire                                                        out_range_0_16;
+    wire                                                        out_range_255_16;                                                   
 
-    reg [ FN_WIDTH                    -1 : 0 ]        fn_dly1;
-    reg [ FN_WIDTH                    -1 : 0 ]        fn_dly2;
-    reg [10-1:0] amounts='h10;//{0+16}Shift_amounts_store
-    reg [5-1:0] shift='d0;//Shift_amount
-    reg need_shift='b0;
-    wire [5                           -1 : 0 ]        shift_amount2;
-    wire signed[ ACC_DATA_WIDTH       -1 : 0 ]        _rshift_out2;
-    wire signed[ ACC_DATA_WIDTH       -1 : 0 ]        rshift_out2;
-    wire                                              overflow2;
-    wire                                              sign2;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out_l;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out_h;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out_l_linear;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out_h_linear;
 
-    wire second_th = fn_dly2=='d3 && fn=='d3;
-    always @(*) begin
-      if(fn=='d2) begin
-        need_shift <='b1;
-        shift <= amounts[5+:5];//shift 0
-        end
-      else if(fn=='d3 && second_th=='b1)begin
-        need_shift <='b1;
-        shift <= amounts[0+:5];//shift 16d
-        end
-      else begin
-        need_shift <='b0;
-        shift <= 'd0;
-      end
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out0_l;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out0_h;
+
+    wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        rshift_out_16b;
+    (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        rshift_out;
+
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        relu_out_l;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        relu_out_h;
+    wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out_16;
+    (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out;
+
+    reg  signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_45_d;//32*16 => 48
+    reg  signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_45_d;//32*16 => 48
+
+    assign _alu_in0_h32 = obuf_data[63:32]; 
+    assign _alu_in0_l32 = obuf_data[31:0]; 
+//======================================================================================
+//===tc
+    assign mul_out_l = _alu_in0_l32 *$signed( imm );
+    assign mul_out_h = _alu_in0_h32 *$signed( imm );
+    assign mul_out = obuf_data; //>>> right_shift_imm;
+
+    assign mul_out_l_all_bit  = {48{mul_out_l[47]}};
+    assign mul_out_h_all_bit  = {48{mul_out_h[47]}};
+    assign mul_out_l_ls = mul_out_l_all_bit << (48-right_shift_imm);
+    assign mul_out_h_ls = mul_out_h_all_bit << (48-right_shift_imm);
+    assign mul_out_l_rs = {~mul_out_l[47],mul_out_l_ls[46:0]} >> (48-right_shift_imm);
+    assign mul_out_h_rs = {~mul_out_h[47],mul_out_h_ls[46:0]} >> (48-right_shift_imm);
+
+    // assign mul_out_l_45 =$signed( mul_out_l + {~mul_out_l[47], {19{mul_out_l[47]}}} );
+    // assign mul_out_h_45 =$signed( mul_out_h + {~mul_out_h[47], {19{mul_out_h[47]}}} );
+    assign mul_out_l_45 =$signed( mul_out_l + mul_out_l_rs );
+    assign mul_out_h_45 =$signed( mul_out_h + mul_out_h_rs );
+
+    always @(posedge clk)begin
+    	mul_out_l_45_d   <=  mul_out_l_45 ;
+    	mul_out_h_45_d   <=  mul_out_h_45 ;
     end
-    assign sign2 = $signed(alu_out_d) < 0;
-    assign overflow2 = (_rshift_out2 > _max) || (_rshift_out2 < _min);
-    assign shift_amount2 = shift;
-    assign _rshift_out2 = alu_out_d >>> shift_amount2;
-    assign rshift_out2 = overflow2 ? sign2 ? _min : _max : _rshift_out2;
-//END
+    
+    assign rshift_out_l = mul_out_l_45_d >>> right_shift_imm;//>>> 'd20;
+    assign rshift_out_h = mul_out_h_45_d >>> right_shift_imm;//'d20;
 
+    assign rshift_out_l_linear = out_range_ln? $signed(-128) : out_range_lp ? $signed (127) : rshift_out_l; 
+    assign rshift_out_h_linear = out_range_hn? $signed(-128) : out_range_hp ? $signed (127) : rshift_out_h; 
+
+    assign rshift_out_16b = mul_out >>> right_shift_imm;
+    // assign rshift_out = choose_8bit ? {rshift_out_h , rshift_out_l} :  rshift_out_16b;
+    assign rshift_out = choose_8bit ? {rshift_out_h_linear , rshift_out_l_linear} :  rshift_out_16b;
+//======================================================================================
+//===relu
+    assign out_range_l0 = rshift_out_l < $signed(0);
+    assign out_range_h0 = rshift_out_h < $signed(0);
+    assign out_range_l255 = rshift_out_l > $signed(255);
+    assign out_range_h255 = rshift_out_h > $signed(255);
+    assign out_range_0_16 = rshift_out_16b < $signed(0);
+    assign out_range_ln = rshift_out_l < $signed(-128);
+    assign out_range_hn = rshift_out_h < $signed(-128);
+    assign out_range_lp = rshift_out_l > $signed(127);
+    assign out_range_hp = rshift_out_h > $signed(127);
+
+    assign out_range_255_16 = rshift_out_16b > $signed(65535);
+
+    assign relu_out_l = out_range_l0 ? 0 : (out_range_l255 ? 255 : rshift_out_l );
+    assign relu_out_h = out_range_h0 ? 0 : (out_range_h255 ? 255 : rshift_out_h ); 
+    assign relu_out_16 = out_range_0_16 ? 0 : out_range_255_16 ? 255 : rshift_out_16b; //>>> right_shift_imm;
+    assign relu_out = choose_8bit ? {relu_out_h , relu_out_l} : relu_out_16;
+
+//======================================================================================
+//===rmax
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        max_out_l;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        max_out_h;
+    wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        max_out_16;
+    (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        max_out;
+
+
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        alu_out_q_l;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        alu_out_q_h;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        alu_out_q_dly_l;
+    wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        alu_out_q_dly_h;
+
+    assign alu_out_q_l = alu_out_q [31:0];
+    assign alu_out_q_h = alu_out_q [63:32];
+
+    assign alu_out_q_dly_l = alu_out_q_dly [31:0];
+    assign alu_out_q_dly_h = alu_out_q_dly [63:32];
+
+    assign max_out_l = alu_out_q_l > alu_out_q_dly_l ? alu_out_q_l : alu_out_q_dly_l;
+    assign max_out_h = alu_out_q_h > alu_out_q_dly_h ? alu_out_q_h : alu_out_q_dly_h;
+    assign max_out = choose_8bit ? {max_out_h , max_out_l} : max_out_16;
+    assign max_out_16 = alu_out_q > alu_out_q_dly ? alu_out_q : alu_out_q_dly;
+//=============================================================================================
+
+    always @(posedge clk)begin
+      if(cfg_rs_num_v)
+        right_shift_imm <= rshift_num;
+    end
+
+    wire [ FN_WIDTH             -1 : 0 ] fn_dly1;
+    register_sync_with_enable #(FN_WIDTH) fn_dly
+    (clk, reset, 1'b1, fn, fn_dly1);
 
     always @(*)
     begin
-      case (fn)
-        FN_NOP: alu_out_d = alu_in0;
-        FN_ADD: alu_out_d = add_out;
-        FN_SUB: alu_out_d = sub_out;
-        FN_MUL: alu_out_d = mul_out;
-        FN_MVHI: alu_out_d = mvhi_out;
+      case (fn_dly1)
+        FN_CAL: alu_out_d = relu_out;
+        FN_MUL: alu_out_d = rshift_out;
         FN_MAX: alu_out_d = max_out;
-        FN_MIN: alu_out_d = min_out;
-        FN_RSHIFT: alu_out_d = rshift_out;
-        default: alu_out_d = 'bx;
+        default: alu_out_d = 'b0;
       endcase
     end
 
+    wire fn_valid_dly1;
+    register_sync_with_enable #(1) fn_valid_dly
+    (clk, reset, 1'b1, fn_valid, fn_valid_dly1);
+
     always @(posedge clk)
     begin
-      if (fn_valid)
-        begin                                                           //edit yt
-          fn_dly2  <= fn_dly1;
-          fn_dly1  <= fn;
-          if(need_shift=='b1)begin
-            alu_out_q <= rshift_out2;
-          end
-          else begin
-            alu_out_q <= alu_out_d;
-          end
-          
-      end
+      if (fn_valid_dly1)
+        alu_out_q <= alu_out_d;
     end
-      assign alu_out = alu_out_q;
+
+    always @(posedge clk ) begin
+      if (fn_valid_dly1)
+        alu_out_q_dly <= alu_out_q;
+    end
+
+
+    assign alu_out = alu_out_q;
 endmodule
 

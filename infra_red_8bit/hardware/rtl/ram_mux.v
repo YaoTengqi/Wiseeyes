@@ -13,7 +13,6 @@ module ram_mux #(
     parameter integer  LOOP_ID_W                    = 5,
 
   // Systolic Array
-    parameter integer  NUM_TAGS                     = 2,//ghd_add
     parameter integer  TAG_W                        = $clog2(NUM_TAGS),
     parameter integer  ARRAY_N                      = 32,
     parameter integer  ARRAY_M                      = 32,
@@ -25,7 +24,7 @@ module ram_mux #(
 
   // Buffers
     parameter integer  WEIGHT_ROW_NUM               = 1,                                                                                                                       //edit by sy 0513
-    // parameter integer  NUM_TAGS                     = 2,//ghd_delete
+    parameter integer  NUM_TAGS                     = 2,
     parameter integer  IBUF_CAPACITY_BITS           = ARRAY_N * DATA_WIDTH * 6144 / NUM_TAGS,
     parameter integer  WBUF_CAPACITY_BITS           = ARRAY_M * WEIGHT_ROW_NUM * DATA_WIDTH * 2048 / NUM_TAGS,
     parameter integer  OBUF_CAPACITY_BITS           = ARRAY_M * ACC_WIDTH * 4096 / NUM_TAGS,                                            //edit by sy 0513

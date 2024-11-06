@@ -4,7 +4,11 @@ module simd_pu_core #(
     parameter integer  INST_WIDTH                   = 32,
   // Data width
     parameter integer  DATA_WIDTH                   = 16,
+    parameter integer  HALF_DATA_WIDTH              = DATA_WIDTH/2,//edit 0830
     parameter integer  ACC_DATA_WIDTH               = 32,
+    parameter integer  ACC_DATA_HALF_WIDTH          = ACC_DATA_WIDTH/2,
+    parameter integer  OBUF_LVALID_DATA_WIDTH       = 30, 
+    parameter integer  OBUF_HVALID_DATA_WIDTH       = 32,  
     parameter integer  SIMD_LANES                   = 1,
     parameter integer  SIMD_DATA_WIDTH              = SIMD_LANES * DATA_WIDTH,
     parameter integer  SIMD_INTERIM_WIDTH           = SIMD_LANES * ACC_DATA_WIDTH,
@@ -18,7 +22,9 @@ module simd_pu_core #(
     parameter integer  OP_WIDTH                     = 3,
     parameter integer  FN_WIDTH                     = 3,
     parameter integer  IMM_WIDTH                    = 16,
-    //edit yt
+    //edit yt SY
+    parameter integer  QU_WIDTH                     = 8,
+    parameter integer  QU_SIMD_DATA_WIDTH           = SIMD_LANES * QU_WIDTH,
     parameter integer  ARRAY_M                      = 2,
     parameter integer  OBUF_DATA_WIDTH              = ARRAY_M * ACC_DATA_WIDTH
     //edit end
@@ -26,6 +32,7 @@ module simd_pu_core #(
 (
     input  wire                                         clk,
     input  wire                                         reset,
+    input  wire                                         choose_8bit,
 
     input  wire                                         alu_fn_valid,
     input  wire  [ FN_WIDTH             -1 : 0 ]        alu_fn,
@@ -46,31 +53,38 @@ module simd_pu_core #(
     input  wire                                         ddr_st_stream_write_req,
     output wire                                         ddr_st_stream_write_ready,
 
-    input wire                                          st1_data_required,                                                                                                    //edit by sy 0618
+    input wire                                          st1_data_required,//edit by sy 
+//    input wire                                          dsp_mult,//edit by sy 0813
   // From DDR
-    (* MARK_DEBUG="true" *)input  wire                                         ddr_st_stream_read_req,
-    (* MARK_DEBUG="true" *)output wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data,
-    (* MARK_DEBUG="true" *)output wire                                         ddr_st_stream_read_ready,
+    input  wire                                         ddr_st_stream_read_req,
+    output wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data,
+    output wire                                         ddr_st_stream_read_ready,
 
     input  wire                                         ddr_ld0_stream_write_req,
-    input  wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld0_stream_write_data,
+    input  wire  [ AXI_DATA_WIDTH*2       -1 : 0 ]        ddr_ld0_stream_write_data,//edit yt
     output wire                                         ddr_ld0_stream_write_ready,
 
     input  wire                                         ddr_ld1_stream_write_req,
-    input  wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld1_stream_write_data,
+    input  wire  [ AXI_DATA_WIDTH*2       -1 : 0 ]        ddr_ld1_stream_write_data,//edit yt
     output wire                                         ddr_ld1_stream_write_ready,
 
   // From OBUF
-    (* MARK_DEBUG="true" *)input  wire                                         obuf_ld_stream_write_req,
-    (* MARK_DEBUG="true" *)input  wire  [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_ld_stream_write_data,
-    (* MARK_DEBUG="true" *)output wire                                         obuf_ld_stream_write_ready,
+    input  wire                                         obuf_ld_stream_write_req,
+    input  wire  [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_ld_stream_write_data,
+    output wire                                         obuf_ld_stream_write_ready,
 
     output wire  [ INST_WIDTH           -1 : 0 ]        obuf_ld_stream_read_count,
     output wire  [ INST_WIDTH           -1 : 0 ]        obuf_ld_stream_write_count,
     output wire  [ INST_WIDTH           -1 : 0 ]        ddr_st_stream_read_count,
     output wire  [ INST_WIDTH           -1 : 0 ]        ddr_st_stream_write_count,
     output wire  [ INST_WIDTH           -1 : 0 ]        ld0_stream_counts,
-    output wire  [ INST_WIDTH           -1 : 0 ]        ld1_stream_counts
+    output wire  [ INST_WIDTH           -1 : 0 ]        ld1_stream_counts,
+
+    input  wire                                         cfg_rs_num_v,
+    input  wire  [ IMM_WIDTH            -1 : 0 ]        rshift_num,
+    
+    input  wire                                         st_fifo_extra_read_req,
+    input  wire                                         ddr_st_done //edit yt
 );
 
 //==============================================================================
@@ -81,94 +95,103 @@ module simd_pu_core #(
 //==============================================================================
 // Wires & Regs
 //==============================================================================
-    wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_in0_data;
-    wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_in1_data;
+    // wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_in0_data;
+    // wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_in1_data;
 
     wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        obuf_ld_stream_read_data;
 
-    wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld0_stream_read_data;
+    reg  [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld0_stream_read_data; //edit yt
+    wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld0_stream_read_data_fix;//edit 0830
     wire                                        ld0_req_buf_write_ready;
     wire                                        ld0_req_buf_almost_full;
     wire                                        ld0_req_buf_almost_empty;
 
-    wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld1_stream_read_data;
+    reg  [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld1_stream_read_data; //edit yt
+    wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld1_stream_read_data_fix;//edit 0830
     wire                                        ld1_req_buf_write_ready;
     wire                                        ld1_req_buf_almost_full;
     wire                                        ld1_req_buf_almost_empty;
 
-    (* MARK_DEBUG="true" *)wire                                        st_req_buf_almost_full;
-    (* MARK_DEBUG="true" *)wire                                        st_req_buf_almost_empty;
+    wire                                        st_req_buf_almost_full;
+    wire                                        st_req_buf_almost_empty;
     wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_st_stream_write_data;
+    wire [ SIMD_DATA_WIDTH      -1 : 0 ]        _ddr_st_stream_write_data;//edit by sy 0813
+    wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_st_stream_write_data_reg;//edit by sy 0813  
 
-    wire [ FN_WIDTH             -1 : 0 ]        alu_fn_stage2;
-    wire                                        alu_fn_valid_stage2;
+    wire                                        st_fifo_full_read_req;
+
+    wire [ FN_WIDTH             -1 : 0 ]        alu_fn_stage2[SIMD_LANES-1:0];
+    wire  [SIMD_LANES-1:0]                                      alu_fn_valid_stage2;
     wire                                        alu_fn_valid_stage3;
-    wire [ IMM_WIDTH            -1 : 0 ]        alu_imm_stage2;
+    wire [ IMM_WIDTH            -1 : 0 ]        alu_imm_stage2[SIMD_LANES-1:0];
     wire                                        alu_in1_src_stage2;
     wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_in0_addr_stage2;
     wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_in1_addr_stage2;
 
-    (* MARK_DEBUG="true" *)wire                                        ld_req_buf_almost_full;
-    (* MARK_DEBUG="true" *)wire                                        ld_req_buf_almost_empty;
+    wire                                        ld_req_buf_almost_full;
+    wire                                        ld_req_buf_almost_empty;
 
-    wire                                        alu_in0_req;
-    wire                                        alu_in1_req;
+    // wire                                        alu_in0_req;
+    // wire                                        alu_in1_req;
     wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_out;
-    reg  [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_out_fwd;
+    //reg  [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_out_fwd;
 
-  // chaining consecutive ops
-    wire                                        chain_rs0;
-    wire                                        chain_rs1;
-    wire                                        chain_rs0_stage2;
-    wire                                        chain_rs1_stage2;
+  // // chaining consecutive ops
+  //   wire                                        chain_rs0;
+  //   wire                                        chain_rs1;
+  //   wire                                        chain_rs0_stage2;
+  //   wire                                        chain_rs1_stage2;
 
-  // forwarding between ops
-    wire                                        fwd_rs0;
-    wire                                        fwd_rs1;
-    wire                                        fwd_rs0_stage2;
-    wire                                        fwd_rs1_stage2;
+  // // forwarding between ops
+  //   wire                                        fwd_rs0;
+  //   wire                                        fwd_rs1;
+  //   wire                                        fwd_rs0_stage2;
+  //   wire                                        fwd_rs1_stage2;
 
-    wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_out_addr_stage2;
-    wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_out_addr_stage3;
+  //   wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_out_addr_stage2;
+  //   wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_out_addr_stage3;
 
-  // PU Store1 FIFO                                                                                                                                                       //edit by sy 0618 begin
+  // PU Store1 FIFO - edit by sy begin
     wire  [ FN_WIDTH             -1 : 0 ]        alu_fn_stage3;
     wire ddr_st1_stream_write_req;
     wire ddr_st1_stream_write_req_dly1;
-    (* MARK_DEBUG="true" *)wire _ddr_st_stream_write_req;//edit by sy 0618 end
-        
+    wire _ddr_st_stream_write_req;//edit by sy 0618 end
+    wire [ OBUF_DATA_WIDTH      -1 : 0 ]        _obuf_ld_stream_write_data;
+    wire [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_ld_stream_write_data_reg;    
+    wire [DATA_WIDTH -1 :0 ] _ddr_ld0_stream_read_data [SIMD_LANES -1 : 0 ]; 
+    wire [DATA_WIDTH -1 :0 ] _ddr_ld1_stream_read_data [SIMD_LANES -1 : 0 ]; 
     genvar i;
 //==============================================================================
 
 //==============================================================================
 // Chaining/Forwarding logic
 //==============================================================================
-    assign chain_rs0 = alu_fn_valid && alu_fn_valid_stage2 && (alu_in0_addr[2:0] == alu_out_addr_stage2[2:0]);
-    assign chain_rs1 = alu_fn_valid && alu_fn_valid_stage2 && (alu_in1_addr[2:0] == alu_out_addr_stage2[2:0]);
+    // assign chain_rs0 = alu_fn_valid && alu_fn_valid_stage2 && (alu_in0_addr[2:0] == alu_out_addr_stage2[2:0]);
+    // assign chain_rs1 = alu_fn_valid && alu_fn_valid_stage2 && (alu_in1_addr[2:0] == alu_out_addr_stage2[2:0]);
 
-    assign fwd_rs0 = (alu_fn_valid && alu_fn_valid_stage3 && (alu_in0_addr == alu_out_addr_stage3));
-    assign fwd_rs1 = (alu_fn_valid && alu_fn_valid_stage3 && (alu_in1_addr == alu_out_addr_stage3));
+    // assign fwd_rs0 = (alu_fn_valid && alu_fn_valid_stage3 && (alu_in0_addr == alu_out_addr_stage3));
+    // assign fwd_rs1 = (alu_fn_valid && alu_fn_valid_stage3 && (alu_in1_addr == alu_out_addr_stage3));
 //==============================================================================
 
 //==============================================================================
 // Registers
 //==============================================================================
-  register_sync_with_enable #(1) stage2_chain_rs0
-  (clk, reset, 1'b1, chain_rs0, chain_rs0_stage2);
+  // register_sync_with_enable #(1) stage2_chain_rs0
+  // (clk, reset, 1'b1, chain_rs0, chain_rs0_stage2);
 
-  register_sync_with_enable #(1) stage2_chain_rs1
-  (clk, reset, 1'b1, chain_rs1, chain_rs1_stage2);
+  // register_sync_with_enable #(1) stage2_chain_rs1
+  // (clk, reset, 1'b1, chain_rs1, chain_rs1_stage2);
 
-  register_sync_with_enable #(1) stage2_fwd_rs0
-  (clk, reset, 1'b1, fwd_rs0, fwd_rs0_stage2);
+  // register_sync_with_enable #(1) stage2_fwd_rs0
+  // (clk, reset, 1'b1, fwd_rs0, fwd_rs0_stage2);
 
-  register_sync_with_enable #(1) stage2_fwd_rs1
-  (clk, reset, 1'b1, fwd_rs1, fwd_rs1_stage2);
+  // register_sync_with_enable #(1) stage2_fwd_rs1
+  // (clk, reset, 1'b1, fwd_rs1, fwd_rs1_stage2);
 
-  register_sync_with_enable #(SRC_ADDR_WIDTH) stage2_alu_out_addr
-  (clk, reset, 1'b1, alu_out_addr, alu_out_addr_stage2);
-  register_sync_with_enable #(SRC_ADDR_WIDTH) stage3_alu_out_addr
-  (clk, reset, 1'b1, alu_out_addr_stage2, alu_out_addr_stage3);
+  // register_sync_with_enable #(SRC_ADDR_WIDTH) stage2_alu_out_addr
+  // (clk, reset, 1'b1, alu_out_addr, alu_out_addr_stage2);
+  // register_sync_with_enable #(SRC_ADDR_WIDTH) stage3_alu_out_addr
+  // (clk, reset, 1'b1, alu_out_addr_stage2, alu_out_addr_stage3);
 //==============================================================================
 
 //==============================================================================
@@ -180,15 +203,16 @@ module simd_pu_core #(
 // PU OBUF LD FIFO
 //==============================================================================
     assign obuf_ld_stream_write_ready = ~ld_req_buf_almost_full;
-  fifo_asymmetric #(
+  fifo_asymmetric_16 #(
     .WR_DATA_WIDTH                  ( OBUF_DATA_WIDTH                ),//edit yt
     .RD_DATA_WIDTH                  ( SIMD_INTERIM_WIDTH             ),
-    .WR_ADDR_WIDTH                  ( 3                              )
+    .WR_ADDR_WIDTH                  ( 6                              ),
+    .RD_ADDR_WIDTH                  ( 6                             )
   ) ld_req_buf (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
     .s_write_req                    ( obuf_ld_stream_write_req       ), //input
-    .s_write_data                   ( obuf_ld_stream_write_data      ), //input
+    .s_write_data                   ( obuf_ld_stream_write_data_reg  ), //input
     .s_write_ready                  (                                ), //output
     .s_read_req                     ( obuf_ld_stream_read_req        ), //input
     .s_read_ready                   ( obuf_ld_stream_read_ready      ), //output
@@ -201,27 +225,44 @@ module simd_pu_core #(
 //==============================================================================
 // PU Store FIFO
 //==============================================================================
+
     assign ddr_st_stream_write_ready = ~st_req_buf_almost_full;
-    assign ddr_st1_stream_write_req = st1_data_required && alu_fn_valid_stage2 && alu_fn_stage2 ==4'd5 && alu_fn_stage3 ==4'd3;//edit by sy
-    assign _ddr_st_stream_write_req = ddr_st_stream_write_req || ddr_st1_stream_write_req_dly1;//edit by sy
+    assign ddr_st1_stream_write_req = st1_data_required && alu_fn_valid_stage3 && alu_fn_stage3 == 'd4;//edit yt
+    assign _ddr_st_stream_write_req = ddr_st_stream_write_req || ddr_st1_stream_write_req;
+
+    //TODO: edit yt
+    assign st_fifo_full_read_req = ddr_st_stream_read_req || st_fifo_extra_read_req;
+
+    assign ddr_st_stream_write_data_reg = choose_8bit ? _ddr_st_stream_write_data : ddr_st_stream_write_data;
+    assign obuf_ld_stream_write_data_reg = choose_8bit ? _obuf_ld_stream_write_data : obuf_ld_stream_write_data;
 generate
 for (i=0; i<SIMD_LANES; i=i+1)
 begin
     assign ddr_st_stream_write_data[i*DATA_WIDTH+:DATA_WIDTH] = alu_out[i*ACC_DATA_WIDTH+:DATA_WIDTH];
+    assign _ddr_st_stream_write_data[i*QU_WIDTH+:QU_WIDTH] = alu_out[i*ACC_DATA_WIDTH+:QU_WIDTH];//edit by sy 0825
+    assign _ddr_st_stream_write_data[(i*QU_WIDTH + QU_SIMD_DATA_WIDTH)+:QU_WIDTH] = alu_out[i*ACC_DATA_WIDTH + ACC_DATA_HALF_WIDTH +:QU_WIDTH];//edit by sy 0825
+    
+    assign _obuf_ld_stream_write_data[i*ACC_DATA_WIDTH +: ACC_DATA_HALF_WIDTH] = $signed(obuf_ld_stream_write_data[i*ACC_DATA_WIDTH +: OBUF_LVALID_DATA_WIDTH]);
+    assign _obuf_ld_stream_write_data[i*ACC_DATA_WIDTH + ACC_DATA_HALF_WIDTH +: ACC_DATA_HALF_WIDTH] = $signed(obuf_ld_stream_write_data[i*ACC_DATA_WIDTH + OBUF_HVALID_DATA_WIDTH +: OBUF_LVALID_DATA_WIDTH]);
 end
 endgenerate
 
-  fifo_asymmetric #(
+    wire         _ddr_st_stream_write_req_dly1;
+    register_sync_with_enable #(1) _ddr_st_stream_write_req_dly    
+    (clk, reset, 1'b1, _ddr_st_stream_write_req, _ddr_st_stream_write_req_dly1);
+
+  fifo_asymmetric_16 #(
     .WR_DATA_WIDTH                  ( SIMD_DATA_WIDTH                ),
     .RD_DATA_WIDTH                  ( AXI_DATA_WIDTH                 ),
-    .WR_ADDR_WIDTH                  ( 4                              )                                                                                                                                           //edit by sy 0618
+    .WR_ADDR_WIDTH                  ( 6                              ),
+    .RD_ADDR_WIDTH                  ( 6                              )         
   ) st_req_buf (
     .clk                            ( clk                            ), //input
     .reset                          ( reset                          ), //input
-    .s_write_req                    ( _ddr_st_stream_write_req        ), //input                                                                                                                    //edit by sy 0618
-    .s_write_data                   ( ddr_st_stream_write_data       ), //output
+    .s_write_req                    ( _ddr_st_stream_write_req_dly1       ), //input edit by sy
+    .s_write_data                   ( ddr_st_stream_write_data_reg   ), //output edit by sy 0813
     .s_write_ready                  (                                ), //output
-    .s_read_req                     ( ddr_st_stream_read_req         ), //input
+    .s_read_req                     ( st_fifo_full_read_req          ),//ddr_st_stream_read_req         ), //input
     .s_read_ready                   ( ddr_st_stream_read_ready       ), //output
     .s_read_data                    ( ddr_st_stream_read_data        ), //input
     .almost_full                    ( st_req_buf_almost_full         ), //output
@@ -232,23 +273,57 @@ endgenerate
 //==============================================================================
 // PU LD0 FIFO
 //==============================================================================
-    assign ddr_ld0_stream_write_ready = ~ld0_req_buf_almost_full;
-  fifo_asymmetric #(
-    .RD_DATA_WIDTH                  ( SIMD_DATA_WIDTH                ),
-    .WR_DATA_WIDTH                  ( AXI_DATA_WIDTH                 ),
-    .RD_ADDR_WIDTH                  ( 6                              )
-  ) ld0_req_buf (
-    .clk                            ( clk                            ), //input
-    .reset                          ( reset                          ), //input
-    .s_write_req                    ( ddr_ld0_stream_write_req       ), //input                                                                                             
-    .s_write_data                   ( ddr_ld0_stream_write_data      ), //output
-    .s_write_ready                  ( ld0_req_buf_write_ready        ), //output
-    .s_read_req                     ( ddr_ld0_stream_read_req        ), //input
-    .s_read_ready                   ( ddr_ld0_stream_read_ready      ), //output
-    .s_read_data                    ( ddr_ld0_stream_read_data       ), //input
-    .almost_full                    ( ld0_req_buf_almost_full        ), //output
-    .almost_empty                   ( ld0_req_buf_almost_empty       )  //output
-  );
+//edit yt
+  reg [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld0_data=0; 
+  assign ddr_ld0_stream_read_ready = ddr_ld0_data != 0 || alu_fn == 'd7;
+  assign ddr_ld0_stream_write_ready = 1;
+
+  always @(posedge clk ) begin
+    if(ddr_st_done)begin
+      ddr_ld0_data <= 0;
+    end
+    else if(ddr_ld0_stream_write_req)begin
+      ddr_ld0_data <= ddr_ld0_stream_write_data;
+    end
+  end
+
+  always @(posedge clk ) begin
+    if(ddr_ld0_stream_read_req)begin
+      ddr_ld0_stream_read_data <= ddr_ld0_data;
+    end
+  end
+
+//edit end
+
+
+
+  // assign ddr_ld0_stream_write_ready = ~ld0_req_buf_almost_full;
+
+  // generate//edit 0830
+  //   for (i=0; i<SIMD_LANES; i=i+1)
+  //   begin
+  //       assign _ddr_ld0_stream_read_data[i] = $signed(ddr_ld0_stream_read_data[i*HALF_DATA_WIDTH+:HALF_DATA_WIDTH]);
+  //       assign ddr_ld0_stream_read_data_fix[i*DATA_WIDTH+:DATA_WIDTH] = choose_8bit ? _ddr_ld0_stream_read_data[i]: 
+  //                                                                                     ddr_ld0_stream_read_data[i*DATA_WIDTH+:DATA_WIDTH] ;
+  //   end 
+  // endgenerate
+
+  // fifo_asymmetric #(
+  //   .RD_DATA_WIDTH                  ( SIMD_DATA_WIDTH                ),
+  //   .WR_DATA_WIDTH                  ( AXI_DATA_WIDTH                 ),
+  //   .RD_ADDR_WIDTH                  ( 6                              )
+  // ) ld0_req_buf (
+  //   .clk                            ( clk                            ), //input
+  //   .reset                          ( reset                          ), //input
+  //   .s_write_req                    ( ddr_ld0_stream_write_req       ), //input                                                                                             
+  //   .s_write_data                   ( ddr_ld0_stream_write_data      ), //output
+  //   .s_write_ready                  ( ld0_req_buf_write_ready        ), //output
+  //   .s_read_req                     ( ddr_ld0_stream_read_req        ), //input
+  //   .s_read_ready                   ( ddr_ld0_stream_read_ready      ), //output
+  //   .s_read_data                    ( ddr_ld0_stream_read_data       ), //input
+  //   .almost_full                    ( ld0_req_buf_almost_full        ), //output
+  //   .almost_empty                   ( ld0_req_buf_almost_empty       )  //output
+  // );
 `ifdef COCOTB_SIM
   integer ld0_total_writes;
   always @(posedge clk)
@@ -273,23 +348,54 @@ endgenerate
 //==============================================================================
 // PU LD1 FIFO
 //==============================================================================
-    assign ddr_ld1_stream_write_ready = ~ld1_req_buf_almost_full;
-  fifo_asymmetric #(
-    .RD_DATA_WIDTH                  ( SIMD_DATA_WIDTH                ),
-    .WR_DATA_WIDTH                  ( AXI_DATA_WIDTH                 ),
-    .RD_ADDR_WIDTH                  ( 6                              )
-  ) ld1_req_buf (
-    .clk                            ( clk                            ), //input
-    .reset                          ( reset                          ), //input
-    .s_write_req                    ( ddr_ld1_stream_write_req       ), //input
-    .s_write_data                   ( ddr_ld1_stream_write_data      ), //output
-    .s_write_ready                  ( ld1_req_buf_write_ready        ), //output
-    .s_read_req                     ( ddr_ld1_stream_read_req        ), //input
-    .s_read_ready                   ( ddr_ld1_stream_read_ready      ), //output
-    .s_read_data                    ( ddr_ld1_stream_read_data       ), //input
-    .almost_full                    ( ld1_req_buf_almost_full        ), //output
-    .almost_empty                   ( ld1_req_buf_almost_empty       )  //output
-  );
+//edit yt
+  reg [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_ld1_data=0;
+  assign ddr_ld1_stream_read_ready = ddr_ld1_data != 0  || alu_fn == 'd7;
+  assign ddr_ld1_stream_write_ready = 1;
+
+  always @(posedge clk ) begin
+    if(ddr_st_done)begin
+      ddr_ld1_data <= 0;
+    end
+    else if(ddr_ld1_stream_write_req)begin
+      ddr_ld1_data <= ddr_ld1_stream_write_data;
+    end
+  end
+  always @(posedge clk ) begin
+    if(ddr_ld1_stream_read_req)begin
+      ddr_ld1_stream_read_data <= ddr_ld1_data;
+    end
+  end
+
+//edit end
+  // assign ddr_ld1_stream_write_ready = ~ld1_req_buf_almost_full;
+  
+  
+  // generate//edit 0830
+  //   for (i=0; i<SIMD_LANES; i=i+1)
+  //   begin
+  //       assign _ddr_ld1_stream_read_data[i] = $signed(ddr_ld1_stream_read_data[i*HALF_DATA_WIDTH+:HALF_DATA_WIDTH]);
+  //       assign ddr_ld1_stream_read_data_fix[i*DATA_WIDTH+:DATA_WIDTH] = choose_8bit ? _ddr_ld1_stream_read_data[i] :
+  //                                                                                     ddr_ld1_stream_read_data[i*DATA_WIDTH+:DATA_WIDTH];
+  //   end 
+  // endgenerate
+
+  // fifo_asymmetric #(
+  //   .RD_DATA_WIDTH                  ( SIMD_DATA_WIDTH                ),
+  //   .WR_DATA_WIDTH                  ( AXI_DATA_WIDTH                 ),
+  //   .RD_ADDR_WIDTH                  ( 6                              )
+  // ) ld1_req_buf (
+  //   .clk                            ( clk                            ), //input
+  //   .reset                          ( reset                          ), //input
+  //   .s_write_req                    ( ddr_ld1_stream_write_req       ), //input
+  //   .s_write_data                   ( ddr_ld1_stream_write_data      ), //output
+  //   .s_write_ready                  ( ld1_req_buf_write_ready        ), //output
+  //   .s_read_req                     ( ddr_ld1_stream_read_req        ), //input
+  //   .s_read_ready                   ( ddr_ld1_stream_read_ready      ), //output
+  //   .s_read_data                    ( ddr_ld1_stream_read_data       ), //input
+  //   .almost_full                    ( ld1_req_buf_almost_full        ), //output
+  //   .almost_empty                   ( ld1_req_buf_almost_empty       )  //output
+  // );
 `ifdef COCOTB_SIM
   integer ld1_total_writes;
   always @(posedge clk)
@@ -314,128 +420,88 @@ endgenerate
 //==============================================================================
 // delays
 //==============================================================================
-    register_sync_with_enable #(FN_WIDTH) alu_fn_delay_reg1
-    (clk, reset, 1'b1, alu_fn, alu_fn_stage2);
+
     register_sync_with_enable #(FN_WIDTH) alu_fn_delay_reg2//edit by sy
-    (clk, reset, 1'b1, alu_fn_stage2, alu_fn_stage3);
+    (clk, reset, 1'b1, alu_fn_stage2[0], alu_fn_stage3);
     register_sync_with_enable #(1) ddr_st1_stream_write_req_reg1//edit by sy
     (clk, reset, 1'b1, ddr_st1_stream_write_req, ddr_st1_stream_write_req_dly1);
 
-    register_sync_with_enable #(1) alu_fn_valid_delay_reg1
-    (clk, reset, 1'b1, alu_fn_valid, alu_fn_valid_stage2);
     register_sync_with_enable #(1) alu_fn_valid_delay_reg2
-    (clk, reset, 1'b1, alu_fn_valid_stage2, alu_fn_valid_stage3);
+    (clk, reset, 1'b1, alu_fn_valid_stage2[0], alu_fn_valid_stage3);
 
-    register_sync_with_enable #(IMM_WIDTH) alu_imm_delay_reg1
-    (clk, reset, 1'b1, alu_imm, alu_imm_stage2);
 
-    register_sync_with_enable #(1) alu_in1_src_delay_reg1
-    (clk, reset, 1'b1, alu_in1_src, alu_in1_src_stage2);
 
-    register_sync_with_enable #(SRC_ADDR_WIDTH) alu_in0_addr_delay_reg1
-    (clk, reset, 1'b1, alu_in0_addr, alu_in0_addr_stage2);
 
-    register_sync_with_enable #(SRC_ADDR_WIDTH) alu_in1_addr_delay_reg1
-    (clk, reset, 1'b1, alu_in1_addr, alu_in1_addr_stage2);
-//==============================================================================
+    // register_sync_with_enable #(1) alu_in1_src_delay_reg1
+    // (clk, reset, 1'b1, alu_in1_src, alu_in1_src_stage2);
 
-//==============================================================================
-// Register File
-//==============================================================================
-    assign alu_in0_req = 1'b1;
-    assign alu_in1_req = 1'b1;
-    wire                                        alu_wb_req;
-    assign alu_wb_req = alu_fn_valid_stage3 && ~ddr_st_stream_write_req;
+    // register_sync_with_enable #(SRC_ADDR_WIDTH) alu_in0_addr_delay_reg1
+    // (clk, reset, 1'b1, alu_in0_addr, alu_in0_addr_stage2);
 
-    wire [ RF_ADDR_WIDTH        -1 : 0 ]        regfile_in0_addr;
-    wire [ RF_ADDR_WIDTH        -1 : 0 ]        regfile_in1_addr;
-    wire [ RF_ADDR_WIDTH        -1 : 0 ]        regfile_out_addr;
-    assign regfile_in0_addr = alu_in0_addr;
-    assign regfile_in1_addr = alu_in1_addr;
-    assign regfile_out_addr = alu_out_addr_stage3;
-  reg_file #(
-    .DATA_WIDTH                     ( SIMD_INTERIM_WIDTH             ),
-    .ADDR_WIDTH                     ( RF_ADDR_WIDTH                  )
-  ) c_regfile (
-    .clk                            ( clk                            ), //input
-    .rd_req_0                       ( alu_in0_req                    ), //input
-    .rd_addr_0                      ( regfile_in0_addr               ), //input
-    .rd_data_0                      ( alu_in0_data                   ), //output
-    .rd_req_1                       ( alu_in1_req                    ), //input
-    .rd_addr_1                      ( regfile_in1_addr               ), //input
-    .rd_data_1                      ( alu_in1_data                   ), //output
-    .wr_req_0                       ( alu_wb_req                     ), //input
-    .wr_addr_0                      ( regfile_out_addr               ), //input
-    .wr_data_0                      ( alu_out                        )  //input
-    );
-//==============================================================================
+    // register_sync_with_enable #(SRC_ADDR_WIDTH) alu_in1_addr_delay_reg1
+    // (clk, reset, 1'b1, alu_in1_addr, alu_in1_addr_stage2);
 
 //==============================================================================
 // PU ALU
 //==============================================================================
-    wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_in0;
-    wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        alu_in1;
-    wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        ld_data_in0;
-    wire [ RF_ADDR_WIDTH        -1 : 0 ]        ld_type_in0;
-    wire [ SIMD_INTERIM_WIDTH   -1 : 0 ]        ld_data_in1;
-    wire [ RF_ADDR_WIDTH        -1 : 0 ]        ld_type_in1;
-
-    assign ld_type_in0 = alu_in0_addr_stage2;
-    assign ld_type_in1 = alu_in1_addr_stage2;
-
-
-generate
-for (i=0; i<SIMD_LANES; i=i+1)
-begin
-    assign ld_data_in0[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH] = ld_type_in0 == 0 ?
-                                                           obuf_ld_stream_read_data[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH] :
-                                                           ld_type_in0 == 1 ? ddr_ld0_stream_read_data[i*DATA_WIDTH+:DATA_WIDTH] :
-                                                                              ddr_ld1_stream_read_data[i*DATA_WIDTH+:DATA_WIDTH];
-    assign ld_data_in1[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH] = ld_type_in1 == 0 ?
-                                                           obuf_ld_stream_read_data[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH] :
-                                                           ld_type_in1 == 1 ? ddr_ld0_stream_read_data[i*DATA_WIDTH+:DATA_WIDTH] :
-                                                                              ddr_ld1_stream_read_data[i*DATA_WIDTH+:DATA_WIDTH];
-end
-endgenerate
-
-    assign alu_in0 = alu_in0_addr_stage2[3] ? ld_data_in0 :
-                     chain_rs0_stage2 ? alu_out :
-                     fwd_rs0_stage2 ? alu_out_fwd : alu_in0_data;
-    assign alu_in1 = alu_in1_addr_stage2[3] ? ld_data_in1 :
-                     chain_rs1_stage2 ? alu_out :
-                     fwd_rs1_stage2 ? alu_out_fwd : alu_in1_data;
 
 generate
 for (i=0; i<SIMD_LANES; i=i+1)
 begin: ALU_INST
-    wire [ ACC_DATA_WIDTH       -1 : 0 ]        local_alu_in0;
-    wire [ DATA_WIDTH           -1 : 0 ]        local_alu_in1;
+    wire [ ACC_DATA_WIDTH       -1 : 0 ]        local_obuf_data;
+    //wire [ DATA_WIDTH           -1 : 0 ]        local_ld0_data;
+    //wire [ DATA_WIDTH           -1 : 0 ]        local_ld1_data;
     wire [ ACC_DATA_WIDTH       -1 : 0 ]        local_alu_out;
 
-    assign local_alu_in0 = alu_in0[i*ACC_DATA_WIDTH+ACC_DATA_WIDTH-1:i*ACC_DATA_WIDTH];
-    assign local_alu_in1 = alu_in1[i*ACC_DATA_WIDTH+DATA_WIDTH-1:i*ACC_DATA_WIDTH];
+    assign local_obuf_data = obuf_ld_stream_read_data[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH];
+    //assign local_ld0_data = ddr_ld0_stream_read_data_fix[i*DATA_WIDTH+:DATA_WIDTH];
+    //assign local_ld1_data = ddr_ld1_stream_read_data_fix[i*DATA_WIDTH+:DATA_WIDTH];
     assign alu_out[i*ACC_DATA_WIDTH+:ACC_DATA_WIDTH] = local_alu_out;
 
-  pu_alu #(
-    .DATA_WIDTH                     ( DATA_WIDTH                     ),
-    .ACC_DATA_WIDTH                 ( ACC_DATA_WIDTH                 ),
-    .IMM_WIDTH                      ( IMM_WIDTH                      ),
-    .FN_WIDTH                       ( FN_WIDTH                       )
-  ) scalar_alu (
-    .clk                            ( clk                            ), //input
-    .fn_valid                       ( alu_fn_valid_stage2            ), //input
-    .fn                             ( alu_fn_stage2                  ), //input
-    .imm                            ( alu_imm_stage2                 ), //input
-    .alu_in0                        ( local_alu_in0                  ), //input
-    .alu_in1_src                    ( alu_in1_src_stage2             ), //input
-    .alu_in1                        ( local_alu_in1                  ), //input
-    .alu_out                        ( local_alu_out                  )  //output
-  );
+    register_sync_with_enable #(FN_WIDTH) alu_fn_delay_reg1
+    (clk, reset, 1'b1, alu_fn, alu_fn_stage2[i]);
+    register_sync_with_enable #(IMM_WIDTH) alu_imm_delay_reg1
+    (clk, reset, 1'b1, alu_imm, alu_imm_stage2[i]);
+    register_sync_with_enable #(1) alu_fn_valid_delay_reg1
+    (clk, reset, 1'b1, alu_fn_valid, alu_fn_valid_stage2[i]);
+
+    pu_alu #(
+      .DATA_WIDTH                     ( DATA_WIDTH                     ),
+      .ACC_DATA_WIDTH                 ( ACC_DATA_WIDTH                 ),
+      .IMM_WIDTH                      ( IMM_WIDTH                      ),
+      .FN_WIDTH                       ( FN_WIDTH                       )
+    ) scalar_alu (
+      .clk                            ( clk                            ), //input
+      .fn_valid                       ( alu_fn_valid_stage2[i]            ), //alu_fn_valid_stage2            ), //input
+      .fn                             ( alu_fn_stage2[i]               ), //alu_fn_stage2                  ), //input
+      .imm                            ( alu_imm_stage2[i]              ), //input
+      .obuf_data                      ( local_obuf_data                ), //input
+      .alu_out                        ( local_alu_out                  ), //output
+      .cfg_rs_num_v                   ( cfg_rs_num_v                   ),//input
+      .rshift_num                     ( rshift_num                     ),//input
+      .choose_8bit                    ( choose_8bit                    )  //input
+      );
+  // pu_alu #(
+  //   .DATA_WIDTH                     ( DATA_WIDTH                     ),
+  //   .ACC_DATA_WIDTH                 ( ACC_DATA_WIDTH                 ),
+  //   .IMM_WIDTH                      ( IMM_WIDTH                      ),
+  //   .FN_WIDTH                       ( FN_WIDTH                       )
+  // ) scalar_alu (
+  //   .clk                            ( clk                            ), //input
+  //   .fn_valid                       ( alu_fn_valid_stage3            ), //alu_fn_valid_stage2            ), //input
+  //   .fn                             ( alu_fn_stage3                  ), //alu_fn_stage2                  ), //input
+  //   .imm                            ( alu_imm_stage2                 ), //input
+  //   .obuf_data                      ( local_obuf_data                ), //input
+  //   .ld0_data                       ( local_ld0_data                 ), //input
+  //   .ld1_data                       ( local_ld1_data                 ), //input
+  //   .alu_out                        ( local_alu_out                  ), //output
+  //   .choose_8bit                    ( choose_8bit                    ) //input
+  //);
 end
 endgenerate
 
-  always @(posedge clk)
-    alu_out_fwd <= alu_out;
+  // always @(posedge clk)
+  //   alu_out_fwd <= alu_out;
 //==============================================================================
 
 //==============================================================================
@@ -489,8 +555,8 @@ end
 
     assign _ld_req_buf_fifo_count = ld_req_buf.fifo_count;
     assign _st_req_buf_fifo_count = st_req_buf.fifo_count;
-    assign _ld0_req_buf_fifo_count = ld0_req_buf.fifo_count;
-    assign _ld1_req_buf_fifo_count = ld1_req_buf.fifo_count;
+    assign _ld0_req_buf_fifo_count = 0;//ld0_req_buf.fifo_count; edit yt
+    assign _ld1_req_buf_fifo_count = 0;//ld1_req_buf.fifo_count; edit yt
 
 
 
@@ -501,15 +567,6 @@ end
     assign ld0_stream_counts = {_ddr_ld0_stream_read_count, _ddr_ld0_stream_write_count};
     assign ld1_stream_counts = {_ddr_ld1_stream_read_count, _ddr_ld1_stream_write_count};
 //==============================================================================
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_0;
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_1;
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_2;
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_3;
-
-assign obuf_ld_wr_data_info_0 = obuf_ld_stream_write_data[255:0];
-assign obuf_ld_wr_data_info_1 = obuf_ld_stream_write_data[511:256];
-assign obuf_ld_wr_data_info_2 = obuf_ld_stream_write_data[767:512];
-assign obuf_ld_wr_data_info_3 = obuf_ld_stream_write_data[1023:768];
 
 //==============================================================================
 // VCD

@@ -13,6 +13,7 @@ module axi_master
     parameter integer  AXI_SUPPORTS_READ            = 1,
 
     parameter          TX_SIZE_WIDTH                = 10,
+    parameter          RX_SIZE_WIDTH                = TX_SIZE_WIDTH,
     parameter integer  C_OFFSET_WIDTH               = AXI_ADDR_WIDTH < 16 ? AXI_ADDR_WIDTH - 1 : 16,
 
     parameter integer  WSTRB_W                      = AXI_DATA_WIDTH/8,
@@ -75,7 +76,7 @@ module axi_master
     input  wire                                         rd_req,
     output wire                                         rd_done,
     output wire                                         rd_ready,
-    input  wire  [ TX_SIZE_WIDTH        -1 : 0 ]        rd_req_size,
+    input  wire  [ RX_SIZE_WIDTH        -1 : 0 ]        rd_req_size,
     input  wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        rd_addr,
     // Memory Controller Interface - Write
     input  wire  [ AXI_ID_WIDTH         -1 : 0 ]        wr_req_id,
@@ -89,7 +90,8 @@ module axi_master
 //==============================================================================
 // Local parameters
 //==============================================================================
-    localparam integer  REQ_BUF_DATA_W               = AXI_ADDR_WIDTH + TX_SIZE_WIDTH + AXI_ID_WIDTH;
+    localparam integer  REQ_ST_BUF_DATA_W               = AXI_ADDR_WIDTH + TX_SIZE_WIDTH + AXI_ID_WIDTH;
+    localparam integer  REQ_LD_BUF_DATA_W               = AXI_ADDR_WIDTH + RX_SIZE_WIDTH + AXI_ID_WIDTH;
 //==============================================================================
 
 //==============================================================================
@@ -133,8 +135,8 @@ module axi_master
     wire                                        wr_req_buf_push;
     wire                                        wr_req_buf_rd_ready;
     wire                                        wr_req_buf_wr_ready;
-    wire [ REQ_BUF_DATA_W       -1 : 0 ]        wr_req_buf_data_in;
-    wire [ REQ_BUF_DATA_W       -1 : 0 ]        wr_req_buf_data_out;
+    wire [ REQ_LD_BUF_DATA_W       -1 : 0 ]        wr_req_buf_data_in;
+    wire [ REQ_LD_BUF_DATA_W       -1 : 0 ]        wr_req_buf_data_out;
 
     wire                                        wr_req_buf_almost_empty;
     wire                                        wr_req_buf_almost_full;
@@ -159,17 +161,17 @@ module axi_master
     wire                                        rd_req_buf_push;
     wire                                        rd_req_buf_rd_ready;
     wire                                        rd_req_buf_wr_ready;
-    wire [ REQ_BUF_DATA_W       -1 : 0 ]        rd_req_buf_data_in;
-    wire [ REQ_BUF_DATA_W       -1 : 0 ]        rd_req_buf_data_out;
-    wire [ TX_SIZE_WIDTH        -1 : 0 ]        rx_req_size_buf;
+    wire [ REQ_ST_BUF_DATA_W       -1 : 0 ]     rd_req_buf_data_in;
+    wire [ REQ_ST_BUF_DATA_W       -1 : 0 ]     rd_req_buf_data_out;
+    wire [ RX_SIZE_WIDTH        -1 : 0 ]        rx_req_size_buf;
     wire [ AXI_ID_WIDTH         -1 : 0 ]        rx_req_id;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        rx_addr_buf;
 
     wire                                        rd_req_buf_almost_empty;
     wire                                        rd_req_buf_almost_full;
 
-    reg  [ TX_SIZE_WIDTH        -1 : 0 ]        rx_size_d;
-    reg  [ TX_SIZE_WIDTH        -1 : 0 ]        rx_size_q;
+    reg  [ RX_SIZE_WIDTH        -1 : 0 ]        rx_size_d;
+    reg  [ RX_SIZE_WIDTH        -1 : 0 ]        rx_size_q;
 
   // Reads
     reg  [ AXI_BURST_WIDTH      -1 : 0 ]        arlen_d;
@@ -302,7 +304,7 @@ module axi_master
   * The FIFO stores the read requests
   */
   fifo #(
-    .DATA_WIDTH                     ( REQ_BUF_DATA_W                 ),
+    .DATA_WIDTH                     ( REQ_LD_BUF_DATA_W                 ),
     .ADDR_WIDTH                     ( 3                              )
   ) rd_req_buf (
     .clk                            ( clk                            ), //input
@@ -513,7 +515,7 @@ module axi_master
   * The FIFO stores the read requests
   */
   fifo #(
-    .DATA_WIDTH                     ( REQ_BUF_DATA_W                 ),
+    .DATA_WIDTH                     ( REQ_ST_BUF_DATA_W                 ),
     .ADDR_WIDTH                     ( 4                              )
   ) awr_req_buf (
     .clk                            ( clk                            ), //input

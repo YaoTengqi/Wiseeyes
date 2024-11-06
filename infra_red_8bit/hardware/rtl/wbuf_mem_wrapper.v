@@ -18,13 +18,14 @@ module wbuf_mem_wrapper #(
     parameter integer  BUF_TYPE_W                   = 2,
     parameter integer  NUM_TAGS                     = 4,
     parameter integer  TAG_W                        = $clog2(NUM_TAGS),
-    
+    parameter integer  DATA_8B_WIDTH                = 8,//edit by sy 0820
     parameter integer  WEIGHT_ROW_NUM               = 4,//edit by sy
     
   // AXI
     parameter integer  AXI_ADDR_WIDTH               = 42,
     parameter integer  AXI_ID_WIDTH                 = 1,
     parameter integer  AXI_DATA_WIDTH               = 64,
+    parameter integer  AXI_HALF_DATA_WIDTH          = AXI_DATA_WIDTH/2,//edit by sy 0820
     parameter integer  AXI_BURST_WIDTH              = 8,
     parameter integer  WSTRB_W                      = AXI_DATA_WIDTH/8,
 
@@ -39,7 +40,8 @@ module wbuf_mem_wrapper #(
 ) (
     input  wire                                         clk,
     input  wire                                         reset,
-
+    
+    input  wire                                         choose_8bit,  // 0--16bit   1-- 8bit
     input  wire                                         tag_req,
     input  wire                                         tag_reuse,
     input  wire                                         tag_bias_prev_sw,
@@ -71,7 +73,7 @@ module wbuf_mem_wrapper #(
     input  wire  [ 2                    -1 : 0 ]        cfg_mem_req_type,
 
   // Systolic Array
-    input wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
+    //input wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
     // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 
@@ -108,14 +110,14 @@ module wbuf_mem_wrapper #(
     input  wire                                         mws_rlast,
     input  wire                                         mws_rvalid,
     output wire                                         mws_rready,
-
-  // add for 8bit/16bit wbuf
-  output wire [ 12       -1 : 0 ]        tag_mem_write_addr,
-  output wire mem_write_req,
-  output wire  [256 -1 : 0]                                mem_write_data,
-  output wire [ 11       -1 : 0 ]        tag_buf_read_addr,
-  input  wire                                         buf_read_req
     
+    // add for 8bit/16bit wbuf
+   output wire [ 12       -1 : 0 ]        tag_mem_write_addr,
+   output wire                                        mem_write_req_dly,
+   output wire [ 256       -1 : 0 ]        _mem_write_data,
+   output wire [ 11       -1 : 0 ]        tag_buf_read_addr,
+   input  wire                                         buf_read_req
+  //  output wire  [ 512       -1 : 0 ]        _buf_read_data  
 );
 
 //==============================================================================
@@ -224,8 +226,9 @@ module wbuf_mem_wrapper #(
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_wr_addr;
 
     wire [ AXI_ID_WIDTH         -1 : 0 ]        mem_write_id;
-    // wire                                        mem_write_req;
-    // wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
+    wire                                        mem_write_req;
+    wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
+    wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data_dly; //delay for 16b 11.11 yt
     reg  [ MEM_ADDR_W           -1 : 0 ]        mem_write_addr;
     wire                                        mem_write_ready;
     // Mem reads disabled
@@ -234,7 +237,7 @@ module wbuf_mem_wrapper #(
     wire                                        mem_read_ready;
 
   // Adding register to buf read data
-    wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
+    // wire [ BUF_DATA_WIDTH       -1 : 0 ]        _buf_read_data;
 //==============================================================================
 
 //==============================================================================
@@ -246,7 +249,9 @@ module wbuf_mem_wrapper #(
     assign mws_ld_base_addr = tag_ld_addr[ldmem_tag];
   
     assign axi_rd_req = ld_req_valid_q;
-    assign axi_rd_req_size = ld_req_size * (ARRAY_N * ARRAY_M * DATA_WIDTH) / AXI_DATA_WIDTH;
+//    assign axi_rd_req_size = ld_req_size * (ARRAY_N * ARRAY_M * DATA_WIDTH) / AXI_DATA_WIDTH;
+    assign axi_rd_req_size = choose_8bit ? ld_req_size * (ARRAY_N * ARRAY_M * DATA_8B_WIDTH) / AXI_DATA_WIDTH:
+                            ld_req_size * (ARRAY_N * ARRAY_M * DATA_WIDTH) / AXI_DATA_WIDTH;
     assign axi_rd_addr = ld_req_addr;
 
     assign axi_wr_req = 1'b0;
@@ -505,7 +510,7 @@ module wbuf_mem_wrapper #(
 //==============================================================================
 // AXI4 Memory Mapped interface
 //==============================================================================
-    assign mem_write_ready = 1'b1;
+//    assign mem_write_ready = 1'b1;//edit by sy 0820
     assign mem_read_ready = 1'b1;
     assign axi_rd_req_id = 1'b0;
     assign mem_read_data = 0;
@@ -567,9 +572,69 @@ module wbuf_mem_wrapper #(
     .wr_addr                        ( axi_wr_addr                    ),
     .wr_done                        ( axi_wr_done                    )
   );
-//==============================================================================
+//==============================================================================edit by sy 0820 begin
+  // Adding 8bit to buf read data  sy 0820
+    reg                                         st_8b_state_d;
+    reg                                         st_8b_state_q;
+    wire                                        st_8b_state;
+    reg [ AXI_HALF_DATA_WIDTH  -1 : 0 ]        mem_write_data_h_reg;
+    reg [ AXI_HALF_DATA_WIDTH  -1 : 0 ]        mem_write_data_l_reg;
+    wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data_h;
+    wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data_l;
+    // wire [ AXI_DATA_WIDTH       -1 : 0 ]        _mem_write_data;
+    wire                                        _mem_write_req;  
+    // wire                                        mem_write_req_dly;
+    wire                                        st_8b_state_dly;
+    genvar i;
+    generate for (i=0; i<AXI_DATA_WIDTH/DATA_WIDTH; i=i+1)
+    begin
+        assign _mem_write_data_l[i*DATA_WIDTH+:DATA_WIDTH] = $signed(mem_write_data_l_reg[i*DATA_8B_WIDTH+:DATA_8B_WIDTH]);
+//        assign _mem_write_data_l[(i*DATA_WIDTH + DATA_8B_WIDTH)+:DATA_8B_WIDTH] = 'b0;
+        assign _mem_write_data_h[i*DATA_WIDTH+:DATA_WIDTH] = $signed(mem_write_data_h_reg[i*DATA_8B_WIDTH+:DATA_8B_WIDTH]);
+//        assign _mem_write_data_h[(i*DATA_WIDTH + DATA_8B_WIDTH)+:DATA_8B_WIDTH] = 'b0;
+    end
+    endgenerate    
+    
+//    assign {mem_write_data_h,mem_write_data_l} = mem_write_data;
+    assign _mem_write_data = choose_8bit ? (st_8b_state_dly ? _mem_write_data_h : _mem_write_data_l) : mem_write_data_dly;//edit yt 11.11
+    assign _mem_write_req = choose_8bit ? ~st_8b_state && mem_write_req || st_8b_state : mem_write_req;
+    assign mem_write_ready = choose_8bit ? ~st_8b_state_q : 1'b1;
+    register_sync #(1) mem_write_req_delay (clk, reset, _mem_write_req, mem_write_req_dly);
+    register_sync #(AXI_DATA_WIDTH) wmem_write_data_delay (clk, reset, mem_write_data, mem_write_data_dly);//edit yt 11.11
+    register_sync #(1) st_8b_state_delay (clk, reset, st_8b_state, st_8b_state_dly);
+    
+  always @(posedge clk)
+  begin
+    if(mem_write_req) begin
+      mem_write_data_h_reg <= mem_write_data[255:128];
+      mem_write_data_l_reg <= mem_write_data[127:0];
+    end
+  end
+    
+  always @(*)
+  begin
+    st_8b_state_d = st_8b_state_q;
+    case (st_8b_state_q)
+      1'b0: begin
+        if(mem_write_req) 
+           st_8b_state_d = 1'b1;  
+      end      
+      1'b1: begin
+         st_8b_state_d = 1'b0; 
+      end      
+    endcase
+  end
+  
+  always @(posedge clk)
+  begin
+    if (reset)
+      st_8b_state_q <= 1'b0;
+    else
+      st_8b_state_q <= st_8b_state_d;
+  end
 
-//==============================================================================
+  assign st_8b_state = st_8b_state_q;  
+//============================================================================== edit by sy 0820 end
 // Dual-port RAM
 //==============================================================================
   always @(posedge clk)
@@ -577,7 +642,7 @@ module wbuf_mem_wrapper #(
     if (reset)
       mem_write_addr <= 0;
     else begin
-      if (mem_write_req)
+      if (mem_write_req_dly)//edit by sy 0820
         mem_write_addr <= mem_write_addr + 1'b1;
       else if (ldmem_state_q == LDMEM_DONE)
         mem_write_addr <= 0;
@@ -606,14 +671,13 @@ module wbuf_mem_wrapper #(
   //   .clk                            ( clk                            ),
   //   .reset                          ( reset                          ),
   //   .mem_write_addr                 ( tag_mem_write_addr             ),
-  //   .mem_write_req                  ( mem_write_req                  ),
-  //   .mem_write_data                 ( mem_write_data                 ),
+  //   .mem_write_req                  ( mem_write_req_dly              ),//edit by sy 0820
+  //   .mem_write_data                 ( _mem_write_data                ),//edit by sy 0820
   //   .buf_read_addr                  ( tag_buf_read_addr              ),
   //   .buf_read_req                   ( buf_read_req                   ),
   //   .buf_read_data                  ( buf_read_data                 )
   // );
 //==============================================================================
-
 
 //==============================================================================
 

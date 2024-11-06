@@ -24,6 +24,7 @@ module base_addr_gen #(
   parameter integer  ADDR_STRIDE_W_BASE           = 32,//edit yt 0720
   parameter integer  LOOP_ID_W                    = 5,
   parameter integer  BUF_TYPE_W                   = 2,
+  parameter integer  ADDR_WIDTH                   = 42,
   parameter integer  NEED_BIAS_SEL                = 0  
 ) (
   input  wire                                         clk,
@@ -55,7 +56,7 @@ module base_addr_gen #(
   output wire                                         obuf_st_addr_v,
   // Address - IBUF LD
   input  wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_base_addr,
-  (* MARK_DEBUG="true" *)output wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_ld_addr,
+  output wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_ld_addr,
   output wire                                         ibuf_ld_addr_v,
   // Address - WBUF LD
   input  wire  [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_base_addr,
@@ -71,7 +72,13 @@ module base_addr_gen #(
   input  wire  [ ADDR_STRIDE_W_BASE   -1 : 0 ]        base_cfg_loop_stride,     //edit yt 0720
   output wire                                         obuf_stride_vv,           //edit yt 0720
   input wire                                          in_base_obuf_stride_v,    //edit yt 0720
-  output wire                                         obuf_bias_sel_out         //edit yt 0720
+  output wire                                         obuf_bias_sel_out,         //edit yt 0720
+  input wire   [ ADDR_WIDTH           -1 : 0 ]        obuf_ld_addr_biasuse,
+  input wire                                          obuf_ld_addr_v_biasuse,
+  //========================================================================================edit by pxq 0924
+  //input wire                                      i_is_run_adnn,
+  input wire                                          i_decoder_done //input edit by pxq 0924
+
 );
 
 //==============================================================================
@@ -85,7 +92,7 @@ module base_addr_gen #(
   // Base loop
   wire                                        base_loop_start;
   wire                                        base_loop_done;
-  (* MARK_DEBUG="true" *)wire                                        base_loop_stall;
+  wire                                        base_loop_stall;
   wire                                        base_loop_init;
   wire                                        base_loop_enter;
   wire                                        base_loop_exit;
@@ -108,7 +115,7 @@ module base_addr_gen #(
   wire [ ADDR_STRIDE_W        -1 : 0 ]        wbuf_stride;
 
 
-  (* MARK_DEBUG="true" *)wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_addr;
+  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_addr;
   wire                                        obuf_addr_v;
 
 
@@ -178,20 +185,36 @@ module base_addr_gen #(
     if(NEED_BIAS_SEL == 1)begin
       obuf_bias_sel_logic_v2 #(
         .LOOP_ID_W                      ( LOOP_ID_W                      ),
+        .OBUF_ADDR_WIDTH                ( OBUF_ADDR_WIDTH                ),
+        .BBUF_ADDR_WIDTH                ( BBUF_ADDR_WIDTH                ),
         .ADDR_STRIDE_W                  ( ADDR_STRIDE_W                  )
       ) new_sel_logic (
         .clk                            ( clk                            ), // input
         .reset                          ( reset                          ), // input
-        .done                           ( done                           ), //input
+        //.done                           ( done                           ), //input
+        .start                          ( start                          ), //input
         .compute_done                   ( bias_sw_compute_done           ), //input
-        .com_loop_exit                  ( base_loop_exit                 ), //input
-        .base_obuf_stride_v             ( in_base_obuf_stride_v          ),//input
-        .com_obuf_stride_v              ( obuf_stride_v                  ),//input
-        .com_cfg_loop_iter_v            ( cfg_loop_iter_v                ),//input
-        .com_obuf_stride                ( obuf_stride                    ),//input
-        .com_loop_index                 ( base_loop_index                ),//input
-        .base_obuf_stride               ( base_cfg_loop_stride           ),//input
-        .obuf_bias_sel_out              ( obuf_bias_sel_out              )//output
+        //.com_loop_exit                  ( base_loop_exit                 ), //input
+//        .base_obuf_stride_v             ( in_base_obuf_stride_v          ),//input
+//        .com_obuf_stride_v              ( obuf_stride_v                  ),//input
+//        .com_cfg_loop_iter_v            ( cfg_loop_iter_v                ),//input
+//        .com_obuf_stride                ( obuf_stride                    ),//input
+//        .com_loop_index                 ( base_loop_index                ),//input
+//        .base_obuf_stride               ( base_cfg_loop_stride           ),//input
+        .obuf_bias_sel_out              ( obuf_bias_sel_out              ),//output
+        .bias_ld_addr                   ( bias_ld_addr                   ),
+        .bias_ld_addr_v                 ( bias_ld_addr_v                 ),
+        .obuf_ld_addr                   ( obuf_ld_addr                   ),
+        .obuf_ld_addr_v                 ( obuf_ld_addr_v                 ),
+        
+        .obuf_tile_base_addr            ( obuf_ld_addr_biasuse           ),//input
+        .obuf_tile_base_addr_v          ( obuf_ld_addr_v_biasuse         ),//input
+        .base_loop_enter                ( base_loop_enter                ),
+        //==========================================================wire modify support fl optimize
+         .i_decoder_done    (i_decoder_done),
+        .cfg_loop_iter_v (cfg_base_loop_iter_v),
+        //.i_is_run_adnn (i_is_run_adnn),
+        .cfg_loop_iter_loop_id (cfg_base_loop_iter_loop_id)
       );
     end
   endgenerate

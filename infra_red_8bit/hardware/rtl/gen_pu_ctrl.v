@@ -46,6 +46,12 @@ module gen_pu_ctrl #(
     output wire  [ ADDR_STRIDE_W        -1 : 0 ]        cfg_loop_stride,
     output wire  [ STRIDE_TYPE_WIDTH       -1 : 0 ]     cfg_loop_stride_type,                                                                                             //edit by sy 0701
 
+  // edit yt
+    output wire                                         cfg_block_padding_v,//edit yt1028
+    output wire  [ IMM_WIDTH            -1 : 0 ]        diff_rows,//edit yt1028
+    output wire                                         cfg_rs_num_v,
+
+
   // ddr ld streamer
     output wire                                         cfg_mem_req_v,
     output wire  [ MEM_TYPE_WIDTH    -1 : 0 ]           cfg_mem_req_type,                                                                                                //edit by sy 0618
@@ -73,7 +79,9 @@ module gen_pu_ctrl #(
     input  wire                                         ddr_ld1_stream_read_ready,
     output wire                                         ddr_st_stream_write_req,
     input  wire                                         ddr_st_stream_write_ready,
-    input  wire                                         ddr_st_done
+    input  wire                                         ddr_st_done,
+    input  wire                                         ld01_write_req,//edit yt
+    output wire                                         st_addr_valid_pd
 );
 
 //==============================================================================
@@ -102,6 +110,7 @@ module gen_pu_ctrl #(
     localparam integer  OP_PU_BLOCK                  = 10;
     localparam integer  OP_COMPUTE_R                 = 11;
     localparam integer  OP_COMPUTE_I                 = 12;
+    localparam integer  OP_BLOCK_PADDING             = 14;//edit yt
 
     localparam          LD_OBUF                      = 0;
     localparam          LD0_DDR                      = 1;
@@ -168,9 +177,8 @@ module gen_pu_ctrl #(
     wire                                        cfg_loop_stride_base;
 
     reg  [ 3                    -1 : 0 ]        pu_ctrl_state_d;
-    (* MARK_DEBUG="true" *)wire                                        instruction_valid;    
-    (* MARK_DEBUG="true" *)reg  [ 3                    -1 : 0 ]        pu_ctrl_state_q;
-
+    reg  [ 3                    -1 : 0 ]        pu_ctrl_state_q;
+    wire                                        instruction_valid;
     wire                                        pu_block_end;
 
     wire [ OP_CODE_W            -1 : 0 ]        op_code;
@@ -209,7 +217,7 @@ module gen_pu_ctrl #(
     reg  [ IMEM_ADDR_WIDTH      -1 : 0 ]        last_inst_addr;
     wire                                        last_inst;
 //==============================================================================
-
+    assign st_addr_valid_pd = st_addr_valid;
 //==============================================================================
 // Repeat logic
 //==============================================================================
@@ -390,7 +398,12 @@ module gen_pu_ctrl #(
     assign cfg_mem_req_type = op_spec[4:3];
     assign upsample_num = op_spec[2:0];//edit by sy
 
+    assign cfg_block_padding_v = instruction_valid && op_code == OP_BLOCK_PADDING;//edit yt1028
+    assign diff_rows = imm;//edit yt1028
+
     assign block_inst_repeat = imm;
+
+    assign cfg_rs_num_v = instruction_valid && op_code == 15;//RS pu compiler
 
   always @(posedge clk)
   begin
@@ -408,36 +421,41 @@ module gen_pu_ctrl #(
 //==============================================================================
 
 //==============================================================================
-// Stall logic
+// Stall logic  //edit yt
 //==============================================================================
     assign _alu_fn_valid = pu_ctrl_state_q == PU_CTRL_COMPUTE;
     assign alu_fn_valid = _alu_fn_valid && ~stall;
     assign {alu_in1_src, alu_fn, alu_imm, alu_in0_addr, alu_out_addr} = imem_rd_data;
     assign alu_in1_addr = alu_imm[3:0];
+    //assign alu_imm = alu_imm_raw[14:0];
 
-    assign _obuf_ld_stream_read_req = _alu_fn_valid &&
-                                     ((alu_in0_addr[3] == 1 &&
-                                       alu_in0_addr[2:0] == LD_OBUF) ||
-                                       (~alu_in1_src &&
-                                         alu_in1_addr[3] == 1 &&
-                                         alu_in1_addr[2:0] == LD_OBUF));
+    assign _obuf_ld_stream_read_req = _alu_fn_valid && (alu_fn == 'd4 || alu_fn == 'd3) ; //5 6 7 read
+    //assign _ddr_ld0_stream_read_req = _alu_fn_valid && alu_imm_raw[15];//_obuf_ld_stream_read_req;
+    //assign _ddr_ld1_stream_read_req = _alu_fn_valid && alu_imm_raw[15];//_obuf_ld_stream_read_req;
+    assign _ddr_st_stream_write_req = _alu_fn_valid &&  ( alu_out_addr[3] == 1) ;//8 write
+    // assign _obuf_ld_stream_read_req = _alu_fn_valid &&
+    //                                  ((alu_in0_addr[3] == 1 &&
+    //                                    alu_in0_addr[2:0] == LD_OBUF) ||
+    //                                    (~alu_in1_src &&
+    //                                      alu_in1_addr[3] == 1 &&
+    //                                      alu_in1_addr[2:0] == LD_OBUF));
 
-    assign _ddr_ld0_stream_read_req = _alu_fn_valid &&
-                                     ((alu_in0_addr[3] == 1 &&
-                                       alu_in0_addr[2:0] == LD0_DDR) ||
-                                       (~alu_in1_src &&
-                                         alu_in1_addr[3] == 1 &&
-                                         alu_in1_addr[2:0] == LD0_DDR));
+    // assign _ddr_ld0_stream_read_req = _alu_fn_valid &&
+    //                                  ((alu_in0_addr[3] == 1 &&
+    //                                    alu_in0_addr[2:0] == LD0_DDR) ||
+    //                                    (~alu_in1_src &&
+    //                                      alu_in1_addr[3] == 1 &&
+    //                                      alu_in1_addr[2:0] == LD0_DDR));
 
-    assign _ddr_ld1_stream_read_req = _alu_fn_valid &&
-                                     ((alu_in0_addr[3] == 1 &&
-                                       alu_in0_addr[2:0] == LD1_DDR) ||
-                                       (~alu_in1_src &&
-                                         alu_in1_addr[3] == 1 &&
-                                         alu_in1_addr[2:0] == LD1_DDR));
+    // assign _ddr_ld1_stream_read_req = _alu_fn_valid &&
+    //                                  ((alu_in0_addr[3] == 1 &&
+    //                                    alu_in0_addr[2:0] == LD1_DDR) ||
+    //                                    (~alu_in1_src &&
+    //                                      alu_in1_addr[3] == 1 &&
+    //                                      alu_in1_addr[2:0] == LD1_DDR));
 
-    assign _ddr_st_stream_write_req = _alu_fn_valid &&
-                                      (alu_out_addr[3] == 1);
+    // assign _ddr_st_stream_write_req = _alu_fn_valid &&
+    //                                   (alu_out_addr[3] == 1);
 
     register_sync_with_enable #(1) ddr_st_delay
     (clk, reset, 1'b1, _ddr_st_stream_write_req && ~stall, _ddr_st_stream_write_req_dly1);
@@ -450,11 +468,12 @@ module gen_pu_ctrl #(
     assign obuf_ld_stream_read_req = _obuf_ld_stream_read_req && ~stall;
     assign ddr_ld0_stream_read_req = _ddr_ld0_stream_read_req && ~stall;
     assign ddr_ld1_stream_read_req = _ddr_ld1_stream_read_req && ~stall;
+    //wire   all_fifo_read_ready = obuf_ld_stream_read_ready && ddr_ld0_stream_read_ready && ddr_ld1_stream_read_ready;
 
     assign stall = (_obuf_ld_stream_read_req && ~obuf_ld_stream_read_ready) ||
-                   (_ddr_ld0_stream_read_req && ~ddr_ld0_stream_read_ready) ||
-                   (_ddr_ld1_stream_read_req && ~ddr_ld1_stream_read_ready) ||
-                   (_ddr_st_stream_write_req && ~ddr_st_stream_write_ready);
+                   //(_ddr_ld0_stream_read_req && ~all_fifo_read_ready) ||
+                   //(_ddr_ld1_stream_read_req && ~all_fifo_read_ready) ||
+                   (_ddr_st_stream_write_req && ~ddr_st_stream_write_ready);// || ld01_write_req ;
 //==============================================================================
 
 //==============================================================================

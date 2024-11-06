@@ -18,7 +18,8 @@ module reg_file #(
 //=========================================
 // Wires and Regs
 //=========================================
-    (* ram_style = "distributed" *)
+    //(* ram_style = "distributed" *)
+    (* ram_style="block" *)
     reg  [ DATA_WIDTH           -1 : 0 ] mem [0 : (1 << ADDR_WIDTH) - 1];
     reg  [ DATA_WIDTH           -1 : 0 ]        rd_data_0_q;
     reg  [ DATA_WIDTH           -1 : 0 ]        rd_data_1_q;

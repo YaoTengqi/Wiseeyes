@@ -27,13 +27,13 @@ module controller_fsm #(
 
   // Start and Done handshake signals
   (* MARK_DEBUG="true" *)input  wire                                         start,
-  output wire                                         done,
+  (* MARK_DEBUG="true" *)output wire                                         done,
   (* MARK_DEBUG="true" *)input  wire                                         stall,
 
   // Loop instruction valid
   input  wire                                         cfg_loop_iter_v,
   input  wire  [ LOOP_ITER_W          -1 : 0 ]        cfg_loop_iter,
-  input  wire  [ LOOP_ID_W            -1 : 0 ]        cfg_loop_iter_loop_id,
+  (* MARK_DEBUG="true" *)input  wire  [ LOOP_ID_W            -1 : 0 ]        cfg_loop_iter_loop_id,
 
   (* MARK_DEBUG="true" *)output wire  [ LOOP_ID_W            -1 : 0 ]        loop_index,
   output wire                                         loop_index_valid,
@@ -56,24 +56,24 @@ module controller_fsm #(
   wire [ IMEM_ADDR_W          -1 : 0 ]        loop_rd_ptr;
 
   wire                                        loop_rd_v;
-  wire [ LOOP_ITER_W          -1 : 0 ]        loop_rd_max;
+  (* MARK_DEBUG="true" *)wire [ LOOP_ITER_W          -1 : 0 ]        loop_rd_max;
 
-  wire [ IMEM_ADDR_W          -1 : 0 ]        iter_wr_ptr;
-  wire                                        iter_wr_v;
-  wire [ LOOP_ITER_W          -1 : 0 ]        iter_wr_data;
+  (* MARK_DEBUG="true" *)wire [ IMEM_ADDR_W          -1 : 0 ]        iter_wr_ptr;
+  (* MARK_DEBUG="true" *)wire                                        iter_wr_v;
+  (* MARK_DEBUG="true" *)wire [ LOOP_ITER_W          -1 : 0 ]        iter_wr_data;
 
-  reg  [ IMEM_ADDR_W          -1 : 0 ]        loop_index_q;
+  (* MARK_DEBUG="true" *)reg  [ IMEM_ADDR_W          -1 : 0 ]        loop_index_q;
   reg  [ IMEM_ADDR_W          -1 : 0 ]        loop_index_d; // d -> q
 
-  wire [ IMEM_ADDR_W          -1 : 0 ]        iter_rd_ptr;
-  wire                                        iter_rd_v;
-  wire [ LOOP_ITER_W          -1 : 0 ]        iter_rd_data;
+  (* MARK_DEBUG="true" *)wire [ IMEM_ADDR_W          -1 : 0 ]        iter_rd_ptr;
+  (* MARK_DEBUG="true" *)wire                                        iter_rd_v;
+  (* MARK_DEBUG="true" *)wire [ LOOP_ITER_W          -1 : 0 ]        iter_rd_data;
 
   reg  [ IMEM_ADDR_W          -1 : 0 ]        stall_rd_ptr;
 
   (* MARK_DEBUG="true" *)wire [ STATE_W              -1 : 0 ]        state;
-  reg  [ STATE_W              -1 : 0 ]        state_q;
-  reg  [ STATE_W              -1 : 0 ]        state_d;
+  (* MARK_DEBUG="true" *)reg  [ STATE_W              -1 : 0 ]        state_q;
+  (* MARK_DEBUG="true" *)reg  [ STATE_W              -1 : 0 ]        state_d;
 
 //=============================================================
 
@@ -256,6 +256,8 @@ module controller_fsm #(
   assign loop_exit = state == EXIT_LOOP;
 
 //=============================================================
+
+
 
 //=============================================================
 // VCD

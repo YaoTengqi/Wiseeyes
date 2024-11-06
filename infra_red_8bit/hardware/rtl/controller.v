@@ -5,7 +5,7 @@
 // (hsharma@gatech.edu)
 
 `timescale 1ns/1ps
-module controller #(
+module controller #(    
     parameter integer  NUM_TAGS                     = 2,
     parameter integer  TAG_W                        = $clog2(NUM_TAGS),
     parameter integer  ADDR_WIDTH                   = 42,
@@ -24,15 +24,26 @@ module controller #(
     parameter integer  ADDR_STRIDE_W                = 32,
     parameter integer  MEM_REQ_W                    = 16,
     parameter integer  LOOP_ID_W                    = 5,
+    parameter integer  CACHE_NUM_W                  = 8,//edit by sy 0903
+    parameter integer  CACHE_NUM                    = 1,//edit by sy 0903
     parameter          PICTURE_STRIDE               = 'd6291456,
   // AXI-Lite
     parameter integer  CTRL_ADDR_WIDTH              = 32,
     parameter integer  CTRL_DATA_WIDTH              = 32,
     parameter integer  CTRL_WSTRB_WIDTH             = CTRL_DATA_WIDTH/8,
   // AXI
+   
+    parameter integer  AXI_ADDR_WIDTH               = 42,
+    parameter integer  AXI_ID_WIDTH                 = 1,
+    parameter integer  AXI_DATA_WIDTH               = 256,
     parameter integer  AXI_BURST_WIDTH              = 8,
+    parameter integer  TID_WIDTH                    = 4,
   // Instruction Mem
-    parameter integer  IMEM_ADDR_WIDTH              = 12
+    parameter integer  IMEM_ADDR_WIDTH              = 12,
+     //inst from ddr max leng
+  
+    parameter integer  MAX_LENGTH_FROMDDR_B         = 1024*32,
+    parameter integer  MAX_LENGTH_FROMDDR_WIDTH     = $clog2(MAX_LENGTH_FROMDDR_B)
 ) (
     input  wire                                         clk,
     input  wire                                         reset,
@@ -45,15 +56,15 @@ module controller #(
     output wire                                         wbuf_tag_reuse,
     output wire                                         bias_tag_reuse,
     input  wire                                         tag_ready,
-    (* MARK_DEBUG="true" *)input  wire                                         ibuf_tag_done,
-    (* MARK_DEBUG="true" *)input  wire                                         wbuf_tag_done,
-    (* MARK_DEBUG="true" *)input  wire                                         obuf_tag_done,
-    (* MARK_DEBUG="true" *)input  wire                                         bias_tag_done,
+    input  wire                                         ibuf_tag_done,
+    input  wire                                         wbuf_tag_done,
+    input  wire                                         obuf_tag_done,
+    input  wire                                         bias_tag_done,
 
     input  wire                                         compute_done,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_done,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_write_done,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_start,
+    input  wire                                         pu_compute_done,
+    input  wire                                         pu_write_done,
+    input  wire                                         pu_compute_start,
     input  wire  [ 3                    -1 : 0 ]        pu_ctrl_state,
     input  wire  [ 4                    -1 : 0 ]        stmem_state,
     input  wire  [ TAG_W                -1 : 0 ]        stmem_tag,
@@ -136,7 +147,23 @@ module controller #(
     output wire                                         pci_cl_data_rlast,
     output wire                                         pci_cl_data_rvalid,
     input  wire                                         pci_cl_data_rready,
-
+     
+     // Master Interface Read Address
+    output   [ AXI_ID_WIDTH         -1 : 0 ]        o_m_axi_icash_arid,
+    output   [ AXI_ADDR_WIDTH       -1 : 0 ]        o_m_axi_icash_araddr,
+    output   [ AXI_BURST_WIDTH      -1 : 0 ]        o_m_axi_icash_arlen,
+    output   [ 3                    -1 : 0 ]        o_m_axi_icash_arsize,
+    output   [ 2                    -1 : 0 ]        o_m_axi_icash_arburst,
+    output                                          o_m_axi_icash_arvalid,
+    input                                           i_m_axi_icash_arready,
+    // Master Interface Read Data
+    input    [ AXI_ID_WIDTH         -1 : 0 ]        i_m_axi_icash_rid,
+    input    [ INST_DATA_WIDTH      -1 : 0 ]        i_m_axi_icash_rdata,
+    input    [ 2                    -1 : 0 ]        i_m_axi_icash_rresp,
+    input                                           i_m_axi_icash_rlast,
+    input                                           i_m_axi_icash_rvalid,
+    output                                          o_m_axi_icash_rready,
+   
     input  wire                                         ibuf_compute_ready,
     input  wire                                         wbuf_compute_ready,
     input  wire                                         obuf_compute_ready,
@@ -168,7 +195,9 @@ module controller #(
     output wire                                         cfg_pu_inst_v,
     output wire  [ INST_DATA_WIDTH      -1 : 0 ]        cfg_pu_inst,
     output wire                                         pu_block_start,
-
+  // DSP_MULTIPLEX
+    output wire                                         choose_8bit,//edit by sy 0819
+    output wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_offset_addr,//edit by sy 0819
   // Snoop CL DDR0
     // AR channel
     input  wire  [ CTRL_ADDR_WIDTH      -1 : 0 ]        snoop_cl_ddr0_araddr,
@@ -242,7 +271,21 @@ module controller #(
     input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        ld0_stream_counts,
     input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        ld1_stream_counts,
     input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        axi_wr_fifo_counts,
-    output wire                                         obuf_stride_vv ,
+
+    output wire                                         obuf_stride_vv,//edit yt 0720
+    //vcs test
+//    input  [1:0]                                        i_ctl,                                   
+//    input  [AXI_ADDR_WIDTH-1:0]                         i_mm2s_vddn_ddrbase,//address base ab0  
+//    input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]          i_mm2s_vddn_leng,//data lengthe         
+    input  [AXI_ADDR_WIDTH-1:0]                         i_mm2s_addn_ddrbase,//address base ab0  
+    input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]          i_mm2s_addn_leng,//data lengthe
+    
+    //output                                              o_dnn_idle,  
+    //o_dnn_status;//{icash_busy,icash_ready,icash_vdnn_or_adnn,dnn_idle,decoder_done}
+    output [4:0]                                        o_dnn_status, 
+    input                                               i_frame_data_ready_adnn, //local mic 16384 data ready
+
+    // 选择mux传入infra_red or LiDAR数据进入RAM
     output wire           choose_mux_out
   );
 
@@ -303,7 +346,7 @@ module controller #(
 
   // DnnWeaver2 states
     reg  [ 3                    -1 : 0 ]        dnnweaver2_state_d;
-    (* MARK_DEBUG="true" *)reg  [ 3                    -1 : 0 ]        dnnweaver2_state_q;
+    reg  [ 3                    -1 : 0 ]        dnnweaver2_state_q;
     wire [ 3                    -1 : 0 ]        dnnweaver2_state;
 
   // Base addresses
@@ -313,15 +356,15 @@ module controller #(
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        bias_base_addr;
 
   // Handshake signals for main loop controller
-    (* MARK_DEBUG="true" *)wire                                        base_loop_ctrl_start;
-    (* MARK_DEBUG="true" *)wire                                        base_loop_ctrl_done;
+    wire                                        base_loop_ctrl_start;
+    wire                                        base_loop_ctrl_done;
 
-    (* MARK_DEBUG="true" *)wire                                        block_done;
+    wire                                        block_done;
     wire                                        dnnweaver2_done;
 
   // Handshake signals for decoder
-    wire                                        decoder_start;
-    wire                                        decoder_done;
+    (* MARK_DEBUG="true" *)wire                                        decoder_start;
+    (* MARK_DEBUG="true" *)wire                                        decoder_done;
 
   // Instruction memory Read Port - Decoder
     wire                                        inst_read_req;
@@ -439,13 +482,22 @@ module controller #(
     
     //============================================================= picture cache edit by sy 0903
 //picture cache edit by sy 0903
-    wire [ 3 - 1 : 0 ]                          picture_id;
+    reg [ 3 - 1 : 0 ]                          picture_id;
+//    reg  [ CACHE_NUM_W          -1 : 0 ]        picture_cache_num = 'd0;
     reg                                         first_block;
-    reg [ IBUF_ADDR_WIDTH      -1 : 0 ]         cache_stride;
-    wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]       cache_base_addr_offset;
+    //wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        cache_base_addr;
+    reg [ IBUF_ADDR_WIDTH      -1 : 0 ]        cache_stride;
+    wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        cache_base_addr_offset;
+//    (* MARK_DEBUG="true" *)reg  [ 2                    -1 : 0 ]        state = 2'd0;
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        _ibuf_ld_addr;
+    
+    //debug edit by sy 0917
+//    wire [1:0]                                          i_ctl_test;
+//    wire [AXI_ADDR_WIDTH-1:0]                           i_mm2s_vddn_ddrbase_test;
+//    wire [MAX_LENGTH_FROMDDR_WIDTH-1:0]                 i_mm2s_vddn_leng_test;
 
-    assign picture_id = slv_reg30_out[2:0] - 1'b1;
+    //assign ibuf_ld_addr = _ibuf_ld_addr;
+//    assign picture_id = slv_reg2_out[2:0] - 1'b1;
     assign ibuf_ld_addr = first_block ? cache_base_addr_offset : _ibuf_ld_addr;
     assign cache_base_addr_offset = picture_id * cache_stride + _ibuf_ld_addr;
         
@@ -454,16 +506,53 @@ module controller #(
   begin
     if(reset) begin
       first_block <= 1'b1;
+      picture_id <= 1'b0;
       end
     else if(decoder_start) begin
       cache_stride <= PICTURE_STRIDE;
-      // first_block <= 1'b0;//add for test
+      first_block <= 1'b1;
+//      picture_id <= slv_reg2_out[2:0] - 1'b1;
+      picture_id <= 1'b0;
       end
     else if(block_done)
-      first_block <= 1'b0;
+      first_block <= 1'b0;  
   end    
     
- 
+//   always @(posedge clk)
+//    case (state)
+//      2'd0: begin
+//        if (last_block) begin
+//          state <= 2'd1;
+////          picture_cache_num <= picture_cache_num + 1'b1;
+////          cache_base_addr_offset <= cache_stride;
+//          end
+//        else begin
+//           state <= 2'd0;
+////           cache_base_addr_offset <= _ibuf_ld_addr;
+////           picture_cache_num <= 1'b0;
+//        end
+//      end 
+      
+//      2'd1: begin
+//        if(dnnweaver2_done) 
+//            state <= 2'd2;
+//        end
+        
+//      2'd2: begin
+//          if(dnnweaver2_done) begin
+//            picture_cache_num <= picture_cache_num + 1'b1;
+//            cache_stride <= cache_stride + PICTURE_STRIDE;    
+//          end
+//          else if(picture_cache_num == CACHE_NUM) begin
+//            cache_stride <= PICTURE_STRIDE;
+//            state <= 2'd0;
+//          end
+//          else
+//            cache_base_addr_offset <= _ibuf_ld_addr + cache_stride;
+//      end     
+//     endcase
+//=============================================================     
+  assign       o_dnn_status = {w_dnn_status,decoder_done};   
   assign       tag_req      = tm_state_q == TM_REQUEST;
   
   always @(posedge clk)
@@ -529,7 +618,7 @@ module controller #(
       TM_CHECK: begin
         if (base_ctrl_tag_req && tag_ready) begin
           tm_state_d = TM_REQUEST;
-          tm_ibuf_tag_reuse_d = tm_ibuf_tag_addr_q == _ibuf_ld_addr;
+           tm_ibuf_tag_reuse_d = tm_ibuf_tag_addr_q == _ibuf_ld_addr;
           tm_obuf_tag_reuse_d = tm_obuf_tag_addr_q == obuf_ld_addr;
           tm_wbuf_tag_reuse_d = tm_wbuf_tag_addr_q == wbuf_ld_addr;
           tm_bias_tag_reuse_d = tm_bias_tag_addr_q == bias_ld_addr;
@@ -607,7 +696,7 @@ module controller #(
         end
       end
       BLOCK_DONE: begin
-        if (~last_block)
+        if (~last_block && icash_ready)
           dnnweaver2_state_d = DECODE;
         else
           dnnweaver2_state_d = DONE;
@@ -617,9 +706,10 @@ module controller #(
       end
     endcase
   end
-
     assign block_done = dnnweaver2_state == BLOCK_DONE;
     assign dnnweaver2_done = dnnweaver2_state == DONE;
+    assign acc_idle = dnnweaver2_state == IDLE;                                 //edit by sy 0721
+
 //=============================================================
 
 //=============================================================
@@ -660,25 +750,39 @@ module controller #(
       else if (pu_compute_start)
         pu_compute_start_count <= pu_compute_start_count + 1'b1;
     end
+//=============================================================
+//vcs sim begin
+    wire [31 : 0 ] i_mm2s_vddn_ddrbase;
+    wire [31 : 0 ] i_mm2s_vddn_leng;
+    wire [31 : 0 ] i_ctl;
 
+
+    assign i_mm2s_vddn_ddrbase = slv_reg3_out;
+    assign i_mm2s_vddn_leng = slv_reg4_out;
+    assign i_ctl = slv_reg5_out;
+  
+//vcs sim end
 //=============================================================
 // Assigns
 //=============================================================
-    assign dnnweaver2_state = dnnweaver2_state_q;
+   assign dnnweaver2_state = dnnweaver2_state_q;
 
     assign resetn = ~reset;
 
     assign num_blocks = slv_reg1_out;
 
-    assign start_bit_d = slv_reg0_out[0];
+//    assign start_bit_d = slv_reg0_out[0];
+//    assign start_bit_d   =  w_dnn_status[3:1]==3'b010 ? i_frame_data_ready_adnn:slv_reg0_out[0];// icash_ready;
+    assign start_bit_d = slv_reg0_out[0];// icash_ready;
     assign decoder_start = (start_bit_q ^ start_bit_d) && dnnweaver2_state_q == IDLE;
 
     assign slv_reg0_in = slv_reg0_out; // Used as start trigger
     assign slv_reg1_in = slv_reg1_out; // Used as start address
-    assign choose_mux_out = slv_reg1_out;
+    assign choose_mux_out = slv_reg1_out;//ghd_delete
+    // assign choose_mux_out = slv_reg0_out;//ghd_add   
 
     assign slv_reg2_in = dnnweaver2_state;
-    assign slv_reg3_in = tag_req_count;
+    assign slv_reg3_in = ibuf_ld_addr;
     assign slv_reg4_in = compute_done_count;
     assign slv_reg5_in = pu_compute_done_count;
     assign slv_reg6_in = pu_compute_start_count;
@@ -728,7 +832,8 @@ module controller #(
       else if (ld_obuf_req)
         ld_obuf_read_counter <= ld_obuf_read_counter + 1'b1;
     end
-    assign slv_reg31_in = ld_obuf_read_counter;
+   assign slv_reg31_in = ld_obuf_read_counter;
+    // assign slv_reg31_in = icash_ready;
 //============================================================= 
 
 //=============================================================
@@ -739,7 +844,7 @@ module controller #(
   ) u_perf_mon (
     .clk                            ( clk                            ),
     .reset                          ( reset                          ),
-    .dnnweaver2_state               ( dnnweaver2_state_q             ), //input
+    .dnnweaver2_state                ( dnnweaver2_state_q              ), //input
     .tag_req                        ( tag_req                        ), //input
     .tag_ready                      ( tag_ready                      ), //input
 
@@ -750,16 +855,16 @@ module controller #(
     .obuf_tag_done                  ( obuf_tag_done                  ), //input
     .bias_tag_done                  ( bias_tag_done                  ), //input
 
-    .pci_cl_data_awvalid            ( pci_cl_data_awvalid            ), //input
-    .pci_cl_data_awlen              ( pci_cl_data_awlen              ), //input
-    .pci_cl_data_awready            ( pci_cl_data_awready            ), //input
-    .pci_cl_data_arvalid            ( pci_cl_data_arvalid            ), //input
-    .pci_cl_data_arlen              ( pci_cl_data_arlen              ), //input
-    .pci_cl_data_arready            ( pci_cl_data_arready            ), //input
-    .pci_cl_data_wvalid             ( pci_cl_data_wvalid             ), //input
-    .pci_cl_data_wready             ( pci_cl_data_wready             ), //input
-    .pci_cl_data_rvalid             ( pci_cl_data_rvalid             ), //input
-    .pci_cl_data_rready             ( pci_cl_data_rready             ), //input
+   .pci_cl_data_awvalid            ( pci_cl_data_awvalid            ), //input
+   .pci_cl_data_awlen              ( pci_cl_data_awlen              ), //input
+   .pci_cl_data_awready            ( pci_cl_data_awready            ), //input
+   .pci_cl_data_arvalid            ( pci_cl_data_arvalid            ), //input
+   .pci_cl_data_arlen              ( pci_cl_data_arlen              ), //input
+   .pci_cl_data_arready            ( pci_cl_data_arready            ), //input
+   .pci_cl_data_wvalid             ( pci_cl_data_wvalid             ), //input
+   .pci_cl_data_wready             ( pci_cl_data_wready             ), //input
+   .pci_cl_data_rvalid             ( pci_cl_data_rvalid             ), //input
+   .pci_cl_data_rready             ( pci_cl_data_rready             ), //input
 
     .snoop_cl_ddr0_arvalid          ( snoop_cl_ddr0_arvalid          ), //input
     .snoop_cl_ddr0_arready          ( snoop_cl_ddr0_arready          ), //input
@@ -870,8 +975,7 @@ module controller #(
     .s_read_req_b                   ( inst_read_req                  ), //input
     .s_read_data_b                  ( inst_read_data                 )  //output
   );
-//=============================================================                          
-
+//=============================================================
 
 //=============================================================
 // Status/Control AXI4-Lite
@@ -970,6 +1074,7 @@ module controller #(
     .slv_reg30_out                  ( slv_reg30_out                  ),
     .slv_reg31_in                   ( slv_reg31_in                   ),
     .slv_reg31_out                  ( slv_reg31_out                  ),
+
     .decoder_start                  ( decoder_start                  ),
     .ibuf_rd_addr                   ( ibuf_rd_addr                   ),
     .ibuf_rd_addr_v                 ( ibuf_rd_addr_v                 ),
@@ -1031,6 +1136,8 @@ module controller #(
     .wbuf_base_addr                 ( wbuf_base_addr                 ), //output
     .obuf_base_addr                 ( obuf_base_addr                 ), //output
     .bias_base_addr                 ( bias_base_addr                 ), //output
+    .ibuf_offset_addr               ( ibuf_offset_addr               ), //output edit by sy 0819
+    .choose_8bit                    ( choose_8bit                    ), //output edit by sy 0819
     .cfg_mem_req_v                  ( cfg_mem_req_v                  ), //output
     .cfg_mem_req_size               ( cfg_mem_req_size               ), //output
     .cfg_mem_req_type               ( cfg_mem_req_type               ), //output
@@ -1050,7 +1157,7 @@ module controller #(
 // Base address generator
 //    This module is in charge of the outer loops [16 - 31]
 //=============================================================
-  base_addr_gen #(
+ base_addr_gen #(
     .BASE_ID                        ( 1                              ),
     .MEM_REQ_W                      ( MEM_REQ_W                      ),
     .IBUF_ADDR_WIDTH                ( IBUF_ADDR_WIDTH                ),
@@ -1099,6 +1206,7 @@ module controller #(
     .bias_sw_compute_done           ( bias_sw_compute_done           ), //input                                                                 //edit by sy 0529    
     .obuf_stride_vv                 ( obuf_stride_vv                 ) //output                               edit yt 0720
   );
+//=============================================================
 
 //=============================================================
 // VCD
