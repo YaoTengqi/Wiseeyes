@@ -59,7 +59,7 @@ module tag_logic #(
     reg                                         tag_bias_prev_sw_q;
     reg                                         reuse_tag_bias_prev_sw_q;
     reg  [ TAG_STATE_W          -1 : 0 ]        tag_state_d;
-    (* MARK_DEBUG="true" *)reg  [ TAG_STATE_W          -1 : 0 ]        tag_state_q;
+    reg  [ TAG_STATE_W          -1 : 0 ]        tag_state_q;
     reg                                          tag_bias_prev_sw_en;                                                   //edit by sy 0605  
 //==============================================================================
 

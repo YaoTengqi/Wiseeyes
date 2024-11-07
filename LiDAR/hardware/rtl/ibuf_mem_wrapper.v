@@ -493,8 +493,8 @@ module ibuf_mem_wrapper #(
     assign stmem_tag_done = stmem_state_q == STMEM_DONE;
 
 wire  i_is_run_adnn=0;
-(* MARK_DEBUG="true" *)reg  first_layer_sw;
-(*MARK_DEBUG ="true"*)reg  [8 -1 : 0]   current_layer =0;
+reg  first_layer_sw;
+reg  [8 -1 : 0]   current_layer =0;
 always @(posedge clk) begin
   if(current_layer == 1 && (~i_is_run_adnn))begin
     first_layer_sw<=1;

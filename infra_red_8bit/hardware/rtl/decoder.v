@@ -27,8 +27,8 @@ module decoder #(
     output wire  [ IMEM_ADDR_W          -1 : 0 ]        imem_read_addr,
     output wire                                         imem_read_req,
   // Handshake
-    (*MARK_DEBUG="true" *)input  wire                                         start,
-    (*MARK_DEBUG="true" *)output wire                                         done,
+    input  wire                                         start,
+    output wire                                         done,
     output wire                                         loop_ctrl_start,
     input  wire                                         loop_ctrl_done,
     input  wire                                         block_done,
@@ -108,7 +108,7 @@ module decoder #(
 // Wires/Regs
 //=============================================================
     reg  [ 7                       : 0 ]        done_wait_d;
-    (*MARK_DEBUG="true" *)reg  [ 7                       : 0 ]        done_wait_q;
+    reg  [ 7                       : 0 ]        done_wait_q;
     reg  [ IMM_WIDTH            -1 : 0 ]        loop_stride_hi;
 
 
@@ -117,20 +117,20 @@ module decoder #(
     wire [ IMM_WIDTH            -1 : 0 ]        pu_num_instructions;
 
     reg  [ STATE_W              -1 : 0 ]        state_q;
-    (*MARK_DEBUG="true" *)reg  [ STATE_W              -1 : 0 ]        state_d;
-    (* MARK_DEBUG="true" *)wire [ STATE_W              -1 : 0 ]        state;
+    reg  [ STATE_W              -1 : 0 ]        state_d;
+    wire [ STATE_W              -1 : 0 ]        state;
 
-    (* MARK_DEBUG="true" *)wire [ OP_CODE_W            -1 : 0 ]        op_code;
-    (*MARK_DEBUG="true" *)wire [ OP_SPEC_W            -1 : 0 ]        op_spec;
+    wire [ OP_CODE_W            -1 : 0 ]        op_code;
+    wire [ OP_SPEC_W            -1 : 0 ]        op_spec;
     wire [ LOOP_ID_W            -1 : 0 ]        loop_level;
     wire [ LOOP_ID_W            -1 : 0 ]        loop_id;
-    (*MARK_DEBUG="true" *)wire [ IMM_WIDTH            -1 : 0 ]        immediate;
+    wire [ IMM_WIDTH            -1 : 0 ]        immediate;
 
     wire [ BUF_TYPE_W           -1 : 0 ]        buf_id;
 
     wire                                        inst_valid;
     reg                                         _inst_valid;
-    (* MARK_DEBUG="true" *)wire                                        block_end;
+    wire                                        block_end;
 
     reg  [ IMM_WIDTH            -1 : 0 ]        pu_inst_counter_d;
     reg  [ IMM_WIDTH            -1 : 0 ]        pu_inst_counter_q;
@@ -227,7 +227,7 @@ module decoder #(
     end
     
     reg                                         last_block_d;
-    (*MARK_DEBUG="true" *)reg                                         last_block_q;
+    reg                                         last_block_q;
     assign last_block = last_block_q;
 always @(posedge clk)
 begin

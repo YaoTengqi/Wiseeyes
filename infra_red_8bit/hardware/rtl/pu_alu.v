@@ -8,10 +8,10 @@ module pu_alu #(
     parameter integer  FN_WIDTH                     = 2
 ) (
     input  wire                                         clk,
-    (*MARK_DEBUG ="true"*)input  wire                                         fn_valid,
-    (*MARK_DEBUG ="true"*)input  wire        [ FN_WIDTH             -1 : 0 ]        fn,
-    (*MARK_DEBUG ="true"*)input  wire signed [ IMM_WIDTH            -1 : 0 ]        imm,
-    (*MARK_DEBUG ="true"*)input  wire signed [ ACC_DATA_WIDTH       -1 : 0 ]        obuf_data,
+    input  wire                                         fn_valid,
+    input  wire        [ FN_WIDTH             -1 : 0 ]        fn,
+    input  wire signed [ IMM_WIDTH            -1 : 0 ]        imm,
+    input  wire signed [ ACC_DATA_WIDTH       -1 : 0 ]        obuf_data,
     input  wire                                         choose_8bit,//0-16b , 1-8b
     input  wire                                         cfg_rs_num_v,
     input  wire signed [ IMM_WIDTH            -1 : 0 ]        rshift_num,
@@ -21,8 +21,8 @@ module pu_alu #(
     //edit yt
     reg  signed                       [ IMM_WIDTH                -1 : 0 ]        right_shift_imm=0;
     reg  signed                       [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_d=0;
-    (*MARK_DEBUG ="true"*)reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q=0;
-    (*MARK_DEBUG ="true"*)reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q_dly=0;
+    reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q=0;
+    reg  signed [ ACC_DATA_WIDTH           -1 : 0 ]        alu_out_q_dly=0;
   // Instruction types
     //localparam integer  FN_NOP                      = 0;
     localparam integer  FN_MUL                      = 3;//FOR TC
@@ -71,12 +71,12 @@ module pu_alu #(
     wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        rshift_out0_h;
 
     wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        rshift_out_16b;
-    (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        rshift_out;
+    wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        rshift_out;
 
     wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        relu_out_l;
     wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        relu_out_h;
     wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out_16;
-    (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out;
+    wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        relu_out;
 
     reg  signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_l_45_d;//32*16 => 48
     reg  signed[ HALF_ACC_DATA_WIDTH+IMM_WIDTH            -1 : 0 ]        mul_out_h_45_d;//32*16 => 48
@@ -139,7 +139,7 @@ module pu_alu #(
     wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        max_out_l;
     wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        max_out_h;
     wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        max_out_16;
-    (*MARK_DEBUG ="true"*)wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        max_out;
+    wire signed[ ACC_DATA_WIDTH                 -1 : 0 ]        max_out;
 
 
     wire signed[ HALF_ACC_DATA_WIDTH            -1 : 0 ]        alu_out_q_l;

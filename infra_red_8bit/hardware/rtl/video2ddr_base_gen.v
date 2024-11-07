@@ -33,10 +33,10 @@ module video2ddr_base_gen #(
     input                                                   reset,
     
     // reg
-    (*MARK_DEBUG="true" *)input  [1:0]                                            i_video2ddr_ctl,   //bit0:en,bit1:en_pingpangbuf:
+    input  [1:0]                                            i_video2ddr_ctl,   //bit0:en,bit1:en_pingpangbuf:
     output                                                  o_fbptr,           //0:writing fb0,1 wrinting fb1
-    (*MARK_DEBUG="true" *)input  [AXI_ADDR_WIDTH-1:0]                             i_Video2ddr_base_a,//address base fb0
-    (*MARK_DEBUG="true" *)input  [AXI_ADDR_WIDTH-1:0]                             i_Video2ddr_base_b,//address base fb0
+    input  [AXI_ADDR_WIDTH-1:0]                             i_Video2ddr_base_a,//address base fb0
+    input  [AXI_ADDR_WIDTH-1:0]                             i_Video2ddr_base_b,//address base fb0
     //video if                                                   
     input                                                   i_fs_start,        // vs
 
@@ -47,16 +47,16 @@ module video2ddr_base_gen #(
     
     //**************************************************
         //video s2mm
-    (*mark_debug ="true"*)output  [ TX_SIZE_WIDTH        -1 : 0 ]                 o_s2mem_size,
-    (*mark_debug ="true"*)output  [AXI_ADDR_WIDTH-1:0]                            o_s2mem_addr,
-    (*mark_debug ="true"*)input                                                   i_s2mem_addr_req,
-    (*mark_debug ="true"*)input                                                   i_s2mem_done,
-    (*mark_debug ="true"*)output                                                  o_s2mem_addr_ready,
+    output  [ TX_SIZE_WIDTH        -1 : 0 ]                 o_s2mem_size,
+    output  [AXI_ADDR_WIDTH-1:0]                            o_s2mem_addr,
+    input                                                   i_s2mem_addr_req,
+    input                                                   i_s2mem_done,
+    output                                                  o_s2mem_addr_ready,
     
     
-    (*mark_debug ="true"*)output  [AXI_DATA_WIDTH-1:0]                            o_s2mem_data,
-    (*mark_debug ="true"*)input                                                   i_s2mem_data_req,
-    (*mark_debug ="true"*)output                                                  o_s2mem_data_ready
+    output  [AXI_DATA_WIDTH-1:0]                            o_s2mem_data,
+    input                                                   i_s2mem_data_req,
+    output                                                  o_s2mem_data_ready
     
     );
   
@@ -87,35 +87,35 @@ module video2ddr_base_gen #(
    reg  [AXI_ADDR_WIDTH-1:0]                                r_s2mem_addr; 
    
   
-   (*mark_debug ="true"*)wire                                                     w_fs_camif_posedge;
-   (*mark_debug ="true"*)wire                                                     w_fs_posedge;
+   wire                                                     w_fs_camif_posedge;
+   wire                                                     w_fs_posedge;
    wire                                                     w_s2mm_ctl_en;
    wire                                                     w_s2mm_ctl_ppbuf_en;
    
-   //(*mark_debug ="true"*)wire                                                     w_ibuf_write_en;
-   //(*mark_debug ="true"*)wire                                                     w_obuf_write_en_check;
+   //wire                                                     w_ibuf_write_en;
+   //wire                                                     w_obuf_write_en_check;
    //reg                                                      r_obuf_write_en_check_shr;
    //write 3 times
    //n+1
-   (*mark_debug ="true"*)reg[2:0]                                                 r_i2o_byte_num;
-   (*mark_debug ="true"*)wire                                                     w_obuf_write_en;
-   (*mark_debug ="true"*)wire                                                     w_obuf2ddr_en;
-   //(*mark_debug ="true"*)wire                                                     w_obuf2ddr_addr_rdy_en;
-   (*mark_debug ="true"*)reg                                                      r_obuf2ddr_en_shr;
+   reg[2:0]                                                 r_i2o_byte_num;
+   wire                                                     w_obuf_write_en;
+   wire                                                     w_obuf2ddr_en;
+   //wire                                                     w_obuf2ddr_addr_rdy_en;
+   reg                                                      r_obuf2ddr_en_shr;
    
-   (*mark_debug ="true"*)reg                                                      r_mem_read_req; //outbuf
+   reg                                                      r_mem_read_req; //outbuf
    reg  [AXI_DATA_WIDTH-1:0]                                r_mem_read_data;
    reg   [lp_ibuf_CNT_WIDTH:0]                                             r_ibuf_camclk_cnt; 
    
-  // (*mark_debug ="true"*)reg   [lp_ibuf_CNT_WIDTH-1:0]   r_ibuf_cnt0,r_ibuf_cnt; 
+  // reg   [lp_ibuf_CNT_WIDTH-1:0]   r_ibuf_cnt0,r_ibuf_cnt; 
    //
    wire                                                     w_ibuf_cnt_over_posedge;
-   (*mark_debug ="true"*)wire                               w_s2mm_data_transmit_one_ok;
+   wire                               w_s2mm_data_transmit_one_ok;
    
    reg[1:0]   r_s2mem_done;
    reg       r_s2mm_done_posedge;
    
-   (*mark_debug ="true"*)reg [LP_OUTBUF_CNT_WIDTH:0]                 r_obuf_write_cnt;
+   reg [LP_OUTBUF_CNT_WIDTH:0]                 r_obuf_write_cnt;
 
     // reg                                          r_obuf_write_cnt_over;
       (*ram_style ="block"*)
@@ -123,7 +123,7 @@ module video2ddr_base_gen #(
      (*ram_style ="block"*)
      reg [AXI_DATA_WIDTH-1:0]  r_obuf[0:AXI_M_AXI_AWLEN_VIDEO-1];
 
-    (*mark_debug ="true"*)reg [LP_OUTBUF_CNT_WIDTH:0]            r_obuf_read_cnt;
+    reg [LP_OUTBUF_CNT_WIDTH:0]            r_obuf_read_cnt;
    
    assign            {w_s2mm_ctl_en,w_s2mm_ctl_ppbuf_en}         = r_prt_ctl;
    

@@ -85,21 +85,21 @@ module audo_mm2s #(
    localparam   S_DATA_T                                    =4'b0010;
    localparam   S_PAGE_T                                    =4'b0100;
    localparam   S_DONE_T                                    =4'b1000;
-   (*mark_debug="true"*)reg [3:0]                                                r_rstat_q;
+   reg [3:0]                                                r_rstat_q;
     //reg  [MEM_DATA_WIDTH-1:0]                               r_wdata;
    //assign 
-   (*mark_debug="true"*)reg [MAX_LENGTH_FROMDDR_WIDTH-1:0]                       r_read_cnt;
-   (*mark_debug="true"*)wire [MAX_LENGTH_FROMDDR_WIDTH+M_RADD_ADJUST-1:0]         w_read_cnt_adj;
-   (*mark_debug="true"*)reg [1:0]                                                 r_start;
+   reg [MAX_LENGTH_FROMDDR_WIDTH-1:0]                       r_read_cnt;
+   wire [MAX_LENGTH_FROMDDR_WIDTH+M_RADD_ADJUST-1:0]         w_read_cnt_adj;
+   reg [1:0]                                                 r_start;
    //reg                                                      busy;
    //wire                                                     w_start_posedge;
-   (*mark_debug="true"*)wire                                                     w_mm2s_data_transmit_one_ok;
+   wire                                                     w_mm2s_data_transmit_one_ok;
    
    //reg [MAX_LENGTH_FROMDDR_WIDTH-1:0]                       r_len;            
    //reg                                                      r_start_ok;
    //reg                                                      r_mm2s_addr_req;
-   (*mark_debug="true"*)reg [1:0]                                             r_check_done_shr;
-   (*mark_debug="true"*)wire                                                  w_mm2s_done_posedge;
+   reg [1:0]                                             r_check_done_shr;
+   wire                                                  w_mm2s_done_posedge;
    
    wire                                                  w_r_start_is_S_IDLE;
    

@@ -26,12 +26,12 @@ module icash
     input    [ DATA_WIDTH           -1 : 0 ]        i_write_data    
 );
 
-    (*MARK_DEBUG="true" *)reg                                           r_write_req;
-    (*MARK_DEBUG="true" *)reg    [ ADDR_WIDTH           -1 : 0 ]        r_write_addr;
-    (*MARK_DEBUG="true" *)reg    [ DATA_WIDTH           -1 : 0 ]        r_write_data;
+    reg                                           r_write_req;
+    reg    [ ADDR_WIDTH           -1 : 0 ]        r_write_addr;
+    reg    [ DATA_WIDTH           -1 : 0 ]        r_write_data;
    //(*ram_style ="block"*)
    reg  [ DATA_WIDTH -1 : 0 ] r_icashmem [ 0 : 1<<ADDR_WIDTH ];
-   (*MARK_DEBUG="true" *) wire [ DATA_WIDTH -1 : 0 ] w32_watch_mem [ 0 : 10]/* synthesis keep="1" */;
+    wire [ DATA_WIDTH -1 : 0 ] w32_watch_mem [ 0 : 10]/* synthesis keep="1" */;
    
 
    genvar i;

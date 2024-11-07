@@ -110,7 +110,7 @@ module decoder #(
 
     reg  [ STATE_W              -1 : 0 ]        state_q;
     reg  [ STATE_W              -1 : 0 ]        state_d;
-    (* MARK_DEBUG="true" *)wire [ STATE_W              -1 : 0 ]        state;
+    wire [ STATE_W              -1 : 0 ]        state;
 
     wire [ OP_CODE_W            -1 : 0 ]        op_code;
     wire [ OP_SPEC_W            -1 : 0 ]        op_spec;

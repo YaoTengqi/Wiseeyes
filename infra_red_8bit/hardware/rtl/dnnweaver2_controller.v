@@ -761,11 +761,11 @@ module dnnweaver2_controller #(
     //RGB接口
     wire  wrst;
     
-    (* mark_debug = "true" *)wire                                     clk_cam;
-    (* mark_debug = "true" *)wire                                     w_hs;  
-    (* mark_debug = "true" *)wire                                     w_vs;  
-    (* mark_debug = "true" *)wire                                     w_de;  
-    (* mark_debug = "true" *)wire [CAM0_IN_DATA_WIDTH-1:0]            w_video_pix	;
+    wire                                     clk_cam;
+    wire                                     w_hs;  
+    wire                                     w_vs;  
+    wire                                     w_de;  
+    wire [CAM0_IN_DATA_WIDTH-1:0]            w_video_pix	;
     
 // ongly test for rgb file ,normal  from camera
 //clk_wiz_27M27 u_camclk_test

@@ -13,6 +13,7 @@ module ram_mux #(
     parameter integer  LOOP_ID_W                    = 5,
 
   // Systolic Array
+    parameter integer  NUM_TAGS                     = 2,
     parameter integer  TAG_W                        = $clog2(NUM_TAGS),
     parameter integer  ARRAY_N                      = 32,
     parameter integer  ARRAY_M                      = 32,
@@ -24,7 +25,6 @@ module ram_mux #(
 
   // Buffers
     parameter integer  WEIGHT_ROW_NUM               = 1,                                                                                                                       //edit by sy 0513
-    parameter integer  NUM_TAGS                     = 2,
     parameter integer  IBUF_CAPACITY_BITS           = ARRAY_N * DATA_WIDTH * 6144 / NUM_TAGS,
     parameter integer  WBUF_CAPACITY_BITS           = ARRAY_M * WEIGHT_ROW_NUM * DATA_WIDTH * 2048 / NUM_TAGS,
     parameter integer  OBUF_CAPACITY_BITS           = ARRAY_M * ACC_WIDTH * 4096 / NUM_TAGS,                                            //edit by sy 0513
@@ -429,6 +429,7 @@ obuf #(
     .buf_write_data                 ( choosed_obuf_buf_write_data                 ),//edit by pxq
     .buf_read_addr                  ( choosed_obuf_tag_buf_read_addr              ),
     .buf_read_req                   ( choosed_obuf_buf_read_req                   ),
-    .buf_read_data                  ( choosed_obuf__buf_read_data                 )
+    .buf_read_data                  ( choosed_obuf__buf_read_data                 ),
+    .choose_8bit                    ( choose_mux_in                   )
   );
 endmodule

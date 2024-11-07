@@ -504,19 +504,19 @@ module dnnweaver2_controller #(
 
   // IBUF
     // wire [ IBUF_DATA_WIDTH      -1 : 0 ]        ibuf_read_data;
-    (* MARK_DEBUG="true" *)wire                                        ibuf_read_req;
+    wire                                        ibuf_read_req;
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_read_addr;
 
   // WBUF
     // wire [ WBUF_DATA_WIDTH      -1 : 0 ]        wbuf_read_data;
-    (* MARK_DEBUG="true" *)wire                                        wbuf_read_req;
+    wire                                        wbuf_read_req;
     // wire                                        sys_wbuf_read_req;                                                                                                       //edit by sy 0517
     // wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_read_addr;
     // wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        sys_wbuf_read_addr;                                                                             //edit by sy 0517
     
   // BIAS
     // wire [ BBUF_DATA_WIDTH      -1 : 0 ]        bbuf_read_data;
-    // (* MARK_DEBUG="true" *)wire                                        bias_read_req;
+    // wire                                        bias_read_req;
     // wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        bias_read_addr;
     // wire                                        sys_bias_read_req;
     // wire [ BBUF_ADDR_WIDTH      -1 : 0 ]        sys_bias_read_addr;
@@ -616,11 +616,11 @@ module dnnweaver2_controller #(
     wire                                        obuf_tag_reuse;
     wire                                        wbuf_tag_reuse;
     wire                                        bias_tag_reuse;
-    (* MARK_DEBUG="true" *)wire                                        sync_tag_req;
-    (* MARK_DEBUG="true" *)wire                                        tag_ready;
+    wire                                        sync_tag_req;
+    wire                                        tag_ready;
 
-    (* MARK_DEBUG="true" *)wire                                        compute_done;
-    (* MARK_DEBUG="true" *)wire                                        compute_req;
+    wire                                        compute_done;
+    wire                                        compute_req;
 
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        tie_ibuf_buf_base_addr;
     wire [ WBUF_ADDR_WIDTH      -1 : 0 ]        tie_wbuf_buf_base_addr;
@@ -1367,28 +1367,28 @@ module dnnweaver2_controller #(
     wire [ 64                   -1 : 0 ]        obuf_in2;
     wire [ 64                   -1 : 0 ]        obuf_in3;
 
-    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in0;
-    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in1;
-    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in2;
-    (* MARK_DEBUG="true" *)wire [ 32                   -1 : 0 ]        bias_in3;
+    wire [ 32                   -1 : 0 ]        bias_in0;
+    wire [ 32                   -1 : 0 ]        bias_in1;
+    wire [ 32                   -1 : 0 ]        bias_in2;
+    wire [ 32                   -1 : 0 ]        bias_in3;
 
     wire [ 64                   -1 : 0 ]        obuf_mem_out0;
     wire [ 64                   -1 : 0 ]        obuf_mem_out1;
 
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in0;
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in1;
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in2;
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        ibuf_in3;
+    wire [ 16                   -1 : 0 ]        ibuf_in0;
+    wire [ 16                   -1 : 0 ]        ibuf_in1;
+    wire [ 16                   -1 : 0 ]        ibuf_in2;
+    wire [ 16                   -1 : 0 ]        ibuf_in3;
 
     wire [ 16                   -1 : 0 ]        ibuf_in4;
     wire [ 16                   -1 : 0 ]        ibuf_in5;
     wire [ 16                   -1 : 0 ]        ibuf_in6;
     wire [ 16                   -1 : 0 ]        ibuf_in7;
 
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in0;
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in1;
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in2;
-    (* MARK_DEBUG="true" *)wire [ 16                   -1 : 0 ]        wbuf_in3;
+    wire [ 16                   -1 : 0 ]        wbuf_in0;
+    wire [ 16                   -1 : 0 ]        wbuf_in1;
+    wire [ 16                   -1 : 0 ]        wbuf_in2;
+    wire [ 16                   -1 : 0 ]        wbuf_in3;
 
     wire [ 16                   -1 : 0 ]        wbuf_in4;
     wire [ 16                   -1 : 0 ]        wbuf_in5;

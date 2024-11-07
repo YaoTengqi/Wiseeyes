@@ -98,7 +98,7 @@ generate
   for (i=0; i<NUM_TAGS; i=i+1)
   begin: BANK_INST
 
-   (* ram_style = "ultra" *)
+    (* ram_style = "ultra" *)
     reg  [ DATA_WIDTH -1 : 0 ] bank_mem [ 0 : 1<<(LOCAL_ADDR_W) - 1 ];
 
     wire [ DATA_WIDTH           -1 : 0 ]        wdata;

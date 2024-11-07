@@ -59,7 +59,7 @@ module ibuf_mem_wrapper #(
     input  wire                                         block_done,
     //input  wire  [ ADDR_WIDTH           -1 : 0 ]        tag_base_ld_addr,
 
-    (* MARK_DEBUG="true" *)output wire                                         compute_ready,
+    output wire                                         compute_ready,
     output wire                                         compute_bias_prev_sw,
 
   // Programming
@@ -155,7 +155,7 @@ module ibuf_mem_wrapper #(
 );
 
 //===================================================================test use 
-(*MARK_DEBUG ="true"*)reg  [8 -1 : 0]   current_layer =0;
+reg  [8 -1 : 0]   current_layer =0;
 //wire choose_8bit = 0 ;
 //wire [ADDR_WIDTH              -1 : 0 ]        tag_base_ld_addr_eight_bit = 'b0;
 wire  i_is_run_adnn=0;
@@ -205,7 +205,7 @@ wire  i_is_run_adnn=0;
     wire                                        compute_tag_ready;
     wire [ TAG_W                -1 : 0 ]        compute_tag;
     wire                                        ldmem_tag_done;
-    (* MARK_DEBUG="true" *)wire                                        ldmem_tag_ready;
+    wire                                        ldmem_tag_ready;
     wire [ TAG_W                -1 : 0 ]        ldmem_tag;
     wire                                        stmem_tag_done;
     wire                                        stmem_tag_ready;
@@ -213,7 +213,7 @@ wire  i_is_run_adnn=0;
     wire                                        stmem_ddr_pe_sw;
 
     reg  [ 4                    -1 : 0 ]        ldmem_state_d;
-    (* MARK_DEBUG="true" *)reg  [ 4                    -1 : 0 ]        ldmem_state_q;
+    reg  [ 4                    -1 : 0 ]        ldmem_state_q;
 
     reg  [ 3                    -1 : 0 ]        stmem_state_d;
     reg  [ 3                    -1 : 0 ]        stmem_state_q;
@@ -235,7 +235,7 @@ wire  i_is_run_adnn=0;
     wire [ LOOP_ITER_W          -1 : 0 ]        mws_ld_loop_iter;
     wire                                        mws_ld_loop_iter_v;
     wire                                        mws_ld_start;
-    (* MARK_DEBUG="true" *)wire                                        mws_ld_done;
+    wire                                        mws_ld_done;
     wire                                        mws_ld_stall;
     wire                                        mws_ld_init;
     wire                                        mws_ld_enter;
@@ -273,7 +273,7 @@ wire  i_is_run_adnn=0;
     
     wire                                        axi_rd_req;
     wire [ AXI_ID_WIDTH         -1 : 0 ]        axi_rd_req_id;
-    (* MARK_DEBUG="true" *)wire                                        axi_rd_done;
+    wire                                        axi_rd_done;
     wire [ MEM_REQ_W            -1 : 0 ]        axi_rd_req_size;
     wire                                        axi_rd_ready;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_rd_addr;
@@ -285,9 +285,9 @@ wire  i_is_run_adnn=0;
     wire                                        axi_wr_ready;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_wr_addr;
 
-    (* MARK_DEBUG="true" *)wire                                        mem_write_req;
-      (* MARK_DEBUG="true" *)  wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
-    (* MARK_DEBUG="true" *)reg  [ MEM_ADDR_W           -1 : 0 ]        mem_write_addr;
+    wire                                        mem_write_req;
+        wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
+    reg  [ MEM_ADDR_W           -1 : 0 ]        mem_write_addr;
     wire                                        mem_write_ready;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_read_data;
     wire                                        mem_read_req;
@@ -312,18 +312,18 @@ wire  i_is_run_adnn=0;
   //============================================================================== wire modify edit by pxq 0814 (8bit)
 
     reg  [ ADDR_WIDTH           -1 : 0 ]        tag_ld_addr[0:NUM_TAGS-1];
-     (* MARK_DEBUG="true" *)reg  [ ADDR_WIDTH           -1 : 0 ]        tag_ld_addr_eight_bit[0:NUM_TAGS-1];
+     reg  [ ADDR_WIDTH           -1 : 0 ]        tag_ld_addr_eight_bit[0:NUM_TAGS-1];
 
     wire [ ADDR_WIDTH           -1 : 0 ]        mws_ld_base_addr;
     wire [ ADDR_WIDTH           -1 : 0 ]        mws_ld_base_addr_eight_bit;
 
-   (* MARK_DEBUG="true" *) wire [ ADDR_WIDTH           -1 : 0 ]        ld_addr;
-   (* MARK_DEBUG="true" *) wire                                        ld_addr_v;
-    (* MARK_DEBUG="true" *) reg [ ADDR_WIDTH           -1 : 0 ]        ld_addr_eight_bit;
-    (* MARK_DEBUG="true" *) reg                                        ld_addr_eight_bit_v;
+    wire [ ADDR_WIDTH           -1 : 0 ]        ld_addr;
+    wire                                        ld_addr_v;
+     reg [ ADDR_WIDTH           -1 : 0 ]        ld_addr_eight_bit;
+     reg                                        ld_addr_eight_bit_v;
 
     reg        eight_bit_ldmem_state_d;
-    (* MARK_DEBUG="true" *) reg         eight_bit_ldmem_state_q;
+     reg         eight_bit_ldmem_state_q;
     
 
 
@@ -344,17 +344,17 @@ reg eight_bit_mem_write_req = 0;
 reg[AXI_DATA_WIDTH -1 : 0]  sixteen_bit_mem_write_data_in;
 reg                                                     sixteen_bit_mem_write_req;
 
- (* MARK_DEBUG="true" *)wire mem_write_req_in ;
-    (* MARK_DEBUG="true" *)wire  [AXI_DATA_WIDTH -1 : 0]                                mem_write_data_in;
+ wire mem_write_req_in ;
+    wire  [AXI_DATA_WIDTH -1 : 0]                                mem_write_data_in;
 
 
 //==============================================================================wire modify edit by pxq 0830(1layer)
-   (* MARK_DEBUG="true" *)reg  first_layer_sw;
+   reg  first_layer_sw;
   reg [LINE_DATA_WIDTH -1 : 0]   ddr2ibuf_buf [  0 : TILE_LINE_COUNT+1  ];
-   (* MARK_DEBUG="true" *)reg [4 - 1 :0 ]          current_input_line;
-   (* MARK_DEBUG="true" *)reg [4 - 1 : 0]          current_output_line;
-   (* MARK_DEBUG="true" *)reg [ 4 - 1 : 0]          current_count ;
-   (* MARK_DEBUG="true" *)reg[ 4 - 1 : 0]          current_row;
+   reg [4 - 1 :0 ]          current_input_line;
+   reg [4 - 1 : 0]          current_output_line;
+   reg [ 4 - 1 : 0]          current_count ;
+   reg[ 4 - 1 : 0]          current_row;
 
 
   wire [512 -1 : 0] mem_write_fl_data_in;
@@ -363,12 +363,12 @@ reg                                                     sixteen_bit_mem_write_re
 
   wire [8 - 1 : 0]       line_difference;
   wire fl_stall;
- (* MARK_DEBUG="true" *) wire fl_tile_init_done;
+  wire fl_tile_init_done;
 
 wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_fl_addr;
-// (* MARK_DEBUG="true" *)wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr_0;
-// (* MARK_DEBUG="true" *)wire mem_write_req_in_0;
-// (* MARK_DEBUG="true" *)wire  [AXI_DATA_WIDTH -1 : 0]                                mem_write_data_in_0;
+// wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr_0;
+// wire mem_write_req_in_0;
+// wire  [AXI_DATA_WIDTH -1 : 0]                                mem_write_data_in_0;
 
 wire mem_write_fl_req;
 reg [ AXI_DATA_WIDTH - 1 : 0 ] ddr2ibuf_in;
@@ -384,25 +384,25 @@ reg outputline_row_req;
 
     reg axi_rd_addr_pretreat_stall;
 
-    (* MARK_DEBUG="true" *)reg axi_rd_req_in_0;
-    (* MARK_DEBUG="true" *)reg axi_rd_req_in_1;
-    (* MARK_DEBUG="true" *)reg[ AXI_ADDR_WIDTH       -1 : 0 ]   axi_rd_addr_pretreat_0;
-    (* MARK_DEBUG="true" *)reg[ AXI_ADDR_WIDTH       -1 : 0 ]   axi_rd_addr_pretreat_1;
-    (* MARK_DEBUG="true" *)reg [ MEM_REQ_W            -1 : 0 ]        axi_rd_req_size_0;
-    (* MARK_DEBUG="true" *)reg [ MEM_REQ_W            -1 : 0 ]        axi_rd_req_size_1;
+    reg axi_rd_req_in_0;
+    reg axi_rd_req_in_1;
+    reg[ AXI_ADDR_WIDTH       -1 : 0 ]   axi_rd_addr_pretreat_0;
+    reg[ AXI_ADDR_WIDTH       -1 : 0 ]   axi_rd_addr_pretreat_1;
+    reg [ MEM_REQ_W            -1 : 0 ]        axi_rd_req_size_0;
+    reg [ MEM_REQ_W            -1 : 0 ]        axi_rd_req_size_1;
 
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]   axi_rd_addr_pre;
 
     reg ibuf_ld_addr_stalll;
 
 
- (* MARK_DEBUG="true" *)wire axi_rd_req_in;
- (* MARK_DEBUG="true" *)wire [AXI_ADDR_WIDTH - 1 : 0] axi_rd_addr_in;
- (* MARK_DEBUG="true" *)wire  [ MEM_REQ_W            -1 : 0 ]axi_rd_req_size_in ;
+ wire axi_rd_req_in;
+ wire [AXI_ADDR_WIDTH - 1 : 0] axi_rd_addr_in;
+ wire  [ MEM_REQ_W            -1 : 0 ]axi_rd_req_size_in ;
 
 reg  ibuf_ld_stall;
 
-   (* MARK_DEBUG="true" *)wire[3-1:0] line_stride,row_stride;
+   wire[3-1:0] line_stride,row_stride;
 
 //===============================================================================  axi data pretreatment 16/8bit edit by pxq 1020
 
@@ -419,11 +419,11 @@ wire fl_fifo_read_req_8bit;
 wire fl_fifo_read_req;
 wire fl_fifo_write_req;
 assign fl_fifo_write_req = axi_rd_req && first_layer_sw;
-(* MARK_DEBUG="true" *) wire[ 8 - 1 : 0] fl_fifo_read_data;
+ wire[ 8 - 1 : 0] fl_fifo_read_data;
 
 assign fl_fifo_read_req = fl_fifo_read_req_16bit||fl_fifo_read_req_8bit;
 
-(* MARK_DEBUG="true" *)assign fl_fifo_write_data=ld_req_addr[4:0]<<3;// bias
+assign fl_fifo_write_data=ld_req_addr[4:0]<<3;// bias
 //assign fl_fifo_read_req = fl_16bit_addr_state_d==FL_LDMEM_DDR_16BIT_0;
 
 
@@ -441,8 +441,8 @@ fifo #(
     .s_write_data                   (   fl_fifo_write_data             )//input
   );
 
-   (* MARK_DEBUG="true" *)reg[4 - 1 :0] fl_16bit_addr_state_d;
-   (* MARK_DEBUG="true" *)reg[4- 1: 0 ] fl_16bit_addr_state_q;
+   reg[4 - 1 :0] fl_16bit_addr_state_d;
+   reg[4- 1: 0 ] fl_16bit_addr_state_q;
 
 reg[5*AXI_DATA_WIDTH -1 : 0] fl_16bit_data_buf;
 
@@ -474,9 +474,9 @@ always @(posedge clk) begin
   end
 end
 
-   (* MARK_DEBUG="true" *)wire[AXI_DATA_WIDTH -1 :0] mem_write_data_pretreat_16bit;
-   (* MARK_DEBUG="true" *)reg mem_write_data_pretreat_16bit_req;
-   (* MARK_DEBUG="true" *)reg[3-1 : 0] mem_write_data_pretreat_count_16bit; 
+   wire[AXI_DATA_WIDTH -1 :0] mem_write_data_pretreat_16bit;
+   reg mem_write_data_pretreat_16bit_req;
+   reg[3-1 : 0] mem_write_data_pretreat_count_16bit; 
 
 always @(posedge clk)begin
   if((~choose_8bit)&&mem_write_req&&(fl_16bit_addr_state_d==FL_LDMEM_DDR_16BIT_1||fl_16bit_addr_state_d==FL_LDMEM_DDR_16BIT_2||fl_16bit_addr_state_d==FL_LDMEM_DDR_16BIT_3||fl_16bit_addr_state_d==FL_LDMEM_DDR_16BIT_4   )    )begin
@@ -551,8 +551,8 @@ always@(*) begin
 end
 
 //==========================================8bit prevtreatment
-   (* MARK_DEBUG="true" *)reg[4 -1 : 0] fl_8bit_addr_state_d;
-   (* MARK_DEBUG="true" *)reg[4 -1 :0] fl_8bit_addr_state_q;
+   reg[4 -1 : 0] fl_8bit_addr_state_d;
+   reg[4 -1 :0] fl_8bit_addr_state_q;
 
 
 
@@ -672,20 +672,20 @@ always @(posedge clk) begin
   end
 end
 
-   (* MARK_DEBUG="true" *)reg mem_write_data_pretreat_8bit_req_1;
-   (* MARK_DEBUG="true" *)wire [AXI_DATA_WIDTH -1 :0] mem_write_data_pretreat_8bit_1;
-   (* MARK_DEBUG="true" *)reg[3-1:0] mem_write_data_pretreat_count_8bit_1; 
+   reg mem_write_data_pretreat_8bit_req_1;
+   wire [AXI_DATA_WIDTH -1 :0] mem_write_data_pretreat_8bit_1;
+   reg[3-1:0] mem_write_data_pretreat_count_8bit_1; 
 
 reg mem_write_data_pretreat_8bit_req_2;
 wire [AXI_DATA_WIDTH -1 :0] mem_write_data_pretreat_8bit_2;
 reg[3-1:0] mem_write_data_pretreat_count_8bit_2; 
 
-   (* MARK_DEBUG="true" *)reg data_pretreat_8bit_dly_tag;
-   (* MARK_DEBUG="true" *)reg[8 - 1 :0] data_8bit_bias_1;
-   (* MARK_DEBUG="true" *)reg[8 - 1 :0] data_8bit_bias_2;
+   reg data_pretreat_8bit_dly_tag;
+   reg[8 - 1 :0] data_8bit_bias_1;
+   reg[8 - 1 :0] data_8bit_bias_2;
 
-   (* MARK_DEBUG="true" *)wire mem_write_data_pretreat_8bit_req;
-   (* MARK_DEBUG="true" *)wire[AXI_DATA_WIDTH - 1 :0 ] mem_write_data_pretreat_8bit;
+   wire mem_write_data_pretreat_8bit_req;
+   wire[AXI_DATA_WIDTH - 1 :0 ] mem_write_data_pretreat_8bit;
 
 
 always @(posedge clk) begin
@@ -763,9 +763,9 @@ end
 //=============================================================================== first layer optimized edit by pxq 0830 input size 17*17 / 10*10
 reg[3-1 :0] stride_temp;
 
-   (* MARK_DEBUG="true" *)reg [11 - 1 :0] single_line_count;
+   reg [11 - 1 :0] single_line_count;
 
-   (* MARK_DEBUG="true" *)reg[8 - 1 :0] tile_row_count;
+   reg[8 - 1 :0] tile_row_count;
 always @(posedge clk) begin
   if(mws_ld_loop_iter_v&&mws_ld_loop_iter_loop_id==0)begin
     tile_row_count<=mws_ld_loop_iter+1;

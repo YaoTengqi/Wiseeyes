@@ -168,8 +168,8 @@ module gen_pu_ctrl #(
     wire                                        cfg_loop_stride_base;
 
     reg  [ 3                    -1 : 0 ]        pu_ctrl_state_d;
-    (* MARK_DEBUG="true" *)wire                                        instruction_valid;    
-    (* MARK_DEBUG="true" *)reg  [ 3                    -1 : 0 ]        pu_ctrl_state_q;
+    wire                                        instruction_valid;    
+    reg  [ 3                    -1 : 0 ]        pu_ctrl_state_q;
 
     wire                                        pu_block_end;
 

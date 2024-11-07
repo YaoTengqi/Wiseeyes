@@ -30,7 +30,7 @@ module ldst_ddr_wrapper #(
     
     input  wire                                         choose_8bit,
     input  wire                                         pu_block_start,
-    (*MARK_DEBUG ="true"*)input  wire                                         start,
+    input  wire                                         start,
     output wire                                         done,
 
     input  wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        st_base_addr,
@@ -48,30 +48,30 @@ module ldst_ddr_wrapper #(
     input  wire                                         cfg_loop_iter_v,
     input  wire  [ 3                    -1 : 0 ]        cfg_loop_iter_type,
 
-    (*MARK_DEBUG ="true"*)input  wire                                         cfg_block_padding_v,//edit yt1028
-    (*MARK_DEBUG ="true"*)input  wire  [ IMM_WIDTH            -1 : 0 ]        diff_rows,//edit yt1028
+    input  wire                                         cfg_block_padding_v,//edit yt1028
+    input  wire  [ IMM_WIDTH            -1 : 0 ]        diff_rows,//edit yt1028
     input  wire                                         st_addr_valid_pd,
 
     input  wire                                         cfg_mem_req_v,
     input  wire  [ MEM_TYPE_WIDTH                    -1 : 0 ]        cfg_mem_req_type,
     input wire  [STRIDE_TYPE_WIDTH -1 :0]          upsample_num,                                                                                                      //edit by sy 0706
   // Master Interface Write Address
-    (*MARK_DEBUG ="true"*)output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        pu_ddr_awaddr,
-    (*MARK_DEBUG ="true"*)output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        pu_ddr_awlen,
-    (*MARK_DEBUG ="true"*)output wire  [ 3                    -1 : 0 ]        pu_ddr_awsize,
-    (*MARK_DEBUG ="true"*)output wire  [ 2                    -1 : 0 ]        pu_ddr_awburst,
-    (*MARK_DEBUG ="true"*)output wire                                         pu_ddr_awvalid,
-    (*MARK_DEBUG ="true"*)input  wire                                         pu_ddr_awready,
+    output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        pu_ddr_awaddr,
+    output wire  [ AXI_BURST_WIDTH      -1 : 0 ]        pu_ddr_awlen,
+    output wire  [ 3                    -1 : 0 ]        pu_ddr_awsize,
+    output wire  [ 2                    -1 : 0 ]        pu_ddr_awburst,
+    output wire                                         pu_ddr_awvalid,
+    input  wire                                         pu_ddr_awready,
   // Master Interface Write Data
     output wire  [ AXI_DATA_WIDTH       -1 : 0 ]        pu_ddr_wdata,
-    (*MARK_DEBUG ="true"*)output wire  [ WSTRB_W              -1 : 0 ]        pu_ddr_wstrb,
-    (*MARK_DEBUG ="true"*)output wire                                         pu_ddr_wlast,
-    (*MARK_DEBUG ="true"*)output wire                                         pu_ddr_wvalid,
-    (*MARK_DEBUG ="true"*)input  wire                                         pu_ddr_wready,
+    output wire  [ WSTRB_W              -1 : 0 ]        pu_ddr_wstrb,
+    output wire                                         pu_ddr_wlast,
+    output wire                                         pu_ddr_wvalid,
+    input  wire                                         pu_ddr_wready,
   // Master Interface Write Response
-    (*MARK_DEBUG ="true"*)input  wire  [ 2                    -1 : 0 ]        pu_ddr_bresp,
-    (*MARK_DEBUG ="true"*)input  wire                                         pu_ddr_bvalid,
-    (*MARK_DEBUG ="true"*)output wire                                         pu_ddr_bready,
+    input  wire  [ 2                    -1 : 0 ]        pu_ddr_bresp,
+    input  wire                                         pu_ddr_bvalid,
+    output wire                                         pu_ddr_bready,
   // Master Interface Read Address
     output wire  [ 1                    -1 : 0 ]        pu_ddr_arid,
     output wire  [ AXI_ADDR_WIDTH       -1 : 0 ]        pu_ddr_araddr,
@@ -121,7 +121,7 @@ module ldst_ddr_wrapper #(
 //==============================================================================
 // Wires/Regs
 //==============================================================================
-    (*MARK_DEBUG ="true"*)wire                                        st_done;
+    wire                                        st_done;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld0_data;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld1_data;
   // Loads
@@ -136,23 +136,23 @@ module ldst_ddr_wrapper #(
     wire [ AXI_ID_WIDTH         -1 : 0 ]        ld_req_id;
     
                                                                                                                                                                                                    //edit by sy 0618 begin
-    (*MARK_DEBUG ="true"*)wire [ MEM_REQ_W            -1 : 0 ]        st_req_size;
+    wire [ MEM_REQ_W            -1 : 0 ]        st_req_size;
     
-    (*MARK_DEBUG ="true"*)wire                                        st_ready;
-    (*MARK_DEBUG ="true"*)wire                                        st_addr_req;
-    (*MARK_DEBUG ="true"*)wire [ AXI_ADDR_WIDTH       -1 : 0 ]        st_addr;
+    wire                                        st_ready;
+    wire                                        st_addr_req;
+    wire [ AXI_ADDR_WIDTH       -1 : 0 ]        st_addr;
         
-    (*MARK_DEBUG ="true"*)wire                                        st0_stall;
+    wire                                        st0_stall;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        st0_addr;
     wire                                        st0_addr_req;
-    (*MARK_DEBUG ="true"*)wire                                        st0_addr_valid;
+    wire                                        st0_addr_valid;
     wire [ ADDR_STRIDE_W        -1 : 0 ]        st0_stride;
     wire                                        st0_stride_v;
-    (*MARK_DEBUG ="true"*)wire                                        st0_ready;
+    wire                                        st0_ready;
     reg  [ LOOP_ID_W            -1 : 0 ]        st0_loop_id_counter;
     wire                                        st0_loop_iter_v;
     wire [ LOOP_ITER_W          -1 : 0 ]        st0_loop_iter;
-    (*MARK_DEBUG ="true"*)wire                                        st0_loop_done;
+    wire                                        st0_loop_done;
     wire                                        st0_loop_init;
     wire                                        st_loop_enter;
     wire                                        st_loop_exit;
@@ -160,13 +160,13 @@ module ldst_ddr_wrapper #(
     wire                                        st0_loop_index_valid;
     wire                                        st0_loop_index_step;
 
-    (*MARK_DEBUG ="true"*)wire                                        st1_stall;
-    (*MARK_DEBUG ="true"*)wire [ AXI_ADDR_WIDTH       -1 : 0 ]        st1_addr;
-    (*MARK_DEBUG ="true"*)wire                                        st1_addr_req;
-    (*MARK_DEBUG ="true"*)wire                                        st1_addr_valid;
+    wire                                        st1_stall;
+    wire [ AXI_ADDR_WIDTH       -1 : 0 ]        st1_addr;
+    wire                                        st1_addr_req;
+    wire                                        st1_addr_valid;
     wire [ ADDR_STRIDE_W        -1 : 0 ]        st1_stride;
     wire                                        st1_stride_v;
-    (*MARK_DEBUG ="true"*)wire                                        st1_ready;
+    wire                                        st1_ready;
     reg  [ LOOP_ID_W            -1 : 0 ]        st1_loop_id_counter;
     wire                                        st1_loop_iter_v;
     wire [ LOOP_ITER_W          -1 : 0 ]        st1_loop_iter;
@@ -220,33 +220,33 @@ module ldst_ddr_wrapper #(
     wire [ LOOP_ID_W            -1 : 0 ]        ld1_loop_index;
     wire                                        ld1_loop_index_valid;
     wire                                        ld1_loop_index_step;
-    (*MARK_DEBUG ="true"*)reg                                         st1_required;
+    reg                                         st1_required;
     
     wire                                        mem_read_req;
     wire                                        mem_read_ready;
     wire [ AXI_DATA_WIDTH       -1 : 0 ]   mem_read_data;
    //upsample
    reg                                         upsample_required;   
-   (*MARK_DEBUG ="true"*)reg [3-1 : 0]                           upsample_state;
+   reg [3-1 : 0]                           upsample_state;
    wire [3-1 : 0]                           upsample_state_q;   
    wire [3-1 : 0]                           _upsample_state;      
    reg  [STRIDE_TYPE_WIDTH + STRIDE_TYPE_WIDTH -1 :0]          _upsample_num;
    reg [STRIDE_TYPE_WIDTH + STRIDE_TYPE_WIDTH -1 :0]      upsample_compute;
-   (*MARK_DEBUG ="true"*)wire                                         _ddr_st_stream_read_req;
-   (*MARK_DEBUG ="true"*)wire                                         _ddr_st_stream_read_ready;
+   wire                                         _ddr_st_stream_read_req;
+   wire                                         _ddr_st_stream_read_ready;
    reg  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data_reg;
 
    reg  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data_reg1=0;
    reg  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data_reg2=0;
-   (*MARK_DEBUG ="true"*)wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data;
-   (*MARK_DEBUG ="true"*)wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_norm;
-   (*MARK_DEBUG ="true"*)wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_blck;
-   (*MARK_DEBUG ="true"*)wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_upsample;
-   (*MARK_DEBUG ="true"*)wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_not_upsample;
-  (*MARK_DEBUG ="true"*) wire                                         st1_start;
+   wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data;
+   wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_norm;
+   wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_blck;
+   wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_upsample;
+   wire  [ AXI_DATA_WIDTH       -1 : 0 ]       _ddr_st_stream_read_data_not_upsample;
+   wire                                         st1_start;
    //block signal
-   (*MARK_DEBUG ="true"*)wire                                         block_padding_mask;
-   (*MARK_DEBUG ="true"*)wire                                         block_data;
+   wire                                         block_padding_mask;
+   wire                                         block_data;
 
   wire                         block_all_done;
   reg                          ddr_st_read_req_without_extra_dly=0;
@@ -486,7 +486,7 @@ always @(posedge clk ) begin
 // FSM for Stores
 //==============================================================================                                                edit by sy 0618 begin
     reg       [5-1:0]                                  st_addr_state_d;
-   (*MARK_DEBUG ="true"*) reg       [5-1:0]                                  st_addr_state_q;
+    reg       [5-1:0]                                  st_addr_state_q;
   always @(posedge clk)
   begin
     if (reset)
@@ -747,13 +747,13 @@ always @(posedge clk ) begin
     .addr_out_valid                 ( st1_addr_valid                  )  //output
   );
 //==============================================================================                                    edit by sy 0618 end
-//   (*MARK_DEBUG ="true"*)wire pu_ddr_wvalid_inside;
-//   (*MARK_DEBUG ="true"*)wire pu_ddr_awvalid_inside;
-//   (*MARK_DEBUG ="true"*)wire pu_ddr_wready_inside;
-//   (*MARK_DEBUG ="true"*)wire pu_ddr_awready_inside;
+//   wire pu_ddr_wvalid_inside;
+//   wire pu_ddr_awvalid_inside;
+//   wire pu_ddr_wready_inside;
+//   wire pu_ddr_awready_inside;
   
-//   (*MARK_DEBUG ="true"*)wire data_valid_and;
-//   (*MARK_DEBUG ="true"*)wire addr_valid_and;
+//   wire data_valid_and;
+//   wire addr_valid_and;
 // //edit yt1028
 //   block_padding#(
 //     .IMM_WIDTH                      ( IMM_WIDTH                       ),
@@ -884,9 +884,9 @@ register_sync_with_enable #(1) block_data_dly(clk, reset, 1'b1, block_data, bloc
     .wr_done                        ( st_done_inside                        )
   );
 //==============================================================================
-(*MARK_DEBUG ="true"*)reg [15:0]st_addr_count;
-(*MARK_DEBUG ="true"*)reg [15:0]aw_count;
-(*MARK_DEBUG ="true"*)reg [15:0]w_count;
+reg [15:0]st_addr_count;
+reg [15:0]aw_count;
+reg [15:0]w_count;
 
 
   always@(posedge clk)

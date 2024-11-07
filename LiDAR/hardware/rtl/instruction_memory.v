@@ -21,28 +21,28 @@ module instruction_memory
     input  wire                                         reset,
 
   // Decoder <- imem
-    (*MARK_DEBUG="true" *)input  wire                                         s_read_req_b,
-    (*MARK_DEBUG="true" *)input  wire  [ ADDR_WIDTH           -1 : 0 ]        s_read_addr_b,
-    (*MARK_DEBUG="true" *)output wire  [ DATA_WIDTH           -1 : 0 ]        s_read_data_b,
+    input  wire                                         s_read_req_b,
+    input  wire  [ ADDR_WIDTH           -1 : 0 ]        s_read_addr_b,
+    output wire  [ DATA_WIDTH           -1 : 0 ]        s_read_data_b,
 
   // PCIe -> CL_wrapper AXI4 interface
   // Slave Interface Write Address
-    (*MARK_DEBUG="true" *)input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
+    input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_awaddr,
     input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_awlen,
     input  wire  [ 3                    -1 : 0 ]        pci_cl_data_awsize,
     input  wire  [ 2                    -1 : 0 ]        pci_cl_data_awburst,
-    (*MARK_DEBUG="true" *)input  wire                                         pci_cl_data_awvalid,
-    (*MARK_DEBUG="true" *)output wire                                         pci_cl_data_awready,
+    input  wire                                         pci_cl_data_awvalid,
+    output wire                                         pci_cl_data_awready,
   // Slave Interface Write Data
-    (*MARK_DEBUG="true" *)input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
+    input  wire  [ INST_DATA_WIDTH      -1 : 0 ]        pci_cl_data_wdata,
     input  wire  [ INST_WSTRB_WIDTH     -1 : 0 ]        pci_cl_data_wstrb,
-    (*MARK_DEBUG="true" *)input  wire                                         pci_cl_data_wlast,
-    (*MARK_DEBUG="true" *)input  wire                                         pci_cl_data_wvalid,
-    (*MARK_DEBUG="true" *)output wire                                         pci_cl_data_wready,
+    input  wire                                         pci_cl_data_wlast,
+    input  wire                                         pci_cl_data_wvalid,
+    output wire                                         pci_cl_data_wready,
   // Slave Interface Write Response
     output wire  [ 2                    -1 : 0 ]        pci_cl_data_bresp,
-    (*MARK_DEBUG="true" *)output wire                                         pci_cl_data_bvalid,
-    (*MARK_DEBUG="true" *)input  wire                                         pci_cl_data_bready,
+    output wire                                         pci_cl_data_bvalid,
+    input  wire                                         pci_cl_data_bready,
   // Slave Interface Read Address
     input  wire  [ INST_ADDR_WIDTH      -1 : 0 ]        pci_cl_data_araddr,
     input  wire  [ INST_BURST_WIDTH     -1 : 0 ]        pci_cl_data_arlen,

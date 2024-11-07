@@ -122,7 +122,7 @@ module gen_pu #(
     wire                                        ddr_st_stream_write_req;
     wire                                        ddr_st_stream_write_ready;
 
-    (* MARK_DEBUG="true" *)wire                                        ld_obuf_done;
+    wire                                        ld_obuf_done;
 
     wire                                        ddr_st_done;
 

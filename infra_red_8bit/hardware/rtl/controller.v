@@ -363,8 +363,8 @@ module controller #(
     wire                                        dnnweaver2_done;
 
   // Handshake signals for decoder
-    (* MARK_DEBUG="true" *)wire                                        decoder_start;
-    (* MARK_DEBUG="true" *)wire                                        decoder_done;
+    wire                                        decoder_start;
+    wire                                        decoder_done;
 
   // Instruction memory Read Port - Decoder
     wire                                        inst_read_req;
@@ -475,8 +475,8 @@ module controller #(
     wire                                        base_ctrl_tag_req;
     wire                                        base_ctrl_tag_ready;
     //add for handle icash run or stop*************************************************************************************
-    (* MARK_DEBUG="true" *)wire                                        icash_ready=1;                                       //edit by sy 0721
-    (* makr_debug = "true" *)wire [3:0]                                w_dnn_status;
+    wire                                        icash_ready=1;                                       //edit by sy 0721
+    wire [3:0]                                w_dnn_status;
     wire                                        acc_idle;
 
     
@@ -488,7 +488,7 @@ module controller #(
     //wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        cache_base_addr;
     reg [ IBUF_ADDR_WIDTH      -1 : 0 ]        cache_stride;
     wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        cache_base_addr_offset;
-//    (* MARK_DEBUG="true" *)reg  [ 2                    -1 : 0 ]        state = 2'd0;
+//    reg  [ 2                    -1 : 0 ]        state = 2'd0;
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        _ibuf_ld_addr;
     
     //debug edit by sy 0917

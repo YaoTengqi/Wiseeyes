@@ -45,15 +45,15 @@ module controller #(
     output wire                                         wbuf_tag_reuse,
     output wire                                         bias_tag_reuse,
     input  wire                                         tag_ready,
-    (* MARK_DEBUG="true" *)input  wire                                         ibuf_tag_done,
-    (* MARK_DEBUG="true" *)input  wire                                         wbuf_tag_done,
-    (* MARK_DEBUG="true" *)input  wire                                         obuf_tag_done,
-    (* MARK_DEBUG="true" *)input  wire                                         bias_tag_done,
+    input  wire                                         ibuf_tag_done,
+    input  wire                                         wbuf_tag_done,
+    input  wire                                         obuf_tag_done,
+    input  wire                                         bias_tag_done,
 
     input  wire                                         compute_done,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_done,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_write_done,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_start,
+    input  wire                                         pu_compute_done,
+    input  wire                                         pu_write_done,
+    input  wire                                         pu_compute_start,
     input  wire  [ 3                    -1 : 0 ]        pu_ctrl_state,
     input  wire  [ 4                    -1 : 0 ]        stmem_state,
     input  wire  [ TAG_W                -1 : 0 ]        stmem_tag,
@@ -303,7 +303,7 @@ module controller #(
 
   // DnnWeaver2 states
     reg  [ 3                    -1 : 0 ]        dnnweaver2_state_d;
-    (* MARK_DEBUG="true" *)reg  [ 3                    -1 : 0 ]        dnnweaver2_state_q;
+    reg  [ 3                    -1 : 0 ]        dnnweaver2_state_q;
     wire [ 3                    -1 : 0 ]        dnnweaver2_state;
 
   // Base addresses
@@ -313,10 +313,10 @@ module controller #(
     wire [ IBUF_ADDR_WIDTH      -1 : 0 ]        bias_base_addr;
 
   // Handshake signals for main loop controller
-    (* MARK_DEBUG="true" *)wire                                        base_loop_ctrl_start;
-    (* MARK_DEBUG="true" *)wire                                        base_loop_ctrl_done;
+    wire                                        base_loop_ctrl_start;
+    wire                                        base_loop_ctrl_done;
 
-    (* MARK_DEBUG="true" *)wire                                        block_done;
+    wire                                        block_done;
     wire                                        dnnweaver2_done;
 
   // Handshake signals for decoder
@@ -432,8 +432,8 @@ module controller #(
     wire                                        base_ctrl_tag_req;
     wire                                        base_ctrl_tag_ready;
     //add for handle icash run or stop*************************************************************************************
-    (* MARK_DEBUG="true" *)wire                                        icash_ready=1;                                       //edit by sy 0721
-    (* makr_debug = "true" *)wire [3:0]                                w_dnn_status;
+    wire                                        icash_ready=1;                                       //edit by sy 0721
+    wire [3:0]                                w_dnn_status;
     wire                                        acc_idle;
 
     

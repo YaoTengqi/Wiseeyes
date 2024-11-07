@@ -9,20 +9,20 @@ module obuf_bias_sel_logic_v2 #(
     input  wire                                         clk,
     input  wire                                         reset,
     input  wire                                         done,
-    (* MARK_DEBUG="true" *)input  wire                                         compute_done,
-    (* MARK_DEBUG="true" *)input  wire                                         com_loop_exit,
+    input  wire                                         compute_done,
+    input  wire                                         com_loop_exit,
     input  wire                                         base_obuf_stride_v,
     input  wire                                         com_obuf_stride_v, 
     input  wire                                         com_cfg_loop_iter_v, 
     input  wire  [ ADDR_STRIDE_W        -1 : 0 ]        com_obuf_stride,
     input  wire  [ ADDR_STRIDE_W_BASE   -1 : 0 ]        base_obuf_stride,
-    (* MARK_DEBUG="true" *)input  wire  [ LOOP_ID_W            -1 : 0 ]        com_loop_index,
+    input  wire  [ LOOP_ID_W            -1 : 0 ]        com_loop_index,
     output wire                                         obuf_bias_sel_out 
 );
     reg  [ LOOP_ID_W            -1 : 0 ]        base_loop_id;
-    (* MARK_DEBUG="true" *)reg  [ LOOP_ID_W            -1 : 0 ]        base_loop_id_stable;
+    reg  [ LOOP_ID_W            -1 : 0 ]        base_loop_id_stable;
     reg  [ LOOP_ID_W            -1 : 0 ]        com_loop_id;
-    (* MARK_DEBUG="true" *)reg  [ LOOP_ID_W            -1 : 0 ]        com_loop_id_stable;
+    reg  [ LOOP_ID_W            -1 : 0 ]        com_loop_id_stable;
     reg                                         obuf_bias_sel_out_reg=1'b0;
     reg                                         obuf_bias_sel_out_reg_dly=1'b0;
     
@@ -74,7 +74,7 @@ module obuf_bias_sel_logic_v2 #(
 //=============================================================
 // Capture first value of obuf_v_stride using base_obuf_stride_v
 //=============================================================
-    (* MARK_DEBUG="true" *)reg obuf_zero = 1'b0;
+    reg obuf_zero = 1'b0;
     reg enable_obuf = 1'b1;
     always @(posedge clk) begin
       if(reset || done)
@@ -99,7 +99,7 @@ module obuf_bias_sel_logic_v2 #(
 //=============================================================
     reg                                  enable_cfg_obuf = 1'b1;
     reg [ ADDR_STRIDE_W        -1 : 0 ]  iter_value = 'b0;
-    (* MARK_DEBUG="true" *)reg [ ADDR_STRIDE_W        -1 : 0 ]  iter_cnter = 'b0;
+    reg [ ADDR_STRIDE_W        -1 : 0 ]  iter_cnter = 'b0;
 
    always @(posedge clk) begin
     if(reset || done)begin

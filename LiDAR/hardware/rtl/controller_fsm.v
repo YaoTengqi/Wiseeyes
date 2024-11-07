@@ -26,18 +26,18 @@ module controller_fsm #(
   input  wire                                         reset,
 
   // Start and Done handshake signals
-  (* MARK_DEBUG="true" *)input  wire                                         start,
+  input  wire                                         start,
   output wire                                         done,
-  (* MARK_DEBUG="true" *)input  wire                                         stall,
+  input  wire                                         stall,
 
   // Loop instruction valid
   input  wire                                         cfg_loop_iter_v,
   input  wire  [ LOOP_ITER_W          -1 : 0 ]        cfg_loop_iter,
   input  wire  [ LOOP_ID_W            -1 : 0 ]        cfg_loop_iter_loop_id,
 
-  (* MARK_DEBUG="true" *)output wire  [ LOOP_ID_W            -1 : 0 ]        loop_index,
+  output wire  [ LOOP_ID_W            -1 : 0 ]        loop_index,
   output wire                                         loop_index_valid,
-  (* MARK_DEBUG="true" *)output wire                                         loop_last_iter,
+  output wire                                         loop_last_iter,
   output wire                                         loop_init,
   output wire                                         loop_enter,
   output wire                                         loop_exit
@@ -52,7 +52,7 @@ module controller_fsm #(
   wire [ IMEM_ADDR_W          -1 : 0 ]        loop_wr_ptr;
   wire [ LOOP_ITER_W          -1 : 0 ]        loop_wr_max_iter;
 
-  (* MARK_DEBUG="true" *)reg  [ IMEM_ADDR_W          -1 : 0 ]        max_loop_ptr;
+  reg  [ IMEM_ADDR_W          -1 : 0 ]        max_loop_ptr;
   wire [ IMEM_ADDR_W          -1 : 0 ]        loop_rd_ptr;
 
   wire                                        loop_rd_v;
@@ -71,7 +71,7 @@ module controller_fsm #(
 
   reg  [ IMEM_ADDR_W          -1 : 0 ]        stall_rd_ptr;
 
-  (* MARK_DEBUG="true" *)wire [ STATE_W              -1 : 0 ]        state;
+  wire [ STATE_W              -1 : 0 ]        state;
   reg  [ STATE_W              -1 : 0 ]        state_q;
   reg  [ STATE_W              -1 : 0 ]        state_d;
 

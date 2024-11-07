@@ -14,8 +14,8 @@ module obuf_bias_sel_logic_v2 #(
     input  wire                                         reset,
     //input  wire                                         done,
     input  wire                                         start,
-    (* MARK_DEBUG="true" *)input  wire                                         compute_done,
-//    (* MARK_DEBUG="true" *)input  wire                                         com_loop_exit,
+    input  wire                                         compute_done,
+//    input  wire                                         com_loop_exit,
 //    input  wire                                         base_obuf_stride_v,
 //    input  wire                                         com_obuf_stride_v, 
 //    input  wire                                         com_cfg_loop_iter_v, 
@@ -25,8 +25,8 @@ module obuf_bias_sel_logic_v2 #(
     input  wire                                         obuf_ld_addr_v,
     input  wire  [ BBUF_ADDR_WIDTH      -1 : 0 ]        bias_ld_addr,
     input  wire                                         bias_ld_addr_v,
-//    (* MARK_DEBUG="true" *)input  wire  [ LOOP_ID_W            -1 : 0 ]        com_loop_index,
-    (* MARK_DEBUG="true" *)output wire                                         obuf_bias_sel_out,
+//    input  wire  [ LOOP_ID_W            -1 : 0 ]        com_loop_index,
+    output wire                                         obuf_bias_sel_out,
     input  wire  [ ADDR_WIDTH           -1 : 0 ]        obuf_tile_base_addr,
     input  wire                                         obuf_tile_base_addr_v,
     input  wire                                         base_loop_enter,
@@ -37,9 +37,9 @@ module obuf_bias_sel_logic_v2 #(
     input wire [ LOOP_ID_W            -1 : 0 ]          cfg_loop_iter_loop_id //input 
 );
     reg base_loop_enter_dly;
-    (* MARK_DEBUG="true" *)reg compute_done_dly;
-    (* MARK_DEBUG="true" *)wire fifo_read_req;
-    (* MARK_DEBUG="true" *)wire fifo_read_ready;
+    reg compute_done_dly;
+    wire fifo_read_req;
+    wire fifo_read_ready;
     
     reg [ADDR_WIDTH -1 : 0] obuf_tile_base_addr_last;
     reg [BBUF_ADDR_WIDTH -1 : 0] bbuf_base_addr_last;
@@ -47,7 +47,7 @@ module obuf_bias_sel_logic_v2 #(
     
     wire sel_info_fifo_write_req;
     
-    (* MARK_DEBUG="true" *)wire bias_init_read_data;
+    wire bias_init_read_data;
     
     always@(posedge clk)begin
       if(reset)
@@ -107,21 +107,21 @@ module obuf_bias_sel_logic_v2 #(
 wire i_is_run_adnn = 'b0;
 //=============================================================================
 //    reg     [ LOOP_ID_W            -1 : 0 ]        base_loop_id;
-//    (* MARK_DEBUG="true" *)reg     [ LOOP_ID_W            -1 : 0 ]        base_loop_id_stable;
+//    reg     [ LOOP_ID_W            -1 : 0 ]        base_loop_id_stable;
 //    reg     [ LOOP_ID_W            -1 : 0 ]        com_loop_id;
-//    (* MARK_DEBUG="true" *)reg     [ LOOP_ID_W            -1 : 0 ]        com_loop_id_stable;
+//    reg     [ LOOP_ID_W            -1 : 0 ]        com_loop_id_stable;
 //    reg                                            obuf_bias_sel_out_reg=1'b0;
 //    reg                                            obuf_bias_sel_out_reg_dly2=1'b0;
 //    reg                                            obuf_bias_sel_out_reg_dly=1'b0;
 //    reg                                            obuf_zero_d = 0;
-//    (* MARK_DEBUG="true" *)reg                                            obuf_zero_q = 0;
+//    reg                                            obuf_zero_q = 0;
 //    reg     [ ADDR_STRIDE_W        -1 : 0 ]        iter_value_d = 'b0;
 //    reg     [ ADDR_STRIDE_W        -1 : 0 ]        iter_cnter_d = 'b0;
 
 //    reg signed [ ADDR_STRIDE_W        -1 : 0 ]     iter_value_q = 'b0;
-//    (* MARK_DEBUG="true" *)reg signed [ ADDR_STRIDE_W        -1 : 0 ]     iter_cnter_q = 'b0;
+//    reg signed [ ADDR_STRIDE_W        -1 : 0 ]     iter_cnter_q = 'b0;
 
-//    (* MARK_DEBUG="true" *)reg     [4                     -1    : 0 ]     bias_state_d=0;
+//    reg     [4                     -1    : 0 ]     bias_state_d=0;
 //    reg     [4                     -1    : 0 ]     bias_state_q=0; 
 //    wire                                           level3_enable;
 

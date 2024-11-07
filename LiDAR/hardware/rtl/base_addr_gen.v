@@ -55,7 +55,7 @@ module base_addr_gen #(
   output wire                                         obuf_st_addr_v,
   // Address - IBUF LD
   input  wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_base_addr,
-  (* MARK_DEBUG="true" *)output wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_ld_addr,
+  output wire  [ IBUF_ADDR_WIDTH      -1 : 0 ]        ibuf_ld_addr,
   output wire                                         ibuf_ld_addr_v,
   // Address - WBUF LD
   input  wire  [ WBUF_ADDR_WIDTH      -1 : 0 ]        wbuf_base_addr,
@@ -85,7 +85,7 @@ module base_addr_gen #(
   // Base loop
   wire                                        base_loop_start;
   wire                                        base_loop_done;
-  (* MARK_DEBUG="true" *)wire                                        base_loop_stall;
+  wire                                        base_loop_stall;
   wire                                        base_loop_init;
   wire                                        base_loop_enter;
   wire                                        base_loop_exit;
@@ -108,7 +108,7 @@ module base_addr_gen #(
   wire [ ADDR_STRIDE_W        -1 : 0 ]        wbuf_stride;
 
 
-  (* MARK_DEBUG="true" *)wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_addr;
+  wire [ OBUF_ADDR_WIDTH      -1 : 0 ]        obuf_addr;
   wire                                        obuf_addr_v;
 
 

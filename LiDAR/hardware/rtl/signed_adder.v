@@ -27,7 +27,6 @@ module signed_adder #(
       reg signed [ OUT_WIDTH-1:0] alu_out;
       reg signed [ OUT_WIDTH/2-1:0] alu_out1;
       reg signed [ OUT_WIDTH/2-1:0] alu_out2;
-      wire signed [OUT_WIDTH - 1:0] alu_out3;
       wire signed [IN1_WIDTH/2-1 : 0] a1;
       wire signed [IN1_WIDTH/2-1 : 0] a2;
       wire signed [IN2_WIDTH/2-1 : 0] b1;

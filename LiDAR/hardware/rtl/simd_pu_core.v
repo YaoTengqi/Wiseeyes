@@ -48,9 +48,9 @@ module simd_pu_core #(
 
     input wire                                          st1_data_required,                                                                                                    //edit by sy 0618
   // From DDR
-    (* MARK_DEBUG="true" *)input  wire                                         ddr_st_stream_read_req,
-    (* MARK_DEBUG="true" *)output wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data,
-    (* MARK_DEBUG="true" *)output wire                                         ddr_st_stream_read_ready,
+    input  wire                                         ddr_st_stream_read_req,
+    output wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_st_stream_read_data,
+    output wire                                         ddr_st_stream_read_ready,
 
     input  wire                                         ddr_ld0_stream_write_req,
     input  wire  [ AXI_DATA_WIDTH       -1 : 0 ]        ddr_ld0_stream_write_data,
@@ -61,9 +61,9 @@ module simd_pu_core #(
     output wire                                         ddr_ld1_stream_write_ready,
 
   // From OBUF
-    (* MARK_DEBUG="true" *)input  wire                                         obuf_ld_stream_write_req,
-    (* MARK_DEBUG="true" *)input  wire  [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_ld_stream_write_data,
-    (* MARK_DEBUG="true" *)output wire                                         obuf_ld_stream_write_ready,
+    input  wire                                         obuf_ld_stream_write_req,
+    input  wire  [ OBUF_DATA_WIDTH      -1 : 0 ]        obuf_ld_stream_write_data,
+    output wire                                         obuf_ld_stream_write_ready,
 
     output wire  [ INST_WIDTH           -1 : 0 ]        obuf_ld_stream_read_count,
     output wire  [ INST_WIDTH           -1 : 0 ]        obuf_ld_stream_write_count,
@@ -96,8 +96,8 @@ module simd_pu_core #(
     wire                                        ld1_req_buf_almost_full;
     wire                                        ld1_req_buf_almost_empty;
 
-    (* MARK_DEBUG="true" *)wire                                        st_req_buf_almost_full;
-    (* MARK_DEBUG="true" *)wire                                        st_req_buf_almost_empty;
+    wire                                        st_req_buf_almost_full;
+    wire                                        st_req_buf_almost_empty;
     wire [ SIMD_DATA_WIDTH      -1 : 0 ]        ddr_st_stream_write_data;
 
     wire [ FN_WIDTH             -1 : 0 ]        alu_fn_stage2;
@@ -108,8 +108,8 @@ module simd_pu_core #(
     wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_in0_addr_stage2;
     wire [ SRC_ADDR_WIDTH       -1 : 0 ]        alu_in1_addr_stage2;
 
-    (* MARK_DEBUG="true" *)wire                                        ld_req_buf_almost_full;
-    (* MARK_DEBUG="true" *)wire                                        ld_req_buf_almost_empty;
+    wire                                        ld_req_buf_almost_full;
+    wire                                        ld_req_buf_almost_empty;
 
     wire                                        alu_in0_req;
     wire                                        alu_in1_req;
@@ -135,7 +135,7 @@ module simd_pu_core #(
     wire  [ FN_WIDTH             -1 : 0 ]        alu_fn_stage3;
     wire ddr_st1_stream_write_req;
     wire ddr_st1_stream_write_req_dly1;
-    (* MARK_DEBUG="true" *)wire _ddr_st_stream_write_req;//edit by sy 0618 end
+    wire _ddr_st_stream_write_req;//edit by sy 0618 end
         
     genvar i;
 //==============================================================================
@@ -501,10 +501,10 @@ end
     assign ld0_stream_counts = {_ddr_ld0_stream_read_count, _ddr_ld0_stream_write_count};
     assign ld1_stream_counts = {_ddr_ld1_stream_read_count, _ddr_ld1_stream_write_count};
 //==============================================================================
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_0;
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_1;
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_2;
-(* MARK_DEBUG="true" *)wire    [255:0]    obuf_ld_wr_data_info_3;
+wire    [255:0]    obuf_ld_wr_data_info_0;
+wire    [255:0]    obuf_ld_wr_data_info_1;
+wire    [255:0]    obuf_ld_wr_data_info_2;
+wire    [255:0]    obuf_ld_wr_data_info_3;
 
 assign obuf_ld_wr_data_info_0 = obuf_ld_stream_write_data[255:0];
 assign obuf_ld_wr_data_info_1 = obuf_ld_stream_write_data[511:256];

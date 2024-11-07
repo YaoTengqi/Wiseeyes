@@ -11,7 +11,7 @@ module block_padding #(
     input wire [ IMM_WIDTH         -1 : 0 ]     diff_rows,                   //from genpu_ctrl st
     input wire                                  cfg_loop_iter_st_v,         //from ldst_ddr
     input wire                                  cfg_loop_iter_st1_v,         //from ldst_ddr
-    (*MARK_DEBUG ="true"*)input wire [ LOOP_ITER_W       -1 : 0 ]     cfg_loop_iter_st,           //from ldst_ddr
+    input wire [ LOOP_ITER_W       -1 : 0 ]     cfg_loop_iter_st,           //from ldst_ddr
     input wire                                  st_addr_valid_pd, //ctrl
     input wire                                  data_valid,
     input wire                                  addr_valid,
@@ -25,22 +25,22 @@ module block_padding #(
 
     localparam integer  IMAGE_UP_PART                 = 0;
     localparam integer  IMAGE_DOWN_PART               = 1;
-    (*MARK_DEBUG ="true"*)reg     [ IMM_WIDTH             -1    : 0 ]     rows_diff=0;
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     width_st=0; //cols - after padding
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     height_st=0;//rows - after
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     oc_st=0;//rows - after
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     width_st_q=0; //cols - after padding
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     height_st_q=0;//rows - after
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     oc_st_q=0;//rows - after 
+    reg     [ IMM_WIDTH             -1    : 0 ]     rows_diff=0;
+    reg     [ LOOP_ITER_W           -1    : 0 ]     width_st=0; //cols - after padding
+    reg     [ LOOP_ITER_W           -1    : 0 ]     height_st=0;//rows - after
+    reg     [ LOOP_ITER_W           -1    : 0 ]     oc_st=0;//rows - after
+    reg     [ LOOP_ITER_W           -1    : 0 ]     width_st_q=0; //cols - after padding
+    reg     [ LOOP_ITER_W           -1    : 0 ]     height_st_q=0;//rows - after
+    reg     [ LOOP_ITER_W           -1    : 0 ]     oc_st_q=0;//rows - after 
     
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     data_legal_points=0;//rows left
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     addr_legal_points=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     data_legal_points=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     addr_legal_points=0;//rows left
 
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     data_full_points=0;//rows left
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     addr_full_points=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     data_full_points=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     addr_full_points=0;//rows left
 
-    (*MARK_DEBUG ="true"*)reg     [ 3                     -1    : 0 ]     state_d=0;
-    (*MARK_DEBUG ="true"*)reg     [ 3                     -1    : 0 ]     state_q=0; 
+    reg     [ 3                     -1    : 0 ]     state_d=0;
+    reg     [ 3                     -1    : 0 ]     state_q=0; 
 
 
     //wire                                            block_required;
@@ -49,20 +49,20 @@ module block_padding #(
     wire                                            st1_addr_down_up_judge;//after up image valid sent, counter[0] = 1 , after down sent counter[0]= 0
     wire                                            st1_data_down_up_judge;
 
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     st0_addr_cnt=0;//rows left
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     st1_addr_cnt=0;//rows left
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     st0_data_cnt=0;//rows left
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W*2         -1    : 0 ]     st1_data_cnt=0;//rows left
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     oc_addr_cnt=0;//rows - after
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     oc_data_cnt=0;//rows - after
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     tmp_addr_cnt=0;
-    (*MARK_DEBUG ="true"*)reg     [ LOOP_ITER_W           -1    : 0 ]     tmp_data_cnt=0;
-    (*MARK_DEBUG ="true"*)reg                                             st1_exist=0;
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     st0_addr_cnt=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     st1_addr_cnt=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     st0_data_cnt=0;//rows left
+    reg     [ LOOP_ITER_W*2         -1    : 0 ]     st1_data_cnt=0;//rows left
+    reg     [ LOOP_ITER_W           -1    : 0 ]     oc_addr_cnt=0;//rows - after
+    reg     [ LOOP_ITER_W           -1    : 0 ]     oc_data_cnt=0;//rows - after
+    reg     [ LOOP_ITER_W           -1    : 0 ]     tmp_addr_cnt=0;
+    reg     [ LOOP_ITER_W           -1    : 0 ]     tmp_data_cnt=0;
+    reg                                             st1_exist=0;
     //if st1_exist: pooling+branch
     //else: pooling or conv
-    (*MARK_DEBUG ="true"*)wire                                            block_data_8b;
+    wire                                            block_data_8b;
 
-    (*MARK_DEBUG ="true"*)wire                                            block_addr_8b;
+    wire                                            block_addr_8b;
 
 
 //=============================================================

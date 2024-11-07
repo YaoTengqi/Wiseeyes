@@ -73,8 +73,8 @@ module obuf_mem_wrapper #(
     input  wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data,
     input  wire                                         buf_write_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_write_addr,
-    (* MARK_DEBUG="true" *)output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
-    // (* MARK_DEBUG="true" *)input  wire                                         buf_read_req,
+    output wire  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_read_data,
+    // input  wire                                         buf_read_req,
     input  wire  [ BUF_ADDR_W           -1 : 0 ]        buf_read_addr,
 
   // PU
@@ -86,8 +86,8 @@ module obuf_mem_wrapper #(
     output wire                                         obuf_ld_stream_write_req,
 
     output wire                                         pu_compute_start,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_ready,
-    (* MARK_DEBUG="true" *)input  wire                                         pu_compute_done,
+    input  wire                                         pu_compute_ready,
+    input  wire                                         pu_compute_done,
 
   // CL_wrapper -> DDR AXI4 interface
     // Master Interface Write Address
@@ -125,7 +125,7 @@ module obuf_mem_wrapper #(
 
     output wire  [ 4                    -1 : 0 ]        stmem_state,
     output wire  [ TAG_W                -1 : 0 ]        stmem_tag,
-    (* MARK_DEBUG="true" *)output wire                                         stmem_ddr_pe_sw,
+    output wire                                         stmem_ddr_pe_sw,
 
           // add for 8bit/16bit obuf
     output wire [ 15       -1 : 0 ]        tag_mem_write_addr,
@@ -182,12 +182,12 @@ module obuf_mem_wrapper #(
     wire                                        ldmem_tag_ready;
     wire [ TAG_W                -1 : 0 ]        ldmem_tag;
     wire                                        stmem_tag_done;
-    (* MARK_DEBUG="true" *)wire                                        stmem_tag_ready;
+    wire                                        stmem_tag_ready;
 
-    (* MARK_DEBUG="true" *)reg  [ 4                    -1 : 0 ]        ldmem_state_d;
+    reg  [ 4                    -1 : 0 ]        ldmem_state_d;
     reg  [ 4                    -1 : 0 ]        ldmem_state_q;
 
-    (* MARK_DEBUG="true" *)reg  [ 4                    -1 : 0 ]        stmem_state_d;
+    reg  [ 4                    -1 : 0 ]        stmem_state_d;
     reg  [ 4                    -1 : 0 ]        stmem_state_q;
 
     wire                                        ld_mem_req_v;
@@ -270,7 +270,7 @@ module obuf_mem_wrapper #(
 
     wire                                        axi_wr_req;
     wire [ AXI_ID_WIDTH         -1 : 0 ]        axi_wr_req_id;
-    (* MARK_DEBUG="true" *)wire                                        axi_wr_done;
+    wire                                        axi_wr_done;
     wire [ MEM_REQ_W            -1 : 0 ]        axi_wr_req_size;
     wire                                        axi_wr_ready;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        axi_wr_addr;
@@ -300,7 +300,7 @@ module obuf_mem_wrapper #(
     // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_read_addr;
     // wire [ TAG_MEM_ADDR_W       -1 : 0 ]        tag_mem_write_addr;
 
-    // (* MARK_DEBUG="true" *)wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
+    // wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_read_addr;
     wire [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr;
 //==============================================================================
 
@@ -481,12 +481,12 @@ reg  [ 4                    -1 : 0 ]        obuf_init_state_q;
 
 
 
-(* MARK_DEBUG="true" *)reg [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr_0;
+reg [ TAG_BUF_ADDR_W       -1 : 0 ]        tag_buf_write_addr_0;
 assign tag_buf_write_addr_0_out = tag_buf_write_addr_0;
-(* MARK_DEBUG="true" *)reg  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data_0;
+reg  [ BUF_DATA_WIDTH       -1 : 0 ]        buf_write_data_0;
 assign buf_write_data_0_out = buf_write_data_0;
 
-// (* MARK_DEBUG="true" *)wire   buf_write_req_0;
+// wire   buf_write_req_0;
 
 wire  buf_write_req_dly1;
 wire buf_write_req_1;
@@ -808,7 +808,7 @@ register_sync#(1) buf_write_req_dlyreg(clk,reset,buf_write_req_dly1,buf_write_re
 
     localparam integer  WAIT_CYCLE_WIDTH             = $clog2(ARRAY_N) > 5 ? $clog2(ARRAY_N) : 5;
     reg  [ WAIT_CYCLE_WIDTH        : 0 ]        wait_cycles_d;
-    (* MARK_DEBUG="true" *)reg  [ WAIT_CYCLE_WIDTH        : 0 ]        wait_cycles_q;
+    reg  [ WAIT_CYCLE_WIDTH        : 0 ]        wait_cycles_q;
 
   always @(posedge clk)
   begin

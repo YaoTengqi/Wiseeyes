@@ -97,18 +97,15 @@ module obuf #(
         assign local_mem_write_data = mem_write_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH];
 
         assign {local_mem_read_addr, local_mem_read_buf_id} = mem_read_addr;
-
-                                                                                                                                          //edit yt
-        //assign local_mem_read_req = mem_read_req && local_mem_read_buf_id == buf_id;
-        assign local_mem_read_req = mem_read_req; //&& (&local_mem_read_buf_id ==1'b0);//new
+                                                                                                          
+        assign local_mem_read_req = mem_read_req; //&& (&local_mem_read_buf_id ==1'b0);
         if (m==0)begin
           assign obuf_fifo_write_req_limit = &local_mem_read_buf_id;
         end
         assign pu_read_data[m* DATA_WIDTH+:DATA_WIDTH] = local_mem_read_data;
         //edit end
 
-        assign mem_read_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH] = local_mem_read_buf_id_dly == buf_id ? local_mem_read_data : 'bz;
-
+        assign mem_read_data[(m%GROUP_SIZE)*DATA_WIDTH+:DATA_WIDTH] = choose_8bit ? 0 : (local_mem_read_buf_id_dly == buf_id ? local_mem_read_data : 0);
 
         always @(posedge clk)
         begin

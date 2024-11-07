@@ -50,53 +50,53 @@ module icash_dma #(
   
     //to nxt memory
     output  [MEM_ADDR_W-1:0]                        o_mem_wadd,
-    (*MARK_DEBUG="true" *)output  [AXI_DATA_WIDTH-1:0]                    o_mem_wdata,
+    output  [AXI_DATA_WIDTH-1:0]                    o_mem_wdata,
     output                                          o_mem_wreq,
     output                                          o_mem_lock,
     //**************************************************
     // Master Interface Write Address
-    (*MARK_DEBUG="true" *)output   [ AXI_ADDR_WIDTH       -1 : 0 ]        o_m_axi_awaddr,
-    (*MARK_DEBUG="true" *)output   [ AXI_BURST_WIDTH      -1 : 0 ]        o_m_axi_awlen,
+    output   [ AXI_ADDR_WIDTH       -1 : 0 ]        o_m_axi_awaddr,
+    output   [ AXI_BURST_WIDTH      -1 : 0 ]        o_m_axi_awlen,
     output   [ 3                    -1 : 0 ]        o_m_axi_awsize,
     output   [ 2                    -1 : 0 ]        o_m_axi_awburst,
-    (*MARK_DEBUG="true" *)output                                          o_m_axi_awvalid,
-    (*MARK_DEBUG="true" *)input                                           i_m_axi_awready,
+    output                                          o_m_axi_awvalid,
+    input                                           i_m_axi_awready,
     // Master Interface Write Data
-    (*MARK_DEBUG="true" *)output   [ AXI_DATA_WIDTH       -1 : 0 ]        o_m_axi_wdata,
+    output   [ AXI_DATA_WIDTH       -1 : 0 ]        o_m_axi_wdata,
     output   [ WSTRB_W              -1 : 0 ]        o_m_axi_wstrb,
-    (*MARK_DEBUG="true" *)output                                          o_m_axi_wlast,
-    (*MARK_DEBUG="true" *)output                                          o_m_axi_wvalid,
-    (*MARK_DEBUG="true" *)input                                           i_m_axi_wready,
+    output                                          o_m_axi_wlast,
+    output                                          o_m_axi_wvalid,
+    input                                           i_m_axi_wready,
     // Master Interface Write Response
-    (*MARK_DEBUG="true" *)input    [ 2                    -1 : 0 ]        i_m_axi_bresp,
-    (*MARK_DEBUG="true" *)input                                           i_m_axi_bvalid,
-    (*MARK_DEBUG="true" *)output                                          o_m_axi_bready,
+    input    [ 2                    -1 : 0 ]        i_m_axi_bresp,
+    input                                           i_m_axi_bvalid,
+    output                                          o_m_axi_bready,
     // Master Interface Read Address
     output   [ AXI_ID_WIDTH         -1 : 0 ]        o_m_axi_arid,
-    (*MARK_DEBUG="true" *)output   [ AXI_ADDR_WIDTH       -1 : 0 ]        o_m_axi_araddr,
-    (*MARK_DEBUG="true" *)output   [ AXI_BURST_WIDTH      -1 : 0 ]        o_m_axi_arlen,
+    output   [ AXI_ADDR_WIDTH       -1 : 0 ]        o_m_axi_araddr,
+    output   [ AXI_BURST_WIDTH      -1 : 0 ]        o_m_axi_arlen,
     output   [ 3                    -1 : 0 ]        o_m_axi_arsize,
-    (*MARK_DEBUG="true" *)output   [ 2                    -1 : 0 ]        o_m_axi_arburst,
-    (*MARK_DEBUG="true" *)output                                          o_m_axi_arvalid,
-    (*MARK_DEBUG="true" *)input                                           i_m_axi_arready,
+    output   [ 2                    -1 : 0 ]        o_m_axi_arburst,
+    output                                          o_m_axi_arvalid,
+    input                                           i_m_axi_arready,
     // Master Interface Read Data
     input    [ AXI_ID_WIDTH         -1 : 0 ]        i_m_axi_rid,
-    (*MARK_DEBUG="true" *)input    [ AXI_DATA_WIDTH       -1 : 0 ]        i_m_axi_rdata,
-    (*MARK_DEBUG="true" *)input    [ 2                    -1 : 0 ]        i_m_axi_rresp,
-    (*MARK_DEBUG="true" *)input                                           i_m_axi_rlast,
-    (*MARK_DEBUG="true" *)input                                           i_m_axi_rvalid,
-    (*MARK_DEBUG="true" *)output                                          o_m_axi_rready,
+    input    [ AXI_DATA_WIDTH       -1 : 0 ]        i_m_axi_rdata,
+    input    [ 2                    -1 : 0 ]        i_m_axi_rresp,
+    input                                           i_m_axi_rlast,
+    input                                           i_m_axi_rvalid,
+    output                                          o_m_axi_rready,
     //host ctrl
         //bit0:to ddr en;b1:DNN in: 0:local,1:from ddr;
     
-    (*MARK_DEBUG="true" *)input  [1:0]                                     i_ctl,
-    (*MARK_DEBUG="true" *)input  [AXI_ADDR_WIDTH-1:0]                      i_mm2s_vddn_ddrbase,//address base ab0
-    (*MARK_DEBUG="true" *)input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            i_mm2s_vddn_leng,//data lengthe
-    (*MARK_DEBUG="true" *)input  [AXI_ADDR_WIDTH-1:0]                      i_mm2s_addn_ddrbase,//address base ab0
-    (*MARK_DEBUG="true" *)input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            i_mm2s_addn_leng,//data lengthe
-   // (*MARK_DEBUG="true" *)output                                           o_s2mm_int_posedge,
-    //(*MARK_DEBUG="true" *)output                                           o_mm2s_int_posedge,
-    //(*MARK_DEBUG="true" *)output                                           o_hdware_int_posedge,
+    input  [1:0]                                     i_ctl,
+    input  [AXI_ADDR_WIDTH-1:0]                      i_mm2s_vddn_ddrbase,//address base ab0
+    input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            i_mm2s_vddn_leng,//data lengthe
+    input  [AXI_ADDR_WIDTH-1:0]                      i_mm2s_addn_ddrbase,//address base ab0
+    input  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            i_mm2s_addn_leng,//data lengthe
+   // output                                           o_s2mm_int_posedge,
+    //output                                           o_mm2s_int_posedge,
+    //output                                           o_hdware_int_posedge,
     input                                           i_DNN_IDLE,
     output                                          o_done,
     // status={busying,o_cash_ready,o_cur_vdnnh_annl}
@@ -112,7 +112,7 @@ module icash_dma #(
     localparam   MEM_REQ_W                         = MEM_ADDR_W;
     
     localparam   MM2S_DATA_RSIZE                   =$clog2(MEM_DATA_W/8);
-    (*MARK_DEBUG="true" *)wire                                        w_mm2s_en,w_vdnnh_annl;
+    wire                                        w_mm2s_en,w_vdnnh_annl;
     
     
     reg [1:0]                                        r_mm2s_en_check_shr;
@@ -131,11 +131,11 @@ module icash_dma #(
     wire                                        w_mm2s_rd_ready;
     wire [ AXI_ADDR_WIDTH       -1 : 0 ]        w_mm2s_rd_addr;
     //
-    (*MARK_DEBUG="true" *)wire                                        mem_write_req;
+    wire                                        mem_write_req;
     //wire [ AXI_DATA_WIDTH       -1 : 0 ]        mem_write_data;
    
-    (*MARK_DEBUG="true" *)wire                                        mem_write_ready;
-    (*MARK_DEBUG="true" *)wire [ AXI_ID_WIDTH         -1 : 0 ]        mem_write_id;
+    wire                                        mem_write_ready;
+    wire [ AXI_ID_WIDTH         -1 : 0 ]        mem_write_id;
     
       
 
@@ -155,8 +155,8 @@ module icash_dma #(
     wire                                           w_s2mm_done;
     wire                                           w_s2mm_int_posedge;
     
-    (*MARK_DEBUG="true" *)wire  [AXI_ADDR_WIDTH-1:0]                      w_mm2s_ddn_ddrbase;//address base ab0
-    (*MARK_DEBUG="true" *)wire  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            w_mm2s_ddn_leng;//data lengthe
+    wire  [AXI_ADDR_WIDTH-1:0]                      w_mm2s_ddn_ddrbase;//address base ab0
+    wire  [MAX_LENGTH_FROMDDR_WIDTH-1:0]            w_mm2s_ddn_leng;//data lengthe
     
    assign o_m_axi_arsize          =MM2S_DATA_RSIZE;
     
